@@ -46,6 +46,17 @@ normative:
 informative:
   RFC7239:
   RFC7592:
+  SSF:
+    title: "OpenID Shared Signals Framework Specification 1.0"
+    target: https://openid.net/specs/openid-sharedsignals-framework-1_0-final.html
+    author:
+      - ins: A. Tulshibagwale
+      - ins: T. Cappalli
+      - ins: M. Scurtescu
+      - ins: A. Backman
+      - ins: J. Bradley
+      - ins: S. Miel
+    date: 2025-08-29
   CIMD: I-D.ietf-oauth-client-id-metadata-document
 
 --- abstract
@@ -202,21 +213,32 @@ A prefix within the IPv4-mapped IPv6 address range `::ffff:0:0/96`
 as IPv4 prefixes. Before matching, consumers MUST convert an IPv4-mapped
 IPv6 source address to the IPv4 address it contains.
 
+Every prefix length that the `ip-prefix` type permits, including zero,
+is valid. Whether to accept a broad prefix is local policy
+({{range-changes}}).
+
 ## Metadata Validation {#validation}
 
-Client IP range metadata is invalid if any of the following is true:
+When client metadata contains a trusted software statement
+({{Section 2.3 of RFC7591}}) that carries `client_ip_ranges` or
+`client_ip_ranges_uri`, the authorization server ignores both
+parameters elsewhere in that client metadata, whether in a registration
+request or in a Client ID Metadata Document (Section 4.3 of {{CIMD}}).
+This extends the precedence rule of {{Section 2 of RFC7591}} to the pair
+of parameters. The authorization server resolves this precedence before
+applying the rules below. For example, if a Client ID Metadata Document
+contains `client_ip_ranges_uri` and a trusted software statement within
+it contains `client_ip_ranges`, the effective metadata is the software
+statement's `client_ip_ranges`.
+
+Client IP range metadata is invalid if any of the following is true of
+the effective metadata:
 
 1. Both `client_ip_ranges` and `client_ip_ranges_uri` are present.
 2. The value of `client_ip_ranges` is not an array of strings, or any
    entry is an invalid prefix ({{prefix-syntax}}).
 3. The value of `client_ip_ranges_uri` does not meet the requirements of
    {{client-ip-ranges-uri}}.
-
-When a trusted software statement ({{Section 2.3 of RFC7591}}) contains
-`client_ip_ranges` or `client_ip_ranges_uri`, the authorization server
-ignores both parameters in the registration request body. This extends
-the precedence rule of {{Section 2 of RFC7591}} to the pair of
-parameters.
 
 In a dynamic client registration request, the authorization server
 responds to invalid client IP range metadata with HTTP status code 400
@@ -240,7 +262,9 @@ following member:
 : REQUIRED. JSON array of prefixes, with the syntax and semantics
   defined in {{client-ip-ranges}}.
 
-Consumers MUST ignore members they do not understand.
+Consumers MUST ignore members they do not understand. A document whose
+top-level object contains duplicate member names is invalid, since
+parsers can read such an object differently ({{Section 4 of RFC8259}}).
 
 The document MUST be served with the `application/json` media type.
 
@@ -332,6 +356,17 @@ accepted IP range set. Consumers can compare the two sets to
 identify added and removed prefixes. Activation of changes is subject to
 local policy ({{range-changes}}).
 
+Publishers SHOULD publish a new prefix before the client originates
+requests from it, allowing for consumer retrieval intervals and approval
+delays, and SHOULD continue to publish a prefix until the client no
+longer originates requests from it.
+
+Publishers can use a separately specified notification mechanism to
+announce planned changes to their IP range sets. Such a mechanism could
+define event types delivered using the Shared Signals Framework {{SSF}}.
+This specification does not define advance announcement events or
+scheduled activation of ranges.
+
 ## Changes to Client Metadata {#metadata-changes}
 
 A client's metadata can change the value of `client_ip_ranges_uri`,
@@ -345,7 +380,10 @@ this as a retrieval failure ({{retrieval-failures}}). The consumer does
 not retrieve the previous URI again for that client or reuse its cached
 responses or validators ({{caching}}).
 
-Removal of both parameters withdraws the client's declaration.
+Removal of both parameters withdraws the client's declaration. In a
+client update request ({{Section 2.2 of RFC7592}}), omitted metadata
+fields are treated as a request to delete them, so an update that omits
+both parameters withdraws the declaration.
 Withdrawal MUST NOT by itself cause a consumer to admit a source address
 that it did not admit before the withdrawal. Whether to relax
 enforcement after a withdrawal is local policy.
@@ -378,12 +416,13 @@ specific client requires knowing which client sent the request:
   enforce only an aggregate of the IP range sets of the clients
   permitted to reach an endpoint.
 * An authorization server can match the source address against the
-  client's IP range set once it has authenticated the client
+  client's IP range set once it has identified the client
   ({{as-enforcement}}).
 * A resource server can match the source address against the IP range
   set of the client to which an access token was issued, if it can
-  obtain that client's metadata. How a resource server obtains a
-  client's metadata is outside the scope of this specification.
+  obtain that client's metadata. How a resource server obtains
+  a client's metadata is outside the scope of this specification and
+  could be addressed by a companion specification.
 
 An empty IP range set declares that the client originates no direct
 requests. A consumer that enforces it for a client admits no source
@@ -398,12 +437,16 @@ OAuth.
 ## Enforcement by Authorization Servers {#as-enforcement}
 
 An authorization server can enforce a client's IP range set at the token
-endpoint and at other endpoints at which the client authenticates. An
-authorization server that rejects a request because its source address
-is outside the client's IP range set MUST do so only after
-authenticating the client, so that an unauthenticated party cannot learn
-whether a client is subject to address restrictions. This specification
-does not yet define the error response for this case ({{open-issues}}).
+endpoint and at other endpoints that receive direct requests from the
+client. Enforcement requires identifying the client: through client
+authentication or, for a public client ({{Section 2.1 of RFC6749}}),
+through the client to which the grant presented in the request was
+issued.
+
+An authorization server SHOULD NOT indicate, in a response to a party
+that has not authenticated as the client, that a request was rejected
+because of its source address. This specification does not yet define
+the error response for this case ({{open-issues}}).
 
 # Security Considerations {#security}
 
@@ -489,6 +532,13 @@ source address from a trusted source of connection-origin information.
 Consumers MUST NOT use forwarding header fields, such as `Forwarded`
 {{RFC7239}} or `X-Forwarded-For`, as the source address unless they
 were set by an intermediary the consumer trusts.
+
+A trusted intermediary can append its own observation to a forwarding
+header field that already carries entries supplied by an attacker
+({{Section 8.1 of RFC7239}}). Consumers MUST select the source address
+from such a field using their configuration of trusted proxies, and MUST
+NOT trust an entry merely because a trusted intermediary forwarded or
+appended to the field.
 
 # Privacy Considerations {#privacy}
 
@@ -613,28 +663,16 @@ ETag: "ranges-v42"
 
 # Open Issues {#open-issues}
 
-1. Which error response an authorization server returns when it rejects
-   a request because of its source address. The `invalid_client` error
-   code signals failed client authentication
+1. Which error response indicates that an authorization server rejected
+   a request under a client's source address policy? The
+   `invalid_client` error code signals failed client authentication
    ({{Section 5.2 of RFC6749}}) and could prompt credential rotation.
-2. How a resource server obtains a client's IP range set, for example
-   through a token introspection response member or an access token
-   claim.
-3. A minimum number of prefixes that every consumer accepts, and whether
-   publishers need a signal of consumer limits.
-4. How publishers announce new ranges in advance, given that consumers
-   can lag or hold changes for approval.
-5. Whether `/0` prefixes are invalid, and whether a minimum prefix
-   length applies.
-6. Whether consumers reject Client IP Range Documents with duplicate
-   member names, which {{RFC8259}} permits parsers to read differently.
-7. How a client updates its IP range set through dynamic client
-   registration management {{RFC7592}}.
-8. Whether a dedicated media type should replace `application/json` for
-   the Client IP Range Document.
-9. Whether authorization server metadata should advertise support for
-   these parameters, and which client behavior that would enable.
-   Recognition, retrieval, and enforcement are distinct capabilities.
+2. Should every consumer support a minimum number of prefixes, so that
+   independently chosen limits do not prevent interoperability?
+3. Should authorization server metadata advertise support for these
+   parameters, and what would that signal? Recognizing the metadata,
+   retrieving Client IP Range Documents, and enforcing IP range sets are
+   distinct capabilities.
 
 # Document History {#history}
 
