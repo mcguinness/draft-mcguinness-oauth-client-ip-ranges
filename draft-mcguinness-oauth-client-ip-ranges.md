@@ -65,25 +65,29 @@ declared ranges as an input to network access control.
 
 OAuth clients that run as hosted services commonly originate requests
 from a known set of network addresses. Authorization servers, resource
-servers, and network security infrastructure use these addresses to
-restrict inbound connections.
+servers, and the network infrastructure in front of them use these
+addresses to restrict which sources can reach the token endpoint and
+protected resources. In current practice, client operators publish their
+address ranges through vendor-specific mechanisms, and deployments
+transcribe them into network access controls by hand and track changes
+out of band.
 
-Client operators publish these addresses today through vendor-specific
-mechanisms. OAuth client metadata {{RFC7591}} has no standard parameter
-for expressing or referencing them.
+Client metadata ({{Section 2 of RFC7591}}) conveys information that an
+authorization server uses when interacting with a client, such as its
+redirection URIs and public keys. It has no parameter for the network
+origins of the client.
 
-This specification defines two optional client metadata parameters with
-equivalent semantics:
-
-`client_ip_ranges`:
-: The client's IP range set, by value.
-
-`client_ip_ranges_uri`:
-: An HTTPS URL of a document containing the client's IP range set.
-
-The URI form lets a client publish a large or frequently updated set
-without changing its registration or its Client ID Metadata Document
-{{CIMD}}.
+This specification defines two client metadata parameters for declaring
+the IP address ranges from which a client originates requests:
+`client_ip_ranges`, which carries the ranges by value, and
+`client_ip_ranges_uri`, which references a Client IP Range Document
+containing them. The pair follows the pattern of the `jwks` and
+`jwks_uri` parameters of {{RFC7591}}: the two forms have the same
+semantics and are mutually exclusive, and the reference form lets a
+client publish a large or frequently changing set without updating its
+registration. The parameters can be used with OAuth 2.0 Dynamic Client
+Registration {{RFC7591}}, OAuth Client ID Metadata Documents {{CIMD}},
+and other mechanisms that convey client metadata.
 
 For example, an enterprise administrator approves a hosted client for
 use with the enterprise's authorization server. The authorization server
@@ -91,21 +95,25 @@ obtains the client's IP range set from its metadata, the administrator
 reviews it, and the enterprise configures its network enforcement points
 to admit requests from the approved ranges. When the client operator
 later publishes a changed set, local policy determines whether the
-change is applied automatically, such as a removal or an addition within
-an approved scope, or is held for administrator approval
-({{range-changes}}).
+change is applied automatically, such as an addition within an approved
+scope, or is held for administrator approval ({{range-changes}}).
 
-Firewall policy, network access authorization decisions, and the
-configuration of network enforcement points are outside the scope of
-this specification.
+Declared ranges are an input to network access control. They do not
+authenticate the client or authorize a request ({{use}}). Firewall
+policy, network access authorization decisions, and the configuration of
+network enforcement points are outside the scope of this specification.
 
-## Conventions and Definitions
+## Requirements Notation and Conventions {#conventions}
 
 {::boilerplate bcp14-tagged-bcp14}
 
-This specification uses the terms "authorization server", "client", and
-"resource server" defined by OAuth 2.0 {{RFC6749}}, and the term "client
-metadata" defined in {{RFC7591}}.
+## Terminology {#terminology}
+
+This specification uses the terms "access token", "authorization
+server", "client", "client authentication", "protected resource",
+"redirection endpoint", "resource owner", "resource server", and "token
+endpoint" defined by OAuth 2.0 {{RFC6749}}, and the terms "client metadata" and "software
+statement" defined by OAuth 2.0 Dynamic Client Registration {{RFC7591}}.
 
 This specification defines the following terms:
 
