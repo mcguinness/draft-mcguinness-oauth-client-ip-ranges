@@ -1,0 +1,687 @@
+
+
+
+
+Web Authorization Protocol                                 K. McGuinness
+Internet-Draft                                               Independent
+Intended status: Standards Track                         23 October 2026
+Expires: 26 April 2027
+
+
+                     OAuth Client IP Range Metadata
+             draft-mcguinness-oauth-client-ip-ranges-latest
+
+Abstract
+
+   This specification defines OAuth client metadata parameters for
+   declaring the IP address ranges from which a client originates
+   network requests.  The client_ip_ranges parameter carries a set of
+   IPv4 and IPv6 prefixes by value.  The client_ip_ranges_uri parameter
+   references an HTTPS resource containing the set, which supports large
+   and frequently changing sets through standard HTTP retrieval and
+   caching.  The parameters can be used with OAuth 2.0 Dynamic Client
+   Registration, OAuth Client ID Metadata Documents, and other
+   mechanisms that convey client metadata.  Authorization servers and
+   resource servers can use the declared ranges as an input to network
+   access control.
+
+About This Document
+
+   This note is to be removed before publishing as an RFC.
+
+   The latest revision of this draft can be found at
+   https://mcguinness.github.io/draft-mcguinness-oauth-client-ip-ranges/
+   draft-mcguinness-oauth-client-ip-ranges.html.  Status information for
+   this document may be found at https://datatracker.ietf.org/doc/draft-
+   mcguinness-oauth-client-ip-ranges/.
+
+   Discussion of this document takes place on the Web Authorization
+   Protocol Working Group mailing list (mailto:oauth@ietf.org), which is
+   archived at https://mailarchive.ietf.org/arch/browse/oauth/.
+   Subscribe at https://www.ietf.org/mailman/listinfo/oauth/.
+
+   Source for this draft and an issue tracker can be found at
+   https://github.com/mcguinness/draft-mcguinness-oauth-client-ip-
+   ranges.
+
+Status of This Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at https://datatracker.ietf.org/drafts/current/.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on 26 April 2027.
+
+Copyright Notice
+
+   Copyright (c) 2026 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents (https://trustee.ietf.org/
+   license-info) in effect on the date of publication of this document.
+   Please review these documents carefully, as they describe your rights
+   and restrictions with respect to this document.  Code Components
+   extracted from this document must include Revised BSD License text as
+   described in Section 4.e of the Trust Legal Provisions and are
+   provided without warranty as described in the Revised BSD License.
+
+Table of Contents
+
+   1.  Introduction
+     1.1.  Conventions and Definitions
+   2.  Client IP Range Metadata
+     2.1.  client_ip_ranges
+     2.2.  client_ip_ranges_uri
+     2.3.  Prefix Syntax
+     2.4.  Metadata Validation
+   3.  Client IP Range Document
+   4.  Retrieval and Synchronization
+     4.1.  Retrieval
+     4.2.  Caching
+     4.3.  Updates
+     4.4.  Changes to Client Metadata
+     4.5.  Retrieval Failures
+   5.  Use of Client IP Range Metadata
+   6.  Security Considerations
+     6.1.  Trust in Declared Ranges
+     6.2.  Changes to Declared Ranges
+     6.3.  Server-Side Request Forgery
+     6.4.  Resource Exhaustion
+     6.5.  Source Address Interpretation
+   7.  Privacy Considerations
+   8.  IANA Considerations
+   9.  Examples
+     9.1.  Dynamic Client Registration by Value
+     9.2.  Client ID Metadata Document by Reference
+     9.3.  Document Retrieval
+   10. References
+     10.1.  Normative References
+     10.2.  Informative References
+   Appendix A.  Open Issues
+   Appendix B.  Document History
+   Author's Address
+
+1.  Introduction
+
+   OAuth clients that run as hosted services commonly originate requests
+   from a known set of network addresses.  Authorization servers,
+   resource servers, and network security infrastructure use these
+   addresses to restrict inbound connections.
+
+   Client operators publish these addresses today through vendor-
+   specific mechanisms.  OAuth client metadata [RFC7591] has no standard
+   parameter for expressing or referencing them.
+
+   This specification defines two optional client metadata parameters
+   with equivalent semantics:
+
+   client_ip_ranges:  The client's IP range set, by value.
+
+   client_ip_ranges_uri:  An HTTPS URL of a document containing the
+      client's IP range set.
+
+   The URI form lets a client publish a large or frequently updated set
+   without changing its registration or its Client ID Metadata Document
+   [CIMD].
+
+   For example, an enterprise administrator approves a hosted client for
+   use with the enterprise's authorization server.  The authorization
+   server obtains the client's IP range set from its metadata, the
+   administrator reviews it, and the enterprise configures its network
+   enforcement points to admit requests from the approved ranges.  When
+   the client operator later publishes a changed set, local policy
+   determines whether the change is applied automatically, such as a
+   removal or an addition within an approved scope, or is held for
+   administrator approval (Section 6.2).
+
+   Firewall policy, network access authorization decisions, and the
+   configuration of network enforcement points are outside the scope of
+   this specification.
+
+1.1.  Conventions and Definitions
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+   "OPTIONAL" in this document are to be interpreted as described in
+   [BCP14] (RFC2119) (RFC8174) when, and only when, they appear in all
+   capitals, as shown here.
+
+   This specification uses the terms "authorization server", "client",
+   and "resource server" defined by OAuth 2.0 [RFC6749], and the term
+   "client metadata" defined in [RFC7591].
+
+   This specification defines the following terms:
+
+   IP range set:  The set of IPv4 and IPv6 prefixes that a client
+      declares, either by value with client_ip_ranges or by reference
+      with client_ip_ranges_uri.
+
+   Client IP Range Document:  A JSON document, defined in Section 3,
+      that contains an IP range set and is referenced by
+      client_ip_ranges_uri.
+
+   publisher:  The entity that publishes a client's metadata or Client
+      IP Range Document, typically the client operator.
+
+   consumer:  An entity that processes client IP range metadata, such as
+      an authorization server or a resource server.
+
+2.  Client IP Range Metadata
+
+   This specification defines the following client metadata parameters.
+   Both convey the client's IP range set; they differ only in whether
+   the set is carried by value or by reference.
+
+2.1.  client_ip_ranges
+
+   OPTIONAL.  JSON array of strings, each an IPv4 or IPv6 prefix as
+   defined in Section 2.3.  Each entry identifies a range of source
+   addresses from which the client originates requests (see Section 5).
+   The array MAY contain both IPv4 and IPv6 prefixes.
+
+   The array is a set.  Consumers MUST NOT assign meaning to the order
+   of entries or to duplicate entries.  This specification does not
+   limit the number of entries.
+
+   An empty array declares an empty IP range set: the client declares no
+   source address from which it originates requests.  Absence of the
+   parameter means the client makes no declaration; it does not imply an
+   empty IP range set.
+
+2.2.  client_ip_ranges_uri
+
+   OPTIONAL.  URL of a Client IP Range Document (Section 3).  The URL
+   MUST use the https scheme and MUST NOT contain a fragment or userinfo
+   component [RFC3986].  Consumers retrieve the document as described in
+   Section 4.  The IP range set it contains has the same semantics as
+   the value of the client_ip_ranges parameter.
+
+   The client_ip_ranges and client_ip_ranges_uri parameters MUST NOT
+   both be present in the same client metadata.
+
+   Section 8.7 of [CIMD] recommends that authorization servers read at
+   most 5 kilobytes of a Client ID Metadata Document.  A client whose IP
+   range set does not fit within such a limit uses client_ip_ranges_uri.
+
+2.3.  Prefix Syntax
+
+   Each prefix MUST conform to the ip-prefix type defined in Section 4
+   of [RFC9911].  Publishers MUST use the canonical format of that type:
+   all bits outside the prefix length set to zero and, for IPv6, the
+   address represented as defined in Section 4 of [RFC5952].
+
+   Consumers MUST interpret each prefix by its network address and
+   prefix length, not by its textual form.  A value that does not
+   conform to the ip-prefix type is invalid.  Consumers MUST NOT treat a
+   value as invalid solely because it is not in canonical format.  For
+   example, a consumer interprets 192.0.2.1/24 as 192.0.2.0/24 and
+   2001:DB8::1/64 as 2001:db8::/64.
+
+2.4.  Metadata Validation
+
+   Client IP range metadata is invalid if any of the following is true:
+
+   1.  Both client_ip_ranges and client_ip_ranges_uri are present.
+
+   2.  The value of client_ip_ranges is not an array of strings, or any
+       entry is an invalid prefix (Section 2.3).
+
+   3.  The value of client_ip_ranges_uri does not meet the requirements
+       of Section 2.2.
+
+   In a dynamic client registration request, the authorization server
+   responds to invalid client IP range metadata with HTTP status code
+   400 and the invalid_client_metadata error code (Section 3.2.2 of
+   [RFC7591]).  An authorization server that obtains invalid client IP
+   range metadata from a Client ID Metadata Document [CIMD] treats the
+   document as invalid.
+
+   An authorization server that does not support these parameters
+   ignores them (Section 2 of [RFC7591]).  A client can determine
+   whether the authorization server registered them from the client
+   information response (Section 3.2.1 of [RFC7591]).
+
+3.  Client IP Range Document
+
+   A Client IP Range Document is a JSON [RFC8259] object with the
+   following member:
+
+   client_ip_ranges:  REQUIRED.  JSON array of prefixes, with the syntax
+      and semantics defined in Section 2.1.
+
+   Consumers MUST ignore members they do not understand.
+
+   The document MUST be served with the application/json media type.
+
+   The document is self-contained.  Consumers MUST NOT retrieve other
+   resources to complete it.  All prefixes in the document apply equally
+   to the client identified by the referencing metadata; the document
+   carries no service, region, or network policy information.  Multiple
+   clients MAY reference the same document.
+
+   The following is an example of a Client IP Range Document:
+
+   {
+     "client_ip_ranges": [
+       "192.0.2.0/24",
+       "198.51.100.10/32",
+       "2001:db8:100::/48",
+       "2001:db8:200::/48"
+     ]
+   }
+
+4.  Retrieval and Synchronization
+
+4.1.  Retrieval
+
+   A consumer retrieves a Client IP Range Document by sending an HTTP
+   GET request to the client_ip_ranges_uri URL, subject to Section 6.3.
+   A successful response has status code 200 (OK) and contains the
+   complete document.
+
+   Unless a deployment profile specifies otherwise, publishers MUST NOT
+   require authentication to retrieve a Client IP Range Document, and
+   consumers retrieve it without credentials.  Authenticated retrieval,
+   including the provisioning of credentials, is outside the scope of
+   this specification.  Consumers MUST NOT send credentials associated
+   with an OAuth request, such as client credentials, access tokens, or
+   authorization codes, when retrieving a Client IP Range Document.
+
+   The consumer MUST validate the response and the complete document,
+   including every prefix, before accepting it.  If any part is invalid,
+   the consumer MUST reject the entire document.  A failed retrieval, a
+   malformed response, or a document that is incomplete or exceeds the
+   consumer's bounds (Section 6.4) MUST NOT be treated as an empty IP
+   range set; it is handled as described in Section 4.5.
+
+   This specification does not require retrieval during the processing
+   of any OAuth request.
+
+4.2.  Caching
+
+   Publishers SHOULD support HTTP caching [RFC9111] and SHOULD include
+   the Cache-Control (Section 5.2 of [RFC9111]) and ETag (Section 8.8.3
+   of [RFC9110]) response header fields.
+
+   Consumers SHOULD revalidate a cached document with a conditional GET
+   request carrying the If-None-Match header field (Section 13.1.2 of
+   [RFC9110]) and the entity tag of the last accepted document.  A 304
+   (Not Modified) response (Section 15.4.5 of [RFC9110]) indicates that
+   the last accepted document remains current.
+
+   Cached responses and their validators are specific to the URI from
+   which they were retrieved (Section 2 of [RFC9111]).  A consumer MUST
+   NOT use an entity tag obtained from one client_ip_ranges_uri in a
+   request to another.
+
+   HTTP caching governs retrieval only.  A consumer that uses an HTTP
+   cache follows [RFC9111], including the no-cache, no-store, and must-
+   revalidate cache directives.  The previously accepted IP range set is
+   application state, distinct from any HTTP cache (Section 6 of
+   [RFC9111]).  How long a consumer continues to use it is local policy
+   (Section 4.5); a freshness lifetime such as max-age is not a deadline
+   for adding a prefix to, or removing a prefix from, enforcement.
+   Consumers MAY schedule retrievals within local minimum and maximum
+   intervals.
+
+   Publishers and consumers SHOULD support the gzip content coding
+   (Section 8.4.1.3 of [RFC9110]).
+
+4.3.  Updates
+
+   Each accepted document replaces the previously accepted IP range set
+   in full.  This specification defines no incremental update format.
+
+   A consumer MUST validate a new document completely before replacing
+   the previously accepted IP range set.  Consumers can compare the two
+   sets to identify added and removed prefixes.  Activation of changes
+   is subject to local policy (Section 6.2).
+
+4.4.  Changes to Client Metadata
+
+   A client's metadata can change the value of client_ip_ranges_uri,
+   switch between client_ip_ranges and client_ip_ranges_uri, or remove
+   both.  The new metadata replaces the previous declaration.
+
+   When the representation or URI changes, the set accepted under the
+   previous metadata remains the previously accepted IP range set until
+   the consumer accepts a set under the new metadata.  If the new
+   document cannot be retrieved or validated, the consumer handles this
+   as a retrieval failure (Section 4.5).  A document retrieved from the
+   previous URI is no longer a declaration for the client, and cached
+   responses and validators from it do not apply to the new URI
+   (Section 4.2).
+
+   Removal of both parameters withdraws the client's declaration.
+   Consumers MUST NOT treat withdrawal as permitting requests from any
+   source address or as authorizing removal of a network restriction
+   configured under local policy.
+
+4.5.  Retrieval Failures
+
+   If retrieval or validation fails, the consumer MUST NOT treat the
+   failure as permitting requests from any source address.
+
+   The consumer MAY continue to use the previously accepted IP range
+   set, subject to local freshness and security policy.  How long a
+   previously accepted set remains usable, and what applies when none is
+   available, is a matter of local policy.
+
+5.  Use of Client IP Range Metadata
+
+   The IP range set identifies source addresses from which the client
+   originates requests directly to authorization servers and resource
+   servers, such as token requests, other back-channel requests, and
+   requests to protected resources.  It does not describe the network
+   origins of user agents, redirection endpoints, or requests initiated
+   by the resource owner.
+
+   Consumers MAY use the IP range set as an input to local network
+   access control.  A consumer that enforces an empty IP range set
+   permits no source address for requests originated by the client,
+   subject to local policy.
+
+   The IP range set is a declaration by its publisher.  A source address
+   match does not authenticate the client or authorize a request.
+   Consumers MUST NOT use a source address match in place of client
+   authentication, access token validation, or any other security
+   control required by OAuth.
+
+   How a resource server obtains a client's metadata is outside the
+   scope of this specification.
+
+6.  Security Considerations
+
+6.1.  Trust in Declared Ranges
+
+   Client IP range metadata is a declaration by its publisher.
+   Inclusion of a prefix does not establish that the client exclusively
+   owns or controls the addresses it contains.  Prefixes of shared
+   infrastructure, such as cloud provider or carrier-grade NAT egress
+   ranges, also carry traffic from other parties.
+
+   Whether to use declared ranges in network access control is a local
+   trust decision.  A software statement (Section 2.3 of [RFC7591])
+   protects the claims it carries, so a client_ip_ranges value in a
+   trusted software statement is asserted by the statement's issuer.  A
+   client_ip_ranges_uri value in a software statement is asserted only
+   as a reference: the signature covers the URL, not the current or
+   future contents of the document it identifies.  Trust in the
+   statement's issuer does not extend to ranges later published at that
+   URL.  Accepting them automatically requires a separate local decision
+   to trust the document's publisher within an approved scope
+   (Section 6.2).  A consumer MAY require that client_ip_ranges_uri
+   share an origin with the client identifier URL of a Client ID
+   Metadata Document [CIMD].
+
+6.2.  Changes to Declared Ranges
+
+   A change to a published IP range set can broaden or narrow the source
+   addresses admitted by a network policy derived from it.  Consumers
+   MUST NOT treat publication of a new prefix as granting network access
+   by itself.  Consumers MAY accept updates automatically when local
+   policy authorizes the publisher and the permitted scope of change.
+
+   Consumers SHOULD detect unexpected expansion of a declared IP range
+   set, including the addition of overly broad IPv4 or IPv6 prefixes.
+   Consumers SHOULD apply changes atomically, so that no intermediate
+   state admits a source address that neither the previous nor the new
+   IP range set contains.
+
+   Continued use of a previously accepted IP range set after the
+   publisher has removed a prefix admits addresses that may have been
+   reassigned to another party.
+
+6.3.  Server-Side Request Forgery
+
+   Retrieval of client_ip_ranges_uri causes a consumer to send a request
+   to a URL chosen by the publisher, which is a server-side request
+   forgery vector (see also Section 8.6 of [CIMD]).  When retrieving a
+   Client IP Range Document, consumers:
+
+   1.  MUST NOT retrieve a URL that does not meet the requirements of
+       Section 2.2.
+
+   2.  MUST verify the server certificate as described in Section 4.3.4
+       of [RFC9110].
+
+   3.  MUST NOT automatically follow HTTP redirects (Section 15.4 of
+       [RFC9110]).
+
+   4.  MUST NOT connect to a special-use IP address as defined in
+       [RFC6890], unless local policy explicitly permits that
+       destination.  This check applies to the address of each
+       connection after DNS resolution.  The local policy exception does
+       not apply to a client_ip_ranges_uri obtained from a Client ID
+       Metadata Document.
+
+6.4.  Resource Exhaustion
+
+   A malicious or compromised publisher can return an oversized
+   document, a highly compressed response, or a large number of
+   overlapping prefixes.  Consumers MUST bound retrieval time, response
+   size, decompressed size, and prefix count.  If a document exceeds any
+   bound, the consumer MUST reject the entire document and MUST NOT
+   accept part of it.
+
+   These bounds are set independently of any bound on client metadata,
+   such as the limit recommended in Section 8.7 of [CIMD], because a
+   Client IP Range Document is expected to be larger.
+
+6.5.  Source Address Interpretation
+
+   Proxies, load balancers, and network address translation change the
+   source address that a consumer observes.  Consumers MUST determine
+   the source address from a trusted source of connection-origin
+   information.  Consumers MUST NOT use forwarding header fields, such
+   as Forwarded [RFC7239] or X-Forwarded-For, as the source address
+   unless they were set by an intermediary the consumer trusts.
+
+7.  Privacy Considerations
+
+   Client IP range metadata describes network infrastructure rather than
+   end users.  When a client runs on infrastructure associated with an
+   individual, such as a residential network, its declared ranges can
+   reveal that individual's network location.  A publicly retrievable
+   Client IP Range Document discloses the client's egress infrastructure
+   to any party.
+
+   Retrieval of client_ip_ranges_uri reveals to the publisher the
+   addresses and retrieval timing of consumers that evaluate the client,
+   which can indicate the authorization servers and resource servers
+   with which the client is used (see also Section 9.1 of [CIMD]).
+
+8.  IANA Considerations
+
+   This specification requests registration of the following client
+   metadata in the "OAuth Dynamic Client Registration Metadata" registry
+   established by [RFC7591].
+
+   *  Client Metadata Name: client_ip_ranges
+   *  Client Metadata Description: Array of IPv4 and IPv6 prefixes from
+      which the client originates requests
+   *  Change Controller: IETF
+   *  Specification Document(s): Section 2.1 of this specification
+
+   *  Client Metadata Name: client_ip_ranges_uri
+   *  Client Metadata Description: HTTPS URL of a document containing
+      the IPv4 and IPv6 prefixes from which the client originates
+      requests
+   *  Change Controller: IETF
+   *  Specification Document(s): Section 2.2 of this specification
+
+9.  Examples
+
+9.1.  Dynamic Client Registration by Value
+
+   The following is an example of a client registration request
+   (Section 3.1 of [RFC7591]) that declares an IP range set by value:
+
+   POST /register HTTP/1.1
+   Host: server.example.com
+   Content-Type: application/json
+
+   {
+     "client_name": "Example Client",
+     "grant_types": ["client_credentials"],
+     "token_endpoint_auth_method": "private_key_jwt",
+     "jwks_uri": "https://client.example.com/jwks.json",
+     "client_ip_ranges": [
+       "192.0.2.0/24",
+       "2001:db8:100::/48"
+     ]
+   }
+
+9.2.  Client ID Metadata Document by Reference
+
+   The following is an example of a Client ID Metadata Document [CIMD]
+   that declares an IP range set by reference:
+
+   {
+     "client_id": "https://client.example.com/oauth/client.json",
+     "client_name": "Example Client",
+     "token_endpoint_auth_method": "private_key_jwt",
+     "jwks_uri": "https://client.example.com/jwks.json",
+     "client_ip_ranges_uri": "https://client.example.com/ip-ranges.json"
+   }
+
+9.3.  Document Retrieval
+
+   The following is an example of a request for the Client IP Range
+   Document referenced above:
+
+   GET /ip-ranges.json HTTP/1.1
+   Host: client.example.com
+   Accept: application/json
+   Accept-Encoding: gzip
+
+   The following is an example of a successful response:
+
+   HTTP/1.1 200 OK
+   Content-Type: application/json
+   Cache-Control: public, max-age=3600
+   ETag: "ranges-v42"
+
+   {
+     "client_ip_ranges": [
+       "192.0.2.0/24",
+       "198.51.100.0/24",
+       "2001:db8:100::/48"
+     ]
+   }
+
+   The following example shows a later conditional request and a
+   response indicating that the document is unchanged:
+
+   GET /ip-ranges.json HTTP/1.1
+   Host: client.example.com
+   Accept: application/json
+   If-None-Match: "ranges-v42"
+
+   HTTP/1.1 304 Not Modified
+   Cache-Control: public, max-age=3600
+   ETag: "ranges-v42"
+
+10.  References
+
+10.1.  Normative References
+
+   [BCP14]    Best Current Practice 14,
+              <https://www.rfc-editor.org/info/bcp14>.
+              At the time of writing, this BCP comprises the following:
+
+              Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119,
+              DOI 10.17487/RFC2119, March 1997,
+              <https://www.rfc-editor.org/info/rfc2119>.
+
+              Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
+              2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
+              May 2017, <https://www.rfc-editor.org/info/rfc8174>.
+
+   [RFC3986]  Berners-Lee, T., Fielding, R., and L. Masinter, "Uniform
+              Resource Identifier (URI): Generic Syntax", STD 66,
+              RFC 3986, DOI 10.17487/RFC3986, January 2005,
+              <https://www.rfc-editor.org/rfc/rfc3986>.
+
+   [RFC5952]  Kawamura, S. and M. Kawashima, "A Recommendation for IPv6
+              Address Text Representation", RFC 5952,
+              DOI 10.17487/RFC5952, August 2010,
+              <https://www.rfc-editor.org/rfc/rfc5952>.
+
+   [RFC6749]  Hardt, D., Ed., "The OAuth 2.0 Authorization Framework",
+              RFC 6749, DOI 10.17487/RFC6749, October 2012,
+              <https://www.rfc-editor.org/rfc/rfc6749>.
+
+   [RFC6890]  Cotton, M., Vegoda, L., Bonica, R., Ed., and B. Haberman,
+              "Special-Purpose IP Address Registries", BCP 153,
+              RFC 6890, DOI 10.17487/RFC6890, April 2013,
+              <https://www.rfc-editor.org/rfc/rfc6890>.
+
+   [RFC7591]  Richer, J., Ed., Jones, M., Bradley, J., Machulak, M., and
+              P. Hunt, "OAuth 2.0 Dynamic Client Registration Protocol",
+              RFC 7591, DOI 10.17487/RFC7591, July 2015,
+              <https://www.rfc-editor.org/rfc/rfc7591>.
+
+   [RFC8259]  Bray, T., Ed., "The JavaScript Object Notation (JSON) Data
+              Interchange Format", STD 90, RFC 8259,
+              DOI 10.17487/RFC8259, December 2017,
+              <https://www.rfc-editor.org/rfc/rfc8259>.
+
+   [RFC9110]  Fielding, R., Ed., Nottingham, M., Ed., and J. Reschke,
+              Ed., "HTTP Semantics", STD 97, RFC 9110,
+              DOI 10.17487/RFC9110, June 2022,
+              <https://www.rfc-editor.org/rfc/rfc9110>.
+
+   [RFC9111]  Fielding, R., Ed., Nottingham, M., Ed., and J. Reschke,
+              Ed., "HTTP Caching", STD 98, RFC 9111,
+              DOI 10.17487/RFC9111, June 2022,
+              <https://www.rfc-editor.org/rfc/rfc9111>.
+
+   [RFC9911]  Schönwälder, J., Ed., "Common YANG Data Types", RFC 9911,
+              DOI 10.17487/RFC9911, December 2025,
+              <https://www.rfc-editor.org/rfc/rfc9911>.
+
+10.2.  Informative References
+
+   [CIMD]     Parecki, A. and E. Smith, "OAuth Client ID Metadata
+              Document", Work in Progress, Internet-Draft, draft-ietf-
+              oauth-client-id-metadata-document-02, 6 July 2026,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-oauth-
+              client-id-metadata-document-02>.
+
+   [RFC7239]  Petersson, A. and M. Nilsson, "Forwarded HTTP Extension",
+              RFC 7239, DOI 10.17487/RFC7239, June 2014,
+              <https://www.rfc-editor.org/rfc/rfc7239>.
+
+Appendix A.  Open Issues
+
+   1.  Whether a dedicated media type should replace application/json
+       for the Client IP Range Document.
+
+   2.  Whether authorization server metadata should advertise support
+       for these parameters, and which client behavior that would
+       enable.  Recognition, retrieval, and enforcement are distinct
+       capabilities.
+
+Appendix B.  Document History
+
+   -00
+
+   *  Initial version.
+
+Author's Address
+
+   Karl McGuinness
+   Independent
+   Email: public@karlmcguinness.com
