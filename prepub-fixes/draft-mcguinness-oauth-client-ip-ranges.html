@@ -1732,12 +1732,14 @@ policy.<a href="#section-4.5.3-2.3.1" class="pilcrow">¶</a></p>
 <p id="section-4.5.3-3">The limit runs from the first failed retrieval or validation, from the
 withdrawal, or from the first validation of the replacement, and ends
 when the authorization server accepts a set under the client's current
-declaration. A successful retrieval or validation that confirms the
-accepted IP range set, including one that ends in a 304 response, counts
-as such an acceptance. The third case does not apply to an accepted IP
-range set that the authorization server has narrowed to its intersection
-with the replacement (<a href="#acceptance" class="auto internal xref">Section 4.3</a>), because every source address that
-set admits is also in the replacement.<a href="#section-4.5.3-3" class="pilcrow">¶</a></p>
+declaration. The limit for the first case also ends when a successful
+retrieval or validation, including one that ends in a 304 response,
+confirms that the accepted IP range set is current. Revalidating a
+replacement that has not been accepted does not restart its limit. The
+third case does not apply to an accepted IP range set that the
+authorization server has narrowed to its intersection with the
+replacement (<a href="#acceptance" class="auto internal xref">Section 4.3</a>), because every source address that set
+admits is also in the replacement.<a href="#section-4.5.3-3" class="pilcrow">¶</a></p>
 <p id="section-4.5.3-4">When the retention limit is exceeded, the authorization server stops
 using the set and has no accepted IP range set for the client
 (<a href="#enforcement" class="auto internal xref">Section 5</a>).<a href="#section-4.5.3-4" class="pilcrow">¶</a></p>
@@ -1798,16 +1800,16 @@ be addressed by a companion specification.<a href="#section-5-6" class="pilcrow"
 the token endpoint and at other endpoints that receive direct requests
 from the client, once it has identified the client, either through
 client authentication or, for a public client
-(<span><a href="https://rfc-editor.org/rfc/rfc6749#section-2.1" class="relref">Section 2.1</a> of [<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>), as the client to which the authorization
-code, device code (<span><a href="https://rfc-editor.org/rfc/rfc8628#section-3.2" class="relref">Section 3.2</a> of [<a href="#RFC8628" class="cite xref">RFC8628</a>]</span>), or refresh token
-presented in the request was issued. At the client configuration
-endpoint, the registration access token identifies the client
-(<span><a href="https://rfc-editor.org/rfc/rfc7592#section-2" class="relref">Section 2</a> of [<a href="#RFC7592" class="cite xref">RFC7592</a>]</span>). This specification does not define
-enforcement for a public client in a request that identifies the client
-only by an unauthenticated <code>client_id</code>, such as a device authorization
-request (<span><a href="https://rfc-editor.org/rfc/rfc8628#section-3.1" class="relref">Section 3.1</a> of [<a href="#RFC8628" class="cite xref">RFC8628</a>]</span>). A request rejected because of its
-source address does not count as a use of the authorization code it
-presents (<span><a href="https://rfc-editor.org/rfc/rfc6749#section-4.1.2" class="relref">Section 4.1.2</a> of [<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>).<a href="#section-5.1-1" class="pilcrow">¶</a></p>
+(<span><a href="https://rfc-editor.org/rfc/rfc6749#section-2.1" class="relref">Section 2.1</a> of [<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>), as the client to which a grant or token
+presented in the request was issued, such as an authorization code, a
+device code (<span><a href="https://rfc-editor.org/rfc/rfc8628#section-3.4" class="relref">Section 3.4</a> of [<a href="#RFC8628" class="cite xref">RFC8628</a>]</span>), or a refresh token. At the
+client configuration endpoint, the registration access token identifies
+the client (<span><a href="https://rfc-editor.org/rfc/rfc7592#section-2" class="relref">Section 2</a> of [<a href="#RFC7592" class="cite xref">RFC7592</a>]</span>). This specification does not
+define enforcement for a public client in a request that identifies the
+client only by an unauthenticated <code>client_id</code>, such as a device
+authorization request (<span><a href="https://rfc-editor.org/rfc/rfc8628#section-3.1" class="relref">Section 3.1</a> of [<a href="#RFC8628" class="cite xref">RFC8628</a>]</span>). A request rejected
+because of its source address does not count as a use of the
+authorization code it presents (<span><a href="https://rfc-editor.org/rfc/rfc6749#section-4.1.2" class="relref">Section 4.1.2</a> of [<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>).<a href="#section-5.1-1" class="pilcrow">¶</a></p>
 <p id="section-5.1-2">In a response to a party that has not authenticated as the client, an
 authorization server <span class="bcp14">SHOULD NOT</span> indicate that a request was rejected
 because of its source address. This specification does not yet define
