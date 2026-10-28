@@ -162,8 +162,7 @@ set is carried by value or by reference.
 
 OPTIONAL. JSON array of strings, each an IPv4 or IPv6 prefix as defined
 in {{prefix-syntax}}. Each entry identifies a range of source addresses
-from which the client originates requests (see {{use}}). The array MAY
-contain both IPv4 and IPv6 prefixes.
+from which the client originates requests (see {{use}}).
 
 The array is a set. Consumers MUST NOT assign meaning to the order of
 entries or to duplicate entries. This specification does not limit the
@@ -261,7 +260,7 @@ The document MUST be served with the `application/json` media type.
 The document is self-contained. Consumers MUST NOT retrieve other
 resources to complete it. All prefixes in the document apply equally to
 the client identified by the referencing metadata; the document carries
-no service, region, or network policy information. Multiple clients MAY
+no service, region, or network policy information. Multiple clients can
 reference the same document.
 
 The following is an example of a Client IP Range Document:
@@ -294,9 +293,7 @@ credentials. Consumers MUST NOT send credentials associated with an
 OAuth request, such as client credentials, access tokens, or
 authorization codes, when retrieving a Client IP Range Document.
 
-The consumer MUST validate the response and the complete document,
-including every prefix, before accepting it. If any part is invalid, the
-consumer MUST reject the entire document. A failed retrieval, a
+A failed retrieval, a
 malformed response, or a document that is incomplete or exceeds the
 consumer's bounds ({{resource-exhaustion}}) MUST NOT be treated as an
 empty IP range set; it is handled as described in
@@ -324,14 +321,14 @@ range set is application state, distinct from any HTTP cache
 ({{Section 6 of RFC9111}}). A fresh response does not make its IP range
 set accepted, and expiry of a cached response does not end use of the
 accepted IP range set ({{acceptance}}). Consumers SHOULD retrieve the
-document periodically, within local minimum and maximum intervals, to
-obtain changes.
+document periodically to obtain changes.
 
 ## Acceptance {#acceptance}
 
-A consumer MUST validate an IP range set completely before accepting it,
-whether the set is conveyed by `client_ip_ranges` or in a Client IP
-Range Document. Acceptance is subject to local policy
+A consumer MUST validate an IP range set completely, including every
+prefix, before accepting it, whether the set is conveyed by
+`client_ip_ranges` or in a Client IP Range Document, and MUST reject the
+entire set if any part of it is invalid. Acceptance is subject to local policy
 ({{range-changes}}).
 
 An accepted IP range set replaces the previously accepted IP range set
@@ -342,8 +339,7 @@ accepts a replacement or stops using it ({{retrieval-failures}}). A
 validated IP range set that awaits approval does not replace it.
 
 Publishers SHOULD publish a new prefix before the client originates
-requests from it, allowing for consumer retrieval intervals and approval
-delays, and SHOULD continue to publish a prefix until the client no
+requests from it and SHOULD continue to publish a prefix until the client no
 longer originates requests from it.
 
 ## Changes to Client Metadata {#metadata-changes}
@@ -370,15 +366,17 @@ removed.
 
 ## Failures and Withdrawal {#retrieval-failures}
 
-A failure to retrieve a Client IP Range Document, or to validate client
-IP range metadata or a retrieved document, MUST NOT cause a consumer to
-admit a source address that it did not admit before the failure. The
-consumer MAY continue to use the accepted IP range set.
+The following MUST NOT cause a consumer to admit a source address that
+it did not admit before:
 
-Withdrawal of a client's declaration ({{metadata-changes}}) MUST NOT by
-itself cause a consumer to admit a source address that it did not admit
-before the withdrawal. Whether to relax enforcement after a withdrawal
-is local policy.
+* a failure to retrieve a Client IP Range Document;
+* a failure to validate client IP range metadata or a retrieved
+  document; and
+* withdrawal of the client's declaration ({{metadata-changes}}), by
+  itself.
+
+After a failure, the consumer MAY continue to use the accepted IP range
+set. Whether to relax enforcement after a withdrawal is local policy.
 
 A consumer can require an accepted IP range set for a client. Such a
 consumer MUST reject requests from the client while it has no accepted
@@ -461,10 +459,13 @@ for administrator approval ({{range-changes}}).
 ## Retrieval Scheduling {#retrieval-scheduling}
 
 This specification does not require retrieval during the processing of
-any OAuth request.
+any OAuth request. Consumers choose retrieval intervals within local
+minimum and maximum values. Publishers allow for these intervals and for
+approval delays when publishing a new prefix ({{acceptance}}).
 
-Publishers and consumers SHOULD support the gzip content coding
-({{Section 8.4.1.3 of RFC9110}}).
+Publishers and consumers can use the gzip content coding
+({{Section 8.4.1.3 of RFC9110}}) to reduce the transfer size of large
+documents.
 
 ## Document Size {#document-size}
 
@@ -493,7 +494,7 @@ prefixes; for `client_ip_ranges_uri`, only the URL. The publisher of the
 referenced document asserts its contents. Trust in the statement's
 issuer therefore does not extend to those contents; accepting them
 automatically is a separate decision to trust the document's publisher
-within an approved scope ({{range-changes}}). A consumer MAY require
+within an approved scope ({{range-changes}}). A consumer can require
 that `client_ip_ranges_uri` share an origin with the client identifier
 URL of a Client ID Metadata Document {{CIMD}}.
 
@@ -554,7 +555,7 @@ A malicious or compromised publisher can return an oversized document, a
 highly compressed response, or a large number of overlapping prefixes.
 Consumers MUST bound retrieval time, response size, decompressed size,
 and prefix count. If a document exceeds any bound, the consumer MUST
-reject the entire document and MUST NOT accept part of it. This
+reject the entire document. This
 specification sets no minimum value for any of these bounds.
 
 ## Source Address Interpretation {#source-address}
