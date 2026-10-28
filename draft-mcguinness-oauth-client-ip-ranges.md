@@ -395,8 +395,15 @@ withdraws the declaration.
 A failure to retrieve a Client IP Range Document, or to validate client
 IP range metadata or a retrieved document, MUST NOT cause a consumer to
 admit a source address that it did not admit before the failure. The
-consumer MAY continue to use the accepted IP range set, subject to local
-freshness and security policy.
+consumer MAY continue to use the accepted IP range set.
+
+Consumers SHOULD limit how long they continue to use an accepted IP
+range set while retrieval or validation of the client's current
+declaration fails, because the publisher may have removed prefixes that
+have since been reassigned ({{range-changes}}). When the limit is
+exceeded, the consumer stops using the set. Under the first paragraph
+of this section, stopping can narrow, but not widen, the source
+addresses admitted for the client.
 
 Withdrawal of a client's declaration ({{metadata-changes}}) MUST NOT by
 itself cause a consumer to admit a source address that it did not admit
