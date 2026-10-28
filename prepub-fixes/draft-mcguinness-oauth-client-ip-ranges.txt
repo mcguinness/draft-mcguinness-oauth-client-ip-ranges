@@ -332,7 +332,9 @@ Table of Contents
    response, the authorization server MUST apply the same response and
    document validation requirements to the corresponding stored
    response, with its header fields updated as described in
-   Section 4.3.4 of [RFC9111].
+   Section 4.3.4 of [RFC9111].  A 304 response for which the
+   authorization server has no corresponding stored response is a
+   failure.
 
    The party hosting a Client IP Range Document MUST serve it with the
    application/json media type and MUST NOT require authentication to
@@ -406,15 +408,18 @@ Table of Contents
    new declaration in a Client ID Metadata Document, or an unretrievable
    or invalid new document, is a failure (Section 4.5.1).  If the
    previous metadata contained client_ip_ranges_uri, the authorization
-   server MUST NOT retrieve that URL again for the client.
+   server MUST NOT retrieve that URL for the client while the client's
+   current metadata does not reference it.
 
    Removal of both parameters withdraws the client's declaration
    (Section 4.5.2).  In a client update request (Section 2.2 of
    [RFC7592]), omitting both parameters requests their removal, which
    the authorization server can ignore.  An empty client_ip_ranges array
-   in an update request declares an empty IP range set; it is not a
-   request to delete the parameter.  The client information response
-   (Section 3 of [RFC7592]) shows whether the parameters were removed.
+   is different: unlike other empty values in an update request
+   (Section 2.2 of [RFC7592]), it declares an empty IP range set, and
+   the authorization server MUST NOT treat it as a request to delete the
+   parameter or ignore it.  The client information response (Section 3
+   of [RFC7592]) shows whether the parameters were removed.
 
 4.5.  Retention
 
@@ -451,10 +456,13 @@ Table of Contents
    The limit runs from the first failed retrieval or validation, from
    the withdrawal, or from the first validation of the replacement, and
    ends when the authorization server accepts a set under the client's
-   current declaration.  The third case does not apply to an accepted IP
-   range set that the authorization server has narrowed to its
-   intersection with the replacement (Section 4.3), because every source
-   address that set admits is also in the replacement.
+   current declaration.  A successful retrieval or validation that
+   confirms the accepted IP range set, including one that ends in a 304
+   response, counts as such an acceptance.  The third case does not
+   apply to an accepted IP range set that the authorization server has
+   narrowed to its intersection with the replacement (Section 4.3),
+   because every source address that set admits is also in the
+   replacement.
 
    When the retention limit is exceeded, the authorization server stops
    using the set and has no accepted IP range set for the client
@@ -482,17 +490,17 @@ Table of Contents
 
    *  after the retention limit is exceeded (Section 4.5.3), an
       authorization server that was enforcing a set for the client MUST
-      reject requests from the client until it accepts a new IP range
-      set or an explicit local policy decision removes the client from
-      enforcement; and
+      reject requests from the client until it accepts an IP range set
+      under the client's current declaration or an explicit local policy
+      decision removes the client from enforcement; and
 
    *  in other cases, what applies is local policy.
 
-   An authorization server MAY use the IP range set as an input to local
-   network access control.  A match does not authenticate the client or
-   authorize a request.  The authorization server MUST NOT use a source
-   address match in place of client authentication, access token
-   validation, or any other security control required by OAuth.
+   An authorization server MAY use the accepted IP range set as an input
+   to local network access control.  A match does not authenticate the
+   client or authorize a request.  The authorization server MUST NOT use
+   a source address match in place of client authentication, access
+   token validation, or any other security control required by OAuth.
 
    Enforcement by resource servers, including how a resource server
    determines the client associated with a request and obtains that
@@ -505,28 +513,32 @@ Table of Contents
    at the token endpoint and at other endpoints that receive direct
    requests from the client, once it has identified the client, either
    through client authentication or, for a public client (Section 2.1 of
-   [RFC6749]), as the client to which the authorization code or refresh
-   token presented in the request was issued.  This specification does
-   not define enforcement for a public client in a request that
-   identifies the client only by an unauthenticated client_id, such as a
-   device authorization request (Section 3.1 of [RFC8628]).  A request
-   rejected because of its source address does not count as a use of the
-   authorization code it presents (Section 4.1.2 of [RFC6749]).
+   [RFC6749]), as the client to which the authorization code, device
+   code (Section 3.2 of [RFC8628]), or refresh token presented in the
+   request was issued.  At the client configuration endpoint, the
+   registration access token identifies the client (Section 2 of
+   [RFC7592]).  This specification does not define enforcement for a
+   public client in a request that identifies the client only by an
+   unauthenticated client_id, such as a device authorization request
+   (Section 3.1 of [RFC8628]).  A request rejected because of its source
+   address does not count as a use of the authorization code it presents
+   (Section 4.1.2 of [RFC6749]).
 
    In a response to a party that has not authenticated as the client, an
    authorization server SHOULD NOT indicate that a request was rejected
    because of its source address.  This specification does not yet
-   define an error response for such a rejection (Appendix C).
+   define the error response for a request rejected because of its
+   source address (Appendix C).
 
 6.  Implementation Considerations
 
 6.1.  Enforcement Points
 
-   Enforcing the IP range set of a specific client requires knowing
-   which client sent a request.  A network enforcement point that
-   operates below HTTP, such as a firewall, observes the source address
-   but not the client, so it can enforce only the aggregate of the IP
-   range sets of the clients permitted to reach an endpoint.  An
+   Enforcing the accepted IP range set of a specific client requires
+   knowing which client sent a request.  A network enforcement point
+   that operates below HTTP, such as a firewall, observes the source
+   address but not the client, so it can enforce only the aggregate of
+   the IP range sets of the clients permitted to reach an endpoint.  An
    authorization server can enforce each client's accepted IP range set
    once it has identified the client (Section 5.1).
 
@@ -631,8 +643,9 @@ Table of Contents
    authentication succeeds, such a rejection confirms to a party holding
    stolen or guessed client credentials that they are valid.
    Section 5.1 limits this disclosure for parties that have not
-   authenticated as the client; the error response for authenticated
-   parties is an open issue (Appendix C).
+   authenticated as the client; what the error response discloses to
+   authenticated parties is part of the open issue on that response
+   (Appendix C).
 
 7.4.  Server-Side Request Forgery
 
@@ -683,15 +696,15 @@ Table of Contents
    authorization server MUST determine the source address from a trusted
    source of connection-origin information.  A source address that the
    authorization server cannot determine in this way matches no IP range
-   set.  It MUST NOT use a forwarding header field, such as Forwarded
-   [RFC7239] or X-Forwarded-For, as the source address unless it was set
-   by an intermediary the authorization server trusts.  Because a
-   trusted intermediary can append its own observation to a field that
-   already carries entries supplied by an attacker (Section 8.1 of
-   [RFC7239]), the authorization server MUST select the source address
-   from such a field using its configuration of trusted proxies and MUST
-   NOT trust an entry merely because a trusted intermediary forwarded or
-   appended to the field.
+   set.  The authorization server MUST NOT use a forwarding header
+   field, such as Forwarded [RFC7239] or X-Forwarded-For, as the source
+   address unless it was set by an intermediary the authorization server
+   trusts.  Because a trusted intermediary can append its own
+   observation to a field that already carries entries supplied by an
+   attacker (Section 8.1 of [RFC7239]), the authorization server MUST
+   select the source address from such a field using its configuration
+   of trusted proxies and MUST NOT trust an entry merely because a
+   trusted intermediary forwarded or appended to the field.
 
 8.  Privacy Considerations
 

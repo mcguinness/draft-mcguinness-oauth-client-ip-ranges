@@ -1585,7 +1585,8 @@ to a conditional request (<span><a href="https://rfc-editor.org/rfc/rfc9110#sect
 response, the authorization server <span class="bcp14">MUST</span> apply the same response and
 document validation requirements to the corresponding stored response,
 with its header fields updated as described in
-<span><a href="https://rfc-editor.org/rfc/rfc9111#section-4.3.4" class="relref">Section 4.3.4</a> of [<a href="#RFC9111" class="cite xref">RFC9111</a>]</span>.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
+<span><a href="https://rfc-editor.org/rfc/rfc9111#section-4.3.4" class="relref">Section 4.3.4</a> of [<a href="#RFC9111" class="cite xref">RFC9111</a>]</span>. A 304 response for which the authorization
+server has no corresponding stored response is a failure.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
 <p id="section-4.1-2">The party hosting a Client IP Range Document <span class="bcp14">MUST</span> serve it with the
 <code>application/json</code> media type and <span class="bcp14">MUST NOT</span> require authentication to
 retrieve it unless that party and the authorization server have agreed
@@ -1665,17 +1666,17 @@ both. The new metadata replaces the previous declaration.<a href="#section-4.4-1
 set remains in effect as described in <a href="#acceptance" class="auto internal xref">Section 4.3</a>. An invalid new
 declaration in a Client ID Metadata Document, or an unretrievable or
 invalid new document, is a failure (<a href="#failures" class="auto internal xref">Section 4.5.1</a>). If the previous
-metadata contained
-<code>client_ip_ranges_uri</code>, the authorization server <span class="bcp14">MUST NOT</span> retrieve that
-URL again for the client.<a href="#section-4.4-2" class="pilcrow">¶</a></p>
+metadata contained <code>client_ip_ranges_uri</code>, the authorization server <span class="bcp14">MUST NOT</span> retrieve that URL for the client while the client's current metadata
+does not reference it.<a href="#section-4.4-2" class="pilcrow">¶</a></p>
 <p id="section-4.4-3">Removal of both parameters withdraws the client's declaration
 (<a href="#withdrawal" class="auto internal xref">Section 4.5.2</a>). In a client update request
 (<span><a href="https://rfc-editor.org/rfc/rfc7592#section-2.2" class="relref">Section 2.2</a> of [<a href="#RFC7592" class="cite xref">RFC7592</a>]</span>), omitting both parameters requests their
 removal, which the authorization server can ignore. An empty
-<code>client_ip_ranges</code> array in an update request declares an empty IP
-range set; it is not a request to delete the parameter. The client
-information response (<span><a href="https://rfc-editor.org/rfc/rfc7592#section-3" class="relref">Section 3</a> of [<a href="#RFC7592" class="cite xref">RFC7592</a>]</span>) shows whether the
-parameters were removed.<a href="#section-4.4-3" class="pilcrow">¶</a></p>
+<code>client_ip_ranges</code> array is different: unlike other empty values in an
+update request (<span><a href="https://rfc-editor.org/rfc/rfc7592#section-2.2" class="relref">Section 2.2</a> of [<a href="#RFC7592" class="cite xref">RFC7592</a>]</span>), it declares an empty IP
+range set, and the authorization server <span class="bcp14">MUST NOT</span> treat it as a request
+to delete the parameter or ignore it. The client information response
+(<span><a href="https://rfc-editor.org/rfc/rfc7592#section-3" class="relref">Section 3</a> of [<a href="#RFC7592" class="cite xref">RFC7592</a>]</span>) shows whether the parameters were removed.<a href="#section-4.4-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="retention">
@@ -1731,10 +1732,12 @@ policy.<a href="#section-4.5.3-2.3.1" class="pilcrow">¶</a></p>
 <p id="section-4.5.3-3">The limit runs from the first failed retrieval or validation, from the
 withdrawal, or from the first validation of the replacement, and ends
 when the authorization server accepts a set under the client's current
-declaration. The third case does not apply to an accepted IP range set
-that the authorization server has narrowed to its intersection with
-the replacement (<a href="#acceptance" class="auto internal xref">Section 4.3</a>), because every source address that set
-admits is also in the replacement.<a href="#section-4.5.3-3" class="pilcrow">¶</a></p>
+declaration. A successful retrieval or validation that confirms the
+accepted IP range set, including one that ends in a 304 response, counts
+as such an acceptance. The third case does not apply to an accepted IP
+range set that the authorization server has narrowed to its intersection
+with the replacement (<a href="#acceptance" class="auto internal xref">Section 4.3</a>), because every source address that
+set admits is also in the replacement.<a href="#section-4.5.3-3" class="pilcrow">¶</a></p>
 <p id="section-4.5.3-4">When the retention limit is exceeded, the authorization server stops
 using the set and has no accepted IP range set for the client
 (<a href="#enforcement" class="auto internal xref">Section 5</a>).<a href="#section-4.5.3-4" class="pilcrow">¶</a></p>
@@ -1769,17 +1772,17 @@ the client <span class="bcp14">MUST</span> reject requests from the client;<a hr
         <li class="normal" id="section-5-4.2">
           <p id="section-5-4.2.1">after the retention limit is exceeded (<a href="#retention-limit" class="auto internal xref">Section 4.5.3</a>), an
 authorization server that was enforcing a set for the client <span class="bcp14">MUST</span>
-reject requests from the client until it accepts a new IP range set
-or an explicit local policy decision removes the client from
-enforcement; and<a href="#section-5-4.2.1" class="pilcrow">¶</a></p>
+reject requests from the client until it accepts an IP range set under
+the client's current declaration or an explicit local policy decision
+removes the client from enforcement; and<a href="#section-5-4.2.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="section-5-4.3">
           <p id="section-5-4.3.1">in other cases, what applies is local policy.<a href="#section-5-4.3.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
-<p id="section-5-5">An authorization server <span class="bcp14">MAY</span> use the IP range set as an input to local
-network access control. A match does not authenticate the client or
-authorize a request. The authorization server <span class="bcp14">MUST NOT</span> use a source
+<p id="section-5-5">An authorization server <span class="bcp14">MAY</span> use the accepted IP range set as an input to
+local network access control. A match does not authenticate the client
+or authorize a request. The authorization server <span class="bcp14">MUST NOT</span> use a source
 address match in place of client authentication, access token
 validation, or any other security control required by OAuth.<a href="#section-5-5" class="pilcrow">¶</a></p>
 <p id="section-5-6">Enforcement by resource servers, including how a resource server
@@ -1796,17 +1799,20 @@ the token endpoint and at other endpoints that receive direct requests
 from the client, once it has identified the client, either through
 client authentication or, for a public client
 (<span><a href="https://rfc-editor.org/rfc/rfc6749#section-2.1" class="relref">Section 2.1</a> of [<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>), as the client to which the authorization
-code or refresh token presented in the request was issued. This
-specification does not define enforcement for a public client in a
-request that identifies the client only by an unauthenticated
-<code>client_id</code>, such as a device authorization request
-(<span><a href="https://rfc-editor.org/rfc/rfc8628#section-3.1" class="relref">Section 3.1</a> of [<a href="#RFC8628" class="cite xref">RFC8628</a>]</span>). A request rejected because of its source
-address does not count as a use of the authorization code it presents
-(<span><a href="https://rfc-editor.org/rfc/rfc6749#section-4.1.2" class="relref">Section 4.1.2</a> of [<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>).<a href="#section-5.1-1" class="pilcrow">¶</a></p>
+code, device code (<span><a href="https://rfc-editor.org/rfc/rfc8628#section-3.2" class="relref">Section 3.2</a> of [<a href="#RFC8628" class="cite xref">RFC8628</a>]</span>), or refresh token
+presented in the request was issued. At the client configuration
+endpoint, the registration access token identifies the client
+(<span><a href="https://rfc-editor.org/rfc/rfc7592#section-2" class="relref">Section 2</a> of [<a href="#RFC7592" class="cite xref">RFC7592</a>]</span>). This specification does not define
+enforcement for a public client in a request that identifies the client
+only by an unauthenticated <code>client_id</code>, such as a device authorization
+request (<span><a href="https://rfc-editor.org/rfc/rfc8628#section-3.1" class="relref">Section 3.1</a> of [<a href="#RFC8628" class="cite xref">RFC8628</a>]</span>). A request rejected because of its
+source address does not count as a use of the authorization code it
+presents (<span><a href="https://rfc-editor.org/rfc/rfc6749#section-4.1.2" class="relref">Section 4.1.2</a> of [<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>).<a href="#section-5.1-1" class="pilcrow">¶</a></p>
 <p id="section-5.1-2">In a response to a party that has not authenticated as the client, an
 authorization server <span class="bcp14">SHOULD NOT</span> indicate that a request was rejected
-because of its source address. This specification does not yet define an
-error response for such a rejection (<a href="#open-issues" class="auto internal xref">Appendix C</a>).<a href="#section-5.1-2" class="pilcrow">¶</a></p>
+because of its source address. This specification does not yet define
+the error response for a request rejected because of its source address
+(<a href="#open-issues" class="auto internal xref">Appendix C</a>).<a href="#section-5.1-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1821,14 +1827,13 @@ error response for such a rejection (<a href="#open-issues" class="auto internal
         <h3 id="name-enforcement-points">
 <a href="#section-6.1" class="section-number selfRef">6.1. </a><a href="#name-enforcement-points" class="section-name selfRef">Enforcement Points</a>
         </h3>
-<p id="section-6.1-1">Enforcing the IP range set of a specific client requires knowing which
-client sent a request. A network enforcement point that operates below
-HTTP, such as a firewall, observes the source address but not the
-client, so it can enforce only the aggregate of the IP range sets of the
-clients permitted to reach an endpoint. An authorization server can
-enforce each client's accepted IP range set once it has identified the
-client
-(<a href="#client-identification" class="auto internal xref">Section 5.1</a>).<a href="#section-6.1-1" class="pilcrow">¶</a></p>
+<p id="section-6.1-1">Enforcing the accepted IP range set of a specific client requires
+knowing which client sent a request. A network enforcement point that
+operates below HTTP, such as a firewall, observes the source address but
+not the client, so it can enforce only the aggregate of the IP range
+sets of the clients permitted to reach an endpoint. An authorization
+server can enforce each client's accepted IP range set once it has
+identified the client (<a href="#client-identification" class="auto internal xref">Section 5.1</a>).<a href="#section-6.1-1" class="pilcrow">¶</a></p>
 <p id="section-6.1-2">For example, an enterprise adds a hosted client's approved ranges to the
 network allowlist in front of its token endpoint, and the authorization
 server also enforces the client's accepted IP range set. Local policy
@@ -1947,8 +1952,9 @@ authorization server checks the source address only after client
 authentication succeeds, such a rejection confirms to a party holding
 stolen or guessed client credentials that they are valid.
 <a href="#client-identification" class="auto internal xref">Section 5.1</a> limits this disclosure for parties that have
-not authenticated as the client; the error response for authenticated
-parties is an open issue (<a href="#open-issues" class="auto internal xref">Appendix C</a>).<a href="#section-7.3-1" class="pilcrow">¶</a></p>
+not authenticated as the client; what the error response discloses to
+authenticated parties is part of the open issue on that response
+(<a href="#open-issues" class="auto internal xref">Appendix C</a>).<a href="#section-7.3-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="ssrf">
@@ -2014,15 +2020,15 @@ these bounds.<a href="#section-7.5-1" class="pilcrow">¶</a></p>
 source address that an authorization server observes. The authorization
 server <span class="bcp14">MUST</span> determine the source address from a trusted source of
 connection-origin information. A source address that the authorization
-server cannot determine in this way matches no IP range set. It <span class="bcp14">MUST NOT</span>
-use a forwarding header
-field, such as <code>Forwarded</code> <span>[<a href="#RFC7239" class="cite xref">RFC7239</a>]</span> or <code>X-Forwarded-For</code>, as the
-source address unless it was set by an intermediary the authorization
-server trusts. Because a trusted intermediary can append its own
-observation to a field that already carries entries supplied by an
-attacker (<span><a href="https://rfc-editor.org/rfc/rfc7239#section-8.1" class="relref">Section 8.1</a> of [<a href="#RFC7239" class="cite xref">RFC7239</a>]</span>), the authorization server <span class="bcp14">MUST</span>
-select the source address from such a field using its configuration of
-trusted proxies and <span class="bcp14">MUST NOT</span> trust an entry merely because a trusted
+server cannot determine in this way matches no IP range set. The
+authorization server <span class="bcp14">MUST NOT</span> use a forwarding header field, such as
+<code>Forwarded</code> <span>[<a href="#RFC7239" class="cite xref">RFC7239</a>]</span> or <code>X-Forwarded-For</code>, as the source address
+unless it was set by an intermediary the authorization server trusts.
+Because a trusted intermediary can append its own observation to a field
+that already carries entries supplied by an attacker
+(<span><a href="https://rfc-editor.org/rfc/rfc7239#section-8.1" class="relref">Section 8.1</a> of [<a href="#RFC7239" class="cite xref">RFC7239</a>]</span>), the authorization server <span class="bcp14">MUST</span> select the
+source address from such a field using its configuration of trusted
+proxies and <span class="bcp14">MUST NOT</span> trust an entry merely because a trusted
 intermediary forwarded or appended to the field.<a href="#section-7.6-1" class="pilcrow">¶</a></p>
 </section>
 </div>
