@@ -51,6 +51,7 @@ normative:
 informative:
   RFC7239:
   RFC7592:
+  RFC8628:
   SSF:
     title: "OpenID Shared Signals Framework Specification 1.0"
     target: https://openid.net/specs/openid-sharedsignals-framework-1_0-final.html
@@ -441,11 +442,15 @@ be addressed by a companion specification.
 
 An authorization server can enforce a client's accepted IP range set at
 the token endpoint and at other endpoints that receive direct requests
-from the client. Enforcement requires identifying the client:
+from the client, once it has identified the client:
 
 * through client authentication; or
 * for a public client ({{Section 2.1 of RFC6749}}), through the client
-  to which the grant presented in the request was issued.
+  to which a grant presented in the request was issued.
+
+This specification does not define how an authorization server
+identifies a public client in a request that presents no grant, such
+as a device authorization request ({{Section 3.1 of RFC8628}}).
 
 An authorization server SHOULD NOT indicate, in a response to a party
 that has not authenticated as the client, that a request was rejected
