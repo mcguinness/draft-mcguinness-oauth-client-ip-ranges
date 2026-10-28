@@ -593,7 +593,9 @@ these bounds.
 Proxies, load balancers, and network address translation change the
 source address that an authorization server observes. The authorization
 server MUST determine the source address from a trusted source of
-connection-origin information. It MUST NOT use a forwarding header
+connection-origin information. A source address that the authorization
+server cannot determine in this way matches no IP range set. It MUST NOT
+use a forwarding header
 field, such as `Forwarded` {{RFC7239}} or `X-Forwarded-For`, as the
 source address unless it was set by an intermediary the authorization
 server trusts. Because a trusted intermediary can append its own
