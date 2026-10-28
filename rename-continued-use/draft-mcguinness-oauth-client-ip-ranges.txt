@@ -90,7 +90,7 @@ Table of Contents
      4.2.  Caching
      4.3.  Acceptance
      4.4.  Changes to Client Metadata
-     4.5.  Continued Use of the Accepted IP Range Set
+     4.5.  Continued Use
        4.5.1.  Failures
        4.5.2.  Withdrawal
        4.5.3.  Retention Limit
@@ -406,7 +406,7 @@ Table of Contents
    the authorization server can ignore.  The client information response
    (Section 3 of [RFC7592]) shows whether they were removed.
 
-4.5.  Continued Use of the Accepted IP Range Set
+4.5.  Continued Use
 
 4.5.1.  Failures
 
