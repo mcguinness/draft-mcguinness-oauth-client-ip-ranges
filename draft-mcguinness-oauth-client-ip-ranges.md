@@ -325,27 +325,21 @@ Publishers SHOULD support HTTP caching {{RFC9111}} and SHOULD include
 the `Cache-Control` ({{Section 5.2 of RFC9111}}) and `ETag`
 ({{Section 8.8.3 of RFC9110}}) response header fields.
 
-Consumers SHOULD revalidate a cached document with a conditional GET
-request carrying the `If-None-Match` header field
-({{Section 13.1.2 of RFC9110}}) and the entity tag of the document from
-which the accepted IP range set was obtained. A 304 (Not Modified)
-response ({{Section 15.4.5 of RFC9110}}) indicates that this document
-remains current.
+Consumers SHOULD revalidate the document with a conditional GET request
+carrying the `If-None-Match` header field
+({{Section 13.1.2 of RFC9110}}) and the entity tag of the most recent
+response retrieved from that URI. A 304 (Not Modified) response
+({{Section 15.4.5 of RFC9110}}) indicates that the document is
+unchanged since that response. A consumer that uses an HTTP cache
+follows {{RFC9111}}.
 
-Cached responses and their validators are specific to the URI from which
-they were retrieved ({{Section 2 of RFC9111}}). A consumer MUST NOT use
-an entity tag obtained from one `client_ip_ranges_uri` in a request to
-another.
-
-HTTP caching applies only to retrieving the document. A consumer that
-uses an HTTP cache follows {{RFC9111}}, including the `no-cache`,
-`no-store`, and `must-revalidate` cache directives. The accepted IP
+HTTP caching applies only to retrieving the document. The accepted IP
 range set is application state, distinct from any HTTP cache
-({{Section 6 of RFC9111}}). It stays in use until the consumer accepts a
-replacement or local policy ends its use ({{retrieval-failures}}); cache
-freshness does not determine when enforcement of a prefix starts or
-stops. Consumers SHOULD retrieve the document periodically, within local
-minimum and maximum intervals, to obtain changes.
+({{Section 6 of RFC9111}}). A fresh response does not make its IP range
+set accepted, and expiry of a cached response does not end use of the
+accepted IP range set ({{acceptance}}). Consumers SHOULD retrieve the
+document periodically, within local minimum and maximum intervals, to
+obtain changes.
 
 Publishers and consumers SHOULD support the gzip content coding
 ({{Section 8.4.1.3 of RFC9110}}).
@@ -387,7 +381,7 @@ metadata ({{acceptance}}). If the new declaration is invalid or the new
 document cannot be retrieved, the consumer handles this as a failure
 ({{retrieval-failures}}). The consumer does not retrieve the previous
 URI again for that client or reuse its cached responses or validators
-({{caching}}).
+({{Section 2 of RFC9111}}).
 
 Removal of both parameters withdraws the client's declaration. In a
 client update request ({{Section 2.2 of RFC7592}}), omitted metadata
