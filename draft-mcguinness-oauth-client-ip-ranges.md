@@ -149,8 +149,9 @@ Client IP Range Document:
   set and is referenced by `client_ip_ranges_uri`.
 
 accepted IP range set:
-: The IP range set that a consumer has most recently validated and
-  accepted for a client.
+: The IP range set, if any, that a consumer has validated and accepted
+  for a client and currently uses for it. A consumer that stops using
+  an IP range set no longer has an accepted IP range set for the client.
 
 publisher:
 : An entity that publishes a client's IP range set, either by value in
@@ -403,9 +404,9 @@ Consumers SHOULD limit how long they continue to use an accepted IP
 range set while retrieval or validation of the client's current
 declaration fails, because the publisher may have removed prefixes that
 have since been reassigned ({{range-changes}}). When the limit is
-exceeded, the consumer stops using the set. Under the first paragraph
-of this section, stopping can narrow, but not widen, the source
-addresses admitted for the client.
+exceeded, the consumer stops using the set and has no accepted IP range
+set for the client. Under the first paragraph of this section, stopping
+can narrow, but not widen, the source addresses admitted for the client.
 
 Withdrawal of a client's declaration ({{metadata-changes}}) MUST NOT by
 itself cause a consumer to admit a source address that it did not admit
