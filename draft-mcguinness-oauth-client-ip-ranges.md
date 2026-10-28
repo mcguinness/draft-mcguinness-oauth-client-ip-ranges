@@ -273,8 +273,11 @@ an HTTP GET request to the `client_ip_ranges_uri` URL, subject to
 `application/json` media type, and a complete body within the
 authorization server's bounds ({{resource-exhaustion}}), or if it has
 status code 304 (Not Modified) ({{Section 15.4.5 of RFC9110}}) in answer
-to a conditional request ({{retrieval-scheduling}}). A 304 response
-indicates that the stored response is current.
+to a conditional request ({{Section 13 of RFC9110}}). Following a 304
+response, the authorization server MUST apply the same response and
+document validation requirements to the corresponding stored response,
+with its header fields updated as described in
+{{Section 4.3.4 of RFC9111}}.
 
 The party hosting a Client IP Range Document MUST serve it with the
 `application/json` media type and MUST NOT require authentication to
