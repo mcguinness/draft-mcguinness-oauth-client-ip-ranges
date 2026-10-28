@@ -363,7 +363,7 @@ removal, which the authorization server can ignore. The client
 information response ({{Section 3 of RFC7592}}) shows whether they were
 removed.
 
-## Failures, Withdrawal, and Retention {#retrieval-failures}
+## Continued Use of the Accepted IP Range Set {#continued-use}
 
 ### Failures {#failures}
 
@@ -381,7 +381,7 @@ by itself cause an authorization server to admit a source address that
 it did not admit before the withdrawal. Relaxing enforcement after a
 withdrawal is a local policy decision.
 
-### Retention {#retention}
+### Retention Limit {#retention}
 
 An authorization server SHOULD set a retention limit on how long it
 continues to use an accepted IP range set while retrieval or validation
