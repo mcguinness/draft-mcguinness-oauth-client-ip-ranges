@@ -1377,8 +1377,9 @@ set and is referenced by <code>client_ip_ranges_uri</code>.<a href="#section-1.2
           <dd class="break"></dd>
 <dt id="section-1.2-3.5">accepted IP range set:</dt>
           <dd style="margin-left: 1.5em" id="section-1.2-3.6">
-            <p id="section-1.2-3.6.1">The IP range set that a consumer has most recently validated and
-accepted for a client.<a href="#section-1.2-3.6.1" class="pilcrow">¶</a></p>
+            <p id="section-1.2-3.6.1">The IP range set, if any, that a consumer has validated and accepted
+for a client and currently uses for it. A consumer that stops using
+an IP range set no longer has an accepted IP range set for the client.<a href="#section-1.2-3.6.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
 <dt id="section-1.2-3.7">publisher:</dt>
@@ -1674,9 +1675,9 @@ consumer <span class="bcp14">MAY</span> continue to use the accepted IP range se
 range set while retrieval or validation of the client's current
 declaration fails, because the publisher may have removed prefixes that
 have since been reassigned (<a href="#range-changes" class="auto internal xref">Section 6.2</a>). When the limit is
-exceeded, the consumer stops using the set. Under the first paragraph
-of this section, stopping can narrow, but not widen, the source
-addresses admitted for the client.<a href="#section-4.5-2" class="pilcrow">¶</a></p>
+exceeded, the consumer stops using the set and has no accepted IP range
+set for the client. Under the first paragraph of this section, stopping
+can narrow, but not widen, the source addresses admitted for the client.<a href="#section-4.5-2" class="pilcrow">¶</a></p>
 <p id="section-4.5-3">Withdrawal of a client's declaration (<a href="#metadata-changes" class="auto internal xref">Section 4.4</a>) <span class="bcp14">MUST NOT</span> by
 itself cause a consumer to admit a source address that it did not admit
 before the withdrawal. Whether to relax enforcement after a withdrawal
