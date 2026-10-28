@@ -418,7 +418,7 @@ from the client.
 | Replacement validated, not yet accepted | Unchanged or narrowed to the intersection, at most until the limit |
 | Retrieval or validation fails | Unchanged, at most until the limit |
 | Declaration withdrawn | Unchanged, at most until the limit |
-| Limit exceeded | None; a consumer that was enforcing the set rejects requests from the client |
+| Limit exceeded | None; a consumer that was enforcing the set rejects requests from the client until it accepts a new set or local policy removes the client from enforcement |
 
 # Use of Client IP Range Metadata {#use}
 
@@ -592,8 +592,9 @@ accepted.
 
 When the limit is exceeded, the consumer stops using the set and has no
 accepted IP range set for the client. A consumer that was enforcing the
-set rejects requests from the client until it accepts a new IP range
-set. The limit therefore trades availability for safety.
+set rejects requests from the client until it accepts a new IP range set
+or an explicit local policy decision removes the client from
+enforcement. The limit therefore trades availability for safety.
 
 ## Server-Side Request Forgery {#ssrf}
 
