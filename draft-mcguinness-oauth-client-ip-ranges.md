@@ -464,8 +464,9 @@ determines whether the change is applied automatically, such as an
 addition within an approved scope, or is held for administrator approval
 ({{range-changes}}).
 
-Requests from a client are rejected if its egress addresses change
-before the authorization server accepts an updated declaration.
+When an authorization server enforces a client's accepted IP range set,
+requests from source addresses outside that set are rejected until the
+authorization server accepts a replacement that includes them.
 Deployments that require an accepted IP range set need an administrative
 path to restore access, such as approving a replacement set. Enforcing a
 client's IP range set at the client configuration endpoint
