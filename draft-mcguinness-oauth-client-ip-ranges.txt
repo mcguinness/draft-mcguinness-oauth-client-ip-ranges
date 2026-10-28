@@ -4,8 +4,9 @@
 
 Web Authorization Protocol                                 K. McGuinness
 Internet-Draft                                               Independent
-Intended status: Standards Track                         23 October 2026
-Expires: 26 April 2027
+Intended status: Standards Track                                X. Zhang
+Expires: 1 May 2027                                           Databricks
+                                                         28 October 2026
 
 
                      OAuth Client IP Range Metadata
@@ -59,7 +60,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 26 April 2027.
+   This Internet-Draft will expire on 1 May 2027.
 
 Copyright Notice
 
@@ -111,7 +112,7 @@ Table of Contents
      10.2.  Informative References
    Appendix A.  Open Issues
    Appendix B.  Document History
-   Author's Address
+   Authors' Addresses
 
 1.  Introduction
 
@@ -798,8 +799,13 @@ Appendix B.  Document History
 
    *  Initial version.
 
-Author's Address
+Authors' Addresses
 
    Karl McGuinness
    Independent
    Email: public@karlmcguinness.com
+
+
+   Xiaoyi Zhang
+   Databricks
+   Email: xiaoyi.zhang@databricks.com
