@@ -712,6 +712,7 @@ that declares an IP range set by reference:
 {
   "client_id": "https://client.example.com/oauth/client.json",
   "client_name": "Example Client",
+  "redirect_uris": ["https://client.example.com/callback"],
   "token_endpoint_auth_method": "private_key_jwt",
   "jwks_uri": "https://client.example.com/jwks.json",
   "client_ip_ranges_uri": "https://client.example.com/ip-ranges.json"
