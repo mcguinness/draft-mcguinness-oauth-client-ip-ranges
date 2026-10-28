@@ -1202,7 +1202,7 @@ access control.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
             <p id="section-toc.1-1.3.1"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-client-ip-range-document" class="internal xref">Client IP Range Document</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4">
-            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-retrieval-and-synchronizati" class="internal xref">Retrieval and Synchronization</a></p>
+            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-retrieval-and-acceptance" class="internal xref">Retrieval and Acceptance</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1">
                 <p id="section-toc.1-1.4.2.1.1"><a href="#section-4.1" class="auto internal xref">4.1</a>.  <a href="#name-retrieval" class="internal xref">Retrieval</a></p>
@@ -1211,13 +1211,13 @@ access control.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
                 <p id="section-toc.1-1.4.2.2.1"><a href="#section-4.2" class="auto internal xref">4.2</a>.  <a href="#name-caching" class="internal xref">Caching</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.3">
-                <p id="section-toc.1-1.4.2.3.1"><a href="#section-4.3" class="auto internal xref">4.3</a>.  <a href="#name-updates" class="internal xref">Updates</a></p>
+                <p id="section-toc.1-1.4.2.3.1"><a href="#section-4.3" class="auto internal xref">4.3</a>.  <a href="#name-acceptance" class="internal xref">Acceptance</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.4">
                 <p id="section-toc.1-1.4.2.4.1"><a href="#section-4.4" class="auto internal xref">4.4</a>.  <a href="#name-changes-to-client-metadata" class="internal xref">Changes to Client Metadata</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.5">
-                <p id="section-toc.1-1.4.2.5.1"><a href="#section-4.5" class="auto internal xref">4.5</a>.  <a href="#name-retrieval-failures" class="internal xref">Retrieval Failures</a></p>
+                <p id="section-toc.1-1.4.2.5.1"><a href="#section-4.5" class="auto internal xref">4.5</a>.  <a href="#name-failures-and-withdrawal" class="internal xref">Failures and Withdrawal</a></p>
 </li>
             </ul>
 </li>
@@ -1281,13 +1281,16 @@ access control.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11">
-            <p id="section-toc.1-1.11.1"><a href="#appendix-A" class="auto internal xref">Appendix A</a>.  <a href="#name-open-issues" class="internal xref">Open Issues</a></p>
+            <p id="section-toc.1-1.11.1"><a href="#appendix-A" class="auto internal xref">Appendix A</a>.  <a href="#name-related-work" class="internal xref">Related Work</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12">
-            <p id="section-toc.1-1.12.1"><a href="#appendix-B" class="auto internal xref">Appendix B</a>.  <a href="#name-document-history" class="internal xref">Document History</a></p>
+            <p id="section-toc.1-1.12.1"><a href="#appendix-B" class="auto internal xref">Appendix B</a>.  <a href="#name-open-issues" class="internal xref">Open Issues</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13">
-            <p id="section-toc.1-1.13.1"><a href="#appendix-C" class="auto internal xref"></a><a href="#name-authors-addresses" class="internal xref">Authors' Addresses</a></p>
+            <p id="section-toc.1-1.13.1"><a href="#appendix-C" class="auto internal xref">Appendix C</a>.  <a href="#name-document-history" class="internal xref">Document History</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.14">
+            <p id="section-toc.1-1.14.1"><a href="#appendix-D" class="auto internal xref"></a><a href="#name-authors-addresses" class="internal xref">Authors' Addresses</a></p>
 </li>
         </ul>
 </nav>
@@ -1374,8 +1377,9 @@ set and is referenced by <code>client_ip_ranges_uri</code>.<a href="#section-1.2
           <dd class="break"></dd>
 <dt id="section-1.2-3.5">accepted IP range set:</dt>
           <dd style="margin-left: 1.5em" id="section-1.2-3.6">
-            <p id="section-1.2-3.6.1">The IP range set that a consumer has most recently validated and
-accepted for a client.<a href="#section-1.2-3.6.1" class="pilcrow">¶</a></p>
+            <p id="section-1.2-3.6.1">The IP range set, if any, that a consumer has validated and accepted
+for a client and currently uses for it. A consumer that stops using
+an IP range set no longer has an accepted IP range set for the client.<a href="#section-1.2-3.6.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
 <dt id="section-1.2-3.7">publisher:</dt>
@@ -1552,8 +1556,8 @@ reference the same document.<a href="#section-3-5" class="pilcrow">¶</a></p>
 </div>
 <div id="retrieval">
 <section id="section-4">
-      <h2 id="name-retrieval-and-synchronizati">
-<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-retrieval-and-synchronizati" class="section-name selfRef">Retrieval and Synchronization</a>
+      <h2 id="name-retrieval-and-acceptance">
+<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-retrieval-and-acceptance" class="section-name selfRef">Retrieval and Acceptance</a>
       </h2>
 <div id="fetch">
 <section id="section-4.1">
@@ -1590,40 +1594,42 @@ any OAuth request.<a href="#section-4.1-4" class="pilcrow">¶</a></p>
 <p id="section-4.2-1">Publishers <span class="bcp14">SHOULD</span> support HTTP caching <span>[<a href="#RFC9111" class="cite xref">RFC9111</a>]</span> and <span class="bcp14">SHOULD</span> include
 the <code>Cache-Control</code> (<span><a href="https://rfc-editor.org/rfc/rfc9111#section-5.2" class="relref">Section 5.2</a> of [<a href="#RFC9111" class="cite xref">RFC9111</a>]</span>) and <code>ETag</code>
 (<span><a href="https://rfc-editor.org/rfc/rfc9110#section-8.8.3" class="relref">Section 8.8.3</a> of [<a href="#RFC9110" class="cite xref">RFC9110</a>]</span>) response header fields.<a href="#section-4.2-1" class="pilcrow">¶</a></p>
-<p id="section-4.2-2">Consumers <span class="bcp14">SHOULD</span> revalidate a cached document with a conditional GET
-request carrying the <code>If-None-Match</code> header field
-(<span><a href="https://rfc-editor.org/rfc/rfc9110#section-13.1.2" class="relref">Section 13.1.2</a> of [<a href="#RFC9110" class="cite xref">RFC9110</a>]</span>) and the entity tag of the document from
-which the accepted IP range set was obtained. A 304 (Not Modified)
-response (<span><a href="https://rfc-editor.org/rfc/rfc9110#section-15.4.5" class="relref">Section 15.4.5</a> of [<a href="#RFC9110" class="cite xref">RFC9110</a>]</span>) indicates that this document
-remains current.<a href="#section-4.2-2" class="pilcrow">¶</a></p>
-<p id="section-4.2-3">Cached responses and their validators are specific to the URI from which
-they were retrieved (<span><a href="https://rfc-editor.org/rfc/rfc9111#section-2" class="relref">Section 2</a> of [<a href="#RFC9111" class="cite xref">RFC9111</a>]</span>). A consumer <span class="bcp14">MUST NOT</span> use
-an entity tag obtained from one <code>client_ip_ranges_uri</code> in a request to
-another.<a href="#section-4.2-3" class="pilcrow">¶</a></p>
-<p id="section-4.2-4">HTTP caching applies only to retrieving the document. A consumer that
-uses an HTTP cache follows <span>[<a href="#RFC9111" class="cite xref">RFC9111</a>]</span>, including the <code>no-cache</code>,
-<code>no-store</code>, and <code>must-revalidate</code> cache directives. The accepted IP
+<p id="section-4.2-2">Consumers <span class="bcp14">SHOULD</span> revalidate the document with a conditional GET request
+carrying the <code>If-None-Match</code> header field
+(<span><a href="https://rfc-editor.org/rfc/rfc9110#section-13.1.2" class="relref">Section 13.1.2</a> of [<a href="#RFC9110" class="cite xref">RFC9110</a>]</span>) and the entity tag of the most recent
+complete response from that URI that the consumer has retained
+(<span><a href="https://rfc-editor.org/rfc/rfc9111#section-4.3" class="relref">Section 4.3</a> of [<a href="#RFC9111" class="cite xref">RFC9111</a>]</span>). That response can hold an IP range set
+that awaits approval; it need not be the one from which the accepted IP
+range set was obtained. A consumer that has retained no complete
+response sends an unconditional request. A 304 (Not Modified) response
+(<span><a href="https://rfc-editor.org/rfc/rfc9110#section-15.4.5" class="relref">Section 15.4.5</a> of [<a href="#RFC9110" class="cite xref">RFC9110</a>]</span>) indicates that the retained response is
+current. A consumer that uses an HTTP cache follows <span>[<a href="#RFC9111" class="cite xref">RFC9111</a>]</span>.<a href="#section-4.2-2" class="pilcrow">¶</a></p>
+<p id="section-4.2-3">HTTP caching applies only to retrieving the document. The accepted IP
 range set is application state, distinct from any HTTP cache
-(<span><a href="https://rfc-editor.org/rfc/rfc9111#section-6" class="relref">Section 6</a> of [<a href="#RFC9111" class="cite xref">RFC9111</a>]</span>). It stays in use until the consumer accepts a
-replacement or local policy ends its use (<a href="#retrieval-failures" class="auto internal xref">Section 4.5</a>); cache
-freshness does not determine when enforcement of a prefix starts or
-stops. Consumers <span class="bcp14">SHOULD</span> retrieve the document periodically, within local
-minimum and maximum intervals, to obtain changes.<a href="#section-4.2-4" class="pilcrow">¶</a></p>
-<p id="section-4.2-5">Publishers and consumers <span class="bcp14">SHOULD</span> support the gzip content coding
-(<span><a href="https://rfc-editor.org/rfc/rfc9110#section-8.4.1.3" class="relref">Section 8.4.1.3</a> of [<a href="#RFC9110" class="cite xref">RFC9110</a>]</span>).<a href="#section-4.2-5" class="pilcrow">¶</a></p>
+(<span><a href="https://rfc-editor.org/rfc/rfc9111#section-6" class="relref">Section 6</a> of [<a href="#RFC9111" class="cite xref">RFC9111</a>]</span>). A fresh response does not make its IP range
+set accepted, and expiry of a cached response does not end use of the
+accepted IP range set (<a href="#acceptance" class="auto internal xref">Section 4.3</a>). Consumers <span class="bcp14">SHOULD</span> retrieve the
+document periodically, within local minimum and maximum intervals, to
+obtain changes.<a href="#section-4.2-3" class="pilcrow">¶</a></p>
+<p id="section-4.2-4">Publishers and consumers <span class="bcp14">SHOULD</span> support the gzip content coding
+(<span><a href="https://rfc-editor.org/rfc/rfc9110#section-8.4.1.3" class="relref">Section 8.4.1.3</a> of [<a href="#RFC9110" class="cite xref">RFC9110</a>]</span>).<a href="#section-4.2-4" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="updates">
+<div id="acceptance">
 <section id="section-4.3">
-        <h3 id="name-updates">
-<a href="#section-4.3" class="section-number selfRef">4.3. </a><a href="#name-updates" class="section-name selfRef">Updates</a>
+        <h3 id="name-acceptance">
+<a href="#section-4.3" class="section-number selfRef">4.3. </a><a href="#name-acceptance" class="section-name selfRef">Acceptance</a>
         </h3>
-<p id="section-4.3-1">Each accepted document replaces the accepted IP range set in full. This
-specification defines no incremental update format.<a href="#section-4.3-1" class="pilcrow">¶</a></p>
-<p id="section-4.3-2">A consumer <span class="bcp14">MUST</span> validate a new document completely before replacing the
-accepted IP range set. Consumers can compare the two sets to
-identify added and removed prefixes. Activation of changes is subject to
-local policy (<a href="#range-changes" class="auto internal xref">Section 6.2</a>).<a href="#section-4.3-2" class="pilcrow">¶</a></p>
+<p id="section-4.3-1">A consumer <span class="bcp14">MUST</span> validate an IP range set completely before accepting it,
+whether the set is conveyed by <code>client_ip_ranges</code> or in a Client IP
+Range Document. Acceptance is subject to local policy
+(<a href="#range-changes" class="auto internal xref">Section 6.2</a>).<a href="#section-4.3-1" class="pilcrow">¶</a></p>
+<p id="section-4.3-2">An accepted IP range set replaces the previously accepted IP range set
+in full. This specification defines no incremental update format.
+Consumers can compare the two sets to identify added and removed
+prefixes. The accepted IP range set remains in effect until the consumer
+accepts a replacement or stops using it (<a href="#retrieval-failures" class="auto internal xref">Section 4.5</a>). A
+validated IP range set that awaits approval does not replace it.<a href="#section-4.3-2" class="pilcrow">¶</a></p>
 <p id="section-4.3-3">Publishers <span class="bcp14">SHOULD</span> publish a new prefix before the client originates
 requests from it, allowing for consumer retrieval intervals and approval
 delays, and <span class="bcp14">SHOULD</span> continue to publish a prefix until the client no
@@ -1643,32 +1649,49 @@ scheduled activation of ranges.<a href="#section-4.3-4" class="pilcrow">¶</a></
 <p id="section-4.4-1">A client's metadata can change the value of <code>client_ip_ranges_uri</code>,
 switch between <code>client_ip_ranges</code> and <code>client_ip_ranges_uri</code>, or remove
 both. The new metadata replaces the previous declaration.<a href="#section-4.4-1" class="pilcrow">¶</a></p>
-<p id="section-4.4-2">When the metadata changes representation or URI, the consumer keeps its
-accepted IP range set until it accepts a set under the new metadata. If
-the new document cannot be retrieved or validated, the consumer handles
-this as a retrieval failure (<a href="#retrieval-failures" class="auto internal xref">Section 4.5</a>). The consumer does
-not retrieve the previous URI again for that client or reuse its cached
-responses or validators (<a href="#caching" class="auto internal xref">Section 4.2</a>).<a href="#section-4.4-2" class="pilcrow">¶</a></p>
-<p id="section-4.4-3">Removal of both parameters withdraws the client's declaration. In a
-client update request (<span><a href="https://rfc-editor.org/rfc/rfc7592#section-2.2" class="relref">Section 2.2</a> of [<a href="#RFC7592" class="cite xref">RFC7592</a>]</span>), omitted metadata
-fields are treated as a request to delete them, so an update that omits
-both parameters withdraws the declaration.
-Withdrawal <span class="bcp14">MUST NOT</span> by itself cause a consumer to admit a source address
-that it did not admit before the withdrawal. Whether to relax
-enforcement after a withdrawal is local policy.<a href="#section-4.4-3" class="pilcrow">¶</a></p>
+<p id="section-4.4-2">When the metadata changes representation or URI, the accepted IP range
+set remains in effect until the consumer accepts a set under the new
+metadata (<a href="#acceptance" class="auto internal xref">Section 4.3</a>). If the new declaration is invalid or the new
+document cannot be retrieved, the consumer handles this as a failure
+(<a href="#retrieval-failures" class="auto internal xref">Section 4.5</a>). The consumer does not retrieve the previous
+URI again for that client or reuse its cached responses or validators
+(<span><a href="https://rfc-editor.org/rfc/rfc9111#section-2" class="relref">Section 2</a> of [<a href="#RFC9111" class="cite xref">RFC9111</a>]</span>).<a href="#section-4.4-2" class="pilcrow">¶</a></p>
+<p id="section-4.4-3">Removal of both parameters withdraws the client's declaration; the
+effect of a withdrawal on enforcement is limited as described in
+<a href="#retrieval-failures" class="auto internal xref">Section 4.5</a>. In a client update request
+(<span><a href="https://rfc-editor.org/rfc/rfc7592#section-2.2" class="relref">Section 2.2</a> of [<a href="#RFC7592" class="cite xref">RFC7592</a>]</span>), omitting both parameters requests their
+removal, which the authorization server can ignore. The client
+information response (<span><a href="https://rfc-editor.org/rfc/rfc7592#section-3" class="relref">Section 3</a> of [<a href="#RFC7592" class="cite xref">RFC7592</a>]</span>) shows whether they were
+removed.<a href="#section-4.4-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="retrieval-failures">
 <section id="section-4.5">
-        <h3 id="name-retrieval-failures">
-<a href="#section-4.5" class="section-number selfRef">4.5. </a><a href="#name-retrieval-failures" class="section-name selfRef">Retrieval Failures</a>
+        <h3 id="name-failures-and-withdrawal">
+<a href="#section-4.5" class="section-number selfRef">4.5. </a><a href="#name-failures-and-withdrawal" class="section-name selfRef">Failures and Withdrawal</a>
         </h3>
-<p id="section-4.5-1">A retrieval or validation failure <span class="bcp14">MUST NOT</span> cause a consumer to admit a
-source address that it did not admit before the failure.<a href="#section-4.5-1" class="pilcrow">¶</a></p>
-<p id="section-4.5-2">The consumer <span class="bcp14">MAY</span> continue to use the accepted IP range set, subject to
-local freshness and security policy. How long an accepted IP range set
-remains usable, and what applies when no IP range set has been accepted
-for the client, is local policy.<a href="#section-4.5-2" class="pilcrow">¶</a></p>
+<p id="section-4.5-1">A failure to retrieve a Client IP Range Document, or to validate client
+IP range metadata or a retrieved document, <span class="bcp14">MUST NOT</span> cause a consumer to
+admit a source address that it did not admit before the failure. The
+consumer <span class="bcp14">MAY</span> continue to use the accepted IP range set.<a href="#section-4.5-1" class="pilcrow">¶</a></p>
+<p id="section-4.5-2">Consumers <span class="bcp14">SHOULD</span> limit how long they continue to use an accepted IP
+range set while retrieval or validation of the client's current
+declaration fails, because the publisher may have removed prefixes that
+have since been reassigned (<a href="#range-changes" class="auto internal xref">Section 6.2</a>). When the limit is
+exceeded, the consumer stops using the set and has no accepted IP range
+set for the client. Under the first paragraph of this section, stopping
+can narrow, but not widen, the source addresses admitted for the client.<a href="#section-4.5-2" class="pilcrow">¶</a></p>
+<p id="section-4.5-3">Withdrawal of a client's declaration (<a href="#metadata-changes" class="auto internal xref">Section 4.4</a>) <span class="bcp14">MUST NOT</span> by
+itself cause a consumer to admit a source address that it did not admit
+before the withdrawal. Whether to relax enforcement after a withdrawal
+is local policy.<a href="#section-4.5-3" class="pilcrow">¶</a></p>
+<p id="section-4.5-4">A consumer can require an accepted IP range set for a client. Such a
+consumer <span class="bcp14">MUST</span> reject requests from the client while it has no accepted
+IP range set for the client, whether because the client has made no
+declaration, its declaration is invalid or cannot be retrieved, or a
+validated IP range set awaits approval. For a consumer that does not
+require one, what applies when no IP range set has been accepted for
+the client is local policy.<a href="#section-4.5-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1700,10 +1723,9 @@ client's IP range set once it has identified the client
 (<a href="#as-enforcement" class="auto internal xref">Section 5.1</a>).<a href="#section-5-3.2.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="section-5-3.3">
-          <p id="section-5-3.3.1">A resource server can match the source address against the IP range
-set of the client to which an access token was issued, if it can
-obtain that client's metadata. How a resource server obtains
-a client's metadata is outside the scope of this specification and
+          <p id="section-5-3.3.1">Enforcement by resource servers, including how a resource server
+determines the client associated with a request and obtains that
+client's metadata, is outside the scope of this specification and
 could be addressed by a companion specification.<a href="#section-5-3.3.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
@@ -1729,7 +1751,7 @@ issued.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
 <p id="section-5.1-2">An authorization server <span class="bcp14">SHOULD NOT</span> indicate, in a response to a party
 that has not authenticated as the client, that a request was rejected
 because of its source address. This specification does not yet define
-the error response for this case (<a href="#open-issues" class="auto internal xref">Appendix A</a>).<a href="#section-5.1-2" class="pilcrow">¶</a></p>
+the error response for this case (<a href="#open-issues" class="auto internal xref">Appendix B</a>).<a href="#section-5.1-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1826,7 +1848,8 @@ Metadata Document is also subject to Section 8.6 of <span>[<a href="#CIMD" class
 highly compressed response, or a large number of overlapping prefixes.
 Consumers <span class="bcp14">MUST</span> bound retrieval time, response size, decompressed size,
 and prefix count. If a document exceeds any bound, the consumer <span class="bcp14">MUST</span>
-reject the entire document and <span class="bcp14">MUST NOT</span> accept part of it.<a href="#section-6.4-1" class="pilcrow">¶</a></p>
+reject the entire document and <span class="bcp14">MUST NOT</span> accept part of it. This
+specification sets no minimum value for any of these bounds.<a href="#section-6.4-1" class="pilcrow">¶</a></p>
 <p id="section-6.4-2">These bounds are set independently of any bound on client metadata,
 such as the limit recommended in Section 8.7 of <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>, because a
 Client IP Range Document is expected to be larger.<a href="#section-6.4-2" class="pilcrow">¶</a></p>
@@ -2089,6 +2112,10 @@ ETag: "ranges-v42"
         <dd>
 <span class="refAuthor">Parecki, A.</span> and <span class="refAuthor">E. Smith</span>, <span class="refTitle">"OAuth Client ID Metadata Document"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-oauth-client-id-metadata-document-02</span>, <time datetime="2026-07-06" class="refDate">6 July 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-client-id-metadata-document-02">https://datatracker.ietf.org/doc/html/draft-ietf-oauth-client-id-metadata-document-02</a>&gt;</span>. </dd>
 <dd class="break"></dd>
+<dt id="JAFAR">[JAFAR]</dt>
+        <dd>
+<span class="refAuthor">Illyes, G.</span>, <span class="refTitle">"A JSON-Based Format for Publishing IP Ranges of Automated HTTP Clients"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-illyes-webbotauth-jafar-01</span>, <time datetime="2026-10-22" class="refDate">22 October 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-illyes-webbotauth-jafar-01">https://datatracker.ietf.org/doc/html/draft-illyes-webbotauth-jafar-01</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="RFC7239">[RFC7239]</dt>
         <dd>
 <span class="refAuthor">Petersson, A.</span> and <span class="refAuthor">M. Nilsson</span>, <span class="refTitle">"Forwarded HTTP Extension"</span>, <span class="seriesInfo">RFC 7239</span>, <span class="seriesInfo">DOI 10.17487/RFC7239</span>, <time datetime="2014-06" class="refDate">June 2014</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7239">https://www.rfc-editor.org/rfc/rfc7239</a>&gt;</span>. </dd>
@@ -2106,46 +2133,47 @@ ETag: "ranges-v42"
 </div>
 </section>
 </div>
-<div id="open-issues">
+<div id="related-work">
 <section id="appendix-A">
-      <h2 id="name-open-issues">
-<a href="#appendix-A" class="section-number selfRef">Appendix A. </a><a href="#name-open-issues" class="section-name selfRef">Open Issues</a>
+      <h2 id="name-related-work">
+<a href="#appendix-A" class="section-number selfRef">Appendix A. </a><a href="#name-related-work" class="section-name selfRef">Related Work</a>
       </h2>
-<ol start="1" type="1" class="normal type-1" id="appendix-A-1">
-<li id="appendix-A-1.1">
-          <p id="appendix-A-1.1.1">Which error response indicates that an authorization server rejected
+<p id="appendix-A-1"><span>[<a href="#JAFAR" class="cite xref">JAFAR</a>]</span> defines a format for publishing the IP address ranges of
+automated HTTP clients, with optional per-prefix service identifiers
+and a document creation time. A Client IP Range Document carries only
+prefixes, because client metadata associates it with the client.<a href="#appendix-A-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="open-issues">
+<section id="appendix-B">
+      <h2 id="name-open-issues">
+<a href="#appendix-B" class="section-number selfRef">Appendix B. </a><a href="#name-open-issues" class="section-name selfRef">Open Issues</a>
+      </h2>
+<ol start="1" type="1" class="normal type-1" id="appendix-B-1">
+<li id="appendix-B-1.1">
+          <p id="appendix-B-1.1.1">Which error response indicates that an authorization server rejected
 a request under a client's source address policy? The
 <code>invalid_client</code> error code signals failed client authentication
-(<span><a href="https://rfc-editor.org/rfc/rfc6749#section-5.2" class="relref">Section 5.2</a> of [<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>) and could prompt credential rotation.<a href="#appendix-A-1.1.1" class="pilcrow">¶</a></p>
-</li>
-        <li id="appendix-A-1.2">
-          <p id="appendix-A-1.2.1">Should every consumer support a minimum number of prefixes, so that
-independently chosen limits do not prevent interoperability?<a href="#appendix-A-1.2.1" class="pilcrow">¶</a></p>
-</li>
-        <li id="appendix-A-1.3">
-          <p id="appendix-A-1.3.1">Should authorization server metadata advertise support for these
-parameters, and what would that signal? Recognizing the metadata,
-retrieving Client IP Range Documents, and enforcing IP range sets are
-distinct capabilities.<a href="#appendix-A-1.3.1" class="pilcrow">¶</a></p>
+(<span><a href="https://rfc-editor.org/rfc/rfc6749#section-5.2" class="relref">Section 5.2</a> of [<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>) and could prompt credential rotation.<a href="#appendix-B-1.1.1" class="pilcrow">¶</a></p>
 </li>
       </ol>
 </section>
 </div>
 <div id="history">
-<section id="appendix-B">
+<section id="appendix-C">
       <h2 id="name-document-history">
-<a href="#appendix-B" class="section-number selfRef">Appendix B. </a><a href="#name-document-history" class="section-name selfRef">Document History</a>
+<a href="#appendix-C" class="section-number selfRef">Appendix C. </a><a href="#name-document-history" class="section-name selfRef">Document History</a>
       </h2>
-<p id="appendix-B-1">-00<a href="#appendix-B-1" class="pilcrow">¶</a></p>
+<p id="appendix-C-1">-00<a href="#appendix-C-1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="appendix-B-2.1">
-          <p id="appendix-B-2.1.1">Initial version.<a href="#appendix-B-2.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="appendix-C-2.1">
+          <p id="appendix-C-2.1.1">Initial version.<a href="#appendix-C-2.1.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
 </section>
 </div>
 <div id="authors-addresses">
-<section id="appendix-C">
+<section id="appendix-D">
       <h2 id="name-authors-addresses">
 <a href="#name-authors-addresses" class="section-name selfRef">Authors' Addresses</a>
       </h2>
