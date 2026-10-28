@@ -131,7 +131,7 @@ outside the scope of this specification.
 
 ## Requirements Notation and Conventions {#conventions}
 
-{::boilerplate bcp14-tagged-bcp14}
+{::boilerplate bcp14-tagged}
 
 ## Terminology {#terminology}
 
