@@ -247,15 +247,11 @@ following member:
 : REQUIRED. JSON array of prefixes, with the syntax and semantics
   defined in {{metadata}}.
 
-The following rules apply to the document:
-
-* The document MUST be served with the `application/json` media type.
-* Authorization servers MUST ignore members they do not understand.
-* A document whose top-level object contains duplicate member names is
-  invalid. {{Section 4 of RFC8259}} notes that receivers handle such
-  objects unpredictably.
-* The document is self-contained. Authorization servers MUST NOT
-  retrieve other resources to complete it.
+Authorization servers MUST ignore members that they do not understand.
+A document whose top-level object contains duplicate member names is
+invalid; {{Section 4 of RFC8259}} notes that receivers handle such
+objects unpredictably. The document is self-contained, and authorization
+servers MUST NOT retrieve other resources to complete it.
 
 All prefixes in the document apply equally to each client whose metadata
 references it. Multiple clients can reference the same document, and the
@@ -281,7 +277,8 @@ The following is an example of a Client IP Range Document:
 
 An authorization server retrieves a Client IP Range Document by sending
 an HTTP GET request to the `client_ip_ranges_uri` URL, subject to
-{{ssrf}}. A response is successful if it either:
+{{ssrf}}. The document MUST be served with the `application/json` media
+type. A response is successful if it either:
 
 * has status code 200 (OK), the `application/json` media type, and a
   complete body within the authorization server's bounds
