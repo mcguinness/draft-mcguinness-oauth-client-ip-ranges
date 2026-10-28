@@ -106,11 +106,18 @@ updating its registration. The parameters can be used with OAuth 2.0
 Dynamic Client Registration {{RFC7591}}, OAuth Client ID Metadata
 Documents {{CIMD}}, and other mechanisms that convey client metadata.
 
-Declared ranges are an input to network access control. They do not
-authenticate the client or authorize a request ({{use}}). Firewall
-policy, network access authorization decisions, and the configuration of
-network enforcement points are outside the scope of this specification;
-{{implementation}} describes how deployments use the metadata.
+Declared ranges are an input to network access control. Enforcing them
+confines the use of a client's credentials and grants to the networks
+the client declares, which limits the value of stolen credentials.
+Declared ranges do not authenticate the client or authorize a request
+({{use}}).
+
+This specification defines the metadata and the processing requirements
+for consumers that use it. Selecting the clients subject to enforcement,
+approving declared ranges, and configuring network enforcement points
+are local policy; {{implementation}} describes typical deployments.
+Enforcement by resource servers is outside the scope of this
+specification.
 
 ## Requirements Notation and Conventions {#conventions}
 
