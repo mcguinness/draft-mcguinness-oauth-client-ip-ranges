@@ -1219,6 +1219,9 @@ access control.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.5">
                 <p id="section-toc.1-1.4.2.5.1"><a href="#section-4.5" class="auto internal xref">4.5</a>.  <a href="#name-failures-and-withdrawal" class="internal xref">Failures and Withdrawal</a></p>
 </li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.6">
+                <p id="section-toc.1-1.4.2.6.1"><a href="#section-4.6" class="auto internal xref">4.6</a>.  <a href="#name-lifecycle-summary" class="internal xref">Lifecycle Summary</a></p>
+</li>
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5">
@@ -1341,11 +1344,17 @@ form lets a client publish a large or frequently changing set without
 updating its registration. The parameters can be used with OAuth 2.0
 Dynamic Client Registration <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>, OAuth Client ID Metadata
 Documents <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>, and other mechanisms that convey client metadata.<a href="#section-1-4" class="pilcrow">¶</a></p>
-<p id="section-1-5">Declared ranges are an input to network access control. They do not
-authenticate the client or authorize a request (<a href="#use" class="auto internal xref">Section 5</a>). Firewall
-policy, network access authorization decisions, and the configuration of
-network enforcement points are outside the scope of this specification;
-<a href="#implementation" class="auto internal xref">Section 6</a> describes how deployments use the metadata.<a href="#section-1-5" class="pilcrow">¶</a></p>
+<p id="section-1-5">Declared ranges are an input to network access control. Enforcing them
+confines the use of a client's credentials and grants to the networks
+the client declares, which limits the value of stolen credentials.
+Declared ranges do not authenticate the client or authorize a request
+(<a href="#use" class="auto internal xref">Section 5</a>).<a href="#section-1-5" class="pilcrow">¶</a></p>
+<p id="section-1-6">This specification defines the metadata and the processing requirements
+for consumers that use it. Selecting the clients subject to enforcement,
+approving declared ranges, and configuring network enforcement points
+are local policy; <a href="#implementation" class="auto internal xref">Section 6</a> describes typical deployments.
+Enforcement by resource servers is outside the scope of this
+specification.<a href="#section-1-6" class="pilcrow">¶</a></p>
 <div id="conventions">
 <section id="section-1.1">
         <h3 id="name-requirements-notation-and-c">
@@ -1386,8 +1395,9 @@ set and is referenced by <code>client_ip_ranges_uri</code>.<a href="#section-1.2
 <dt id="section-1.2-3.5">accepted IP range set:</dt>
           <dd style="margin-left: 1.5em" id="section-1.2-3.6">
             <p id="section-1.2-3.6.1">The IP range set, if any, that a consumer has validated and accepted
-for a client and currently uses for it. A consumer that stops using
-an IP range set no longer has an accepted IP range set for the client.<a href="#section-1.2-3.6.1" class="pilcrow">¶</a></p>
+for a client and currently uses for it, including such a set after
+narrowing (<a href="#range-changes" class="auto internal xref">Section 7.2</a>). A consumer that stops using an IP range
+set no longer has an accepted IP range set for the client.<a href="#section-1.2-3.6.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
 <dt id="section-1.2-3.7">publisher:</dt>
@@ -1425,8 +1435,9 @@ set, by value or by reference.<a href="#section-2-1" class="pilcrow">¶</a></p>
 (<a href="#prefix-syntax" class="auto internal xref">Section 2.3</a>) identifying source addresses from which the client
 originates requests (<a href="#use" class="auto internal xref">Section 5</a>).<a href="#section-2.1-1" class="pilcrow">¶</a></p>
 <p id="section-2.1-2">The array is a set. Consumers <span class="bcp14">MUST NOT</span> assign meaning to the order of
-entries or to duplicate entries. This specification does not limit the
-number of entries.<a href="#section-2.1-2" class="pilcrow">¶</a></p>
+entries or to duplicate entries. This specification sets no maximum
+number of entries; consumers apply their own bounds
+(<a href="#resource-exhaustion" class="auto internal xref">Section 7.4</a>).<a href="#section-2.1-2" class="pilcrow">¶</a></p>
 <p id="section-2.1-3">An empty array declares an empty IP range set. Absence of both
 <code>client_ip_ranges</code> and <code>client_ip_ranges_uri</code> means the client makes no
 declaration; it does not imply an empty IP range set.<a href="#section-2.1-3" class="pilcrow">¶</a></p>
@@ -1452,8 +1463,9 @@ both be present in the same client metadata.<a href="#section-2.2-2" class="pilc
 <a href="#section-2.3" class="section-number selfRef">2.3. </a><a href="#name-prefix-syntax" class="section-name selfRef">Prefix Syntax</a>
         </h3>
 <p id="section-2.3-1">Each prefix <span class="bcp14">MUST</span> conform to the <code>ip-prefix</code> type defined in Section 4 of
-<span>[<a href="#RFC9911" class="cite xref">RFC9911</a>]</span>. A value that does not conform to the <code>ip-prefix</code> type is
-invalid. In addition:<a href="#section-2.3-1" class="pilcrow">¶</a></p>
+<span>[<a href="#RFC9911" class="cite xref">RFC9911</a>]</span>, that is, match in full every pattern of either the
+<code>ipv4-prefix</code> or the <code>ipv6-prefix</code> type. A value that does not conform
+to the <code>ip-prefix</code> type is invalid. In addition:<a href="#section-2.3-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-2.3-2.1">
             <p id="section-2.3-2.1.1">Publishers <span class="bcp14">MUST</span> use the canonical format of that type: all bits
@@ -1461,11 +1473,10 @@ outside the prefix length set to zero and, for IPv6, the address
 represented as defined in Section 4 of <span>[<a href="#RFC5952" class="cite xref">RFC5952</a>]</span>.<a href="#section-2.3-2.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-2.3-2.2">
-            <p id="section-2.3-2.2.1">Consumers <span class="bcp14">MUST</span> interpret each prefix by its network address and
-prefix length, not by its textual form. Consumers <span class="bcp14">MUST NOT</span> treat a
-value as invalid solely because it is not in canonical format. For
-example, a consumer interprets <code>192.0.2.1/24</code> as <code>192.0.2.0/24</code> and
-<code>2001:DB8::1/64</code> as <code>2001:db8::/64</code>.<a href="#section-2.3-2.2.1" class="pilcrow">¶</a></p>
+            <p id="section-2.3-2.2.1">A value that is not in canonical format is valid and denotes the
+prefix given by its network address and prefix length (Section 4 of
+<span>[<a href="#RFC9911" class="cite xref">RFC9911</a>]</span>). For example, <code>192.0.2.1/24</code> denotes <code>192.0.2.0/24</code>, and
+<code>2001:DB8::1/64</code> denotes <code>2001:db8::/64</code>.<a href="#section-2.3-2.2.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-2.3-2.3">
             <p id="section-2.3-2.3.1">A prefix within the IPv4-mapped IPv6 address range <code>::ffff:0:0/96</code>
@@ -1505,6 +1516,10 @@ entry is an invalid prefix (<a href="#prefix-syntax" class="auto internal xref">
             <p id="section-2.4-3.3.1">The value of <code>client_ip_ranges_uri</code> does not meet the requirements of
 <a href="#client-ip-ranges-uri" class="auto internal xref">Section 2.2</a>.<a href="#section-2.4-3.3.1" class="pilcrow">¶</a></p>
 </li>
+          <li id="section-2.4-3.4">
+            <p id="section-2.4-3.4.1">The value of <code>client_ip_ranges</code> has more entries than the
+authorization server's bound on prefixes (<a href="#resource-exhaustion" class="auto internal xref">Section 7.4</a>).<a href="#section-2.4-3.4.1" class="pilcrow">¶</a></p>
+</li>
         </ol>
 <p id="section-2.4-4">An authorization server handles invalid client IP range metadata as
 follows:<a href="#section-2.4-4" class="pilcrow">¶</a></p>
@@ -1512,7 +1527,9 @@ follows:<a href="#section-2.4-4" class="pilcrow">¶</a></p>
 <li class="normal" id="section-2.4-5.1">
             <p id="section-2.4-5.1.1">In a dynamic client registration request, the authorization server
 responds with HTTP status code 400 and the <code>invalid_client_metadata</code>
-error code (<span><a href="https://rfc-editor.org/rfc/rfc7591#section-3.2.2" class="relref">Section 3.2.2</a> of [<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>).<a href="#section-2.4-5.1.1" class="pilcrow">¶</a></p>
+error code (<span><a href="https://rfc-editor.org/rfc/rfc7591#section-3.2.2" class="relref">Section 3.2.2</a> of [<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>), or the
+<code>invalid_software_statement</code> error code if the invalid value comes
+from a trusted software statement.<a href="#section-2.4-5.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-2.4-5.2">
             <p id="section-2.4-5.2.1">In a Client ID Metadata Document <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>, the authorization server
@@ -1554,7 +1571,8 @@ defined in <a href="#client-ip-ranges" class="auto internal xref">Section 2.1</a
 </li>
         <li class="normal" id="section-3-4.3">
           <p id="section-3-4.3.1">A document whose top-level object contains duplicate member names is
-invalid (<span><a href="https://rfc-editor.org/rfc/rfc8259#section-4" class="relref">Section 4</a> of [<a href="#RFC8259" class="cite xref">RFC8259</a>]</span>).<a href="#section-3-4.3.1" class="pilcrow">¶</a></p>
+invalid. Section 4 of <span>[<a href="#RFC8259" class="cite xref">RFC8259</a>]</span> notes that receivers handle such
+objects unpredictably.<a href="#section-3-4.3.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="section-3-4.4">
           <p id="section-3-4.4.1">The document is self-contained. Consumers <span class="bcp14">MUST NOT</span> retrieve other
@@ -1591,20 +1609,28 @@ document.<a href="#section-3-5" class="pilcrow">¶</a></p>
         </h3>
 <p id="section-4.1-1">A consumer retrieves a Client IP Range Document by sending an HTTP GET
 request to the <code>client_ip_ranges_uri</code> URL, subject to <a href="#ssrf" class="auto internal xref">Section 7.3</a>. A
-successful response has status code 200 (OK) and contains the complete
-document. In response to a conditional request (<a href="#caching" class="auto internal xref">Section 4.2</a>), a 304 (Not
-Modified) response (<span><a href="https://rfc-editor.org/rfc/rfc9110#section-15.4.5" class="relref">Section 15.4.5</a> of [<a href="#RFC9110" class="cite xref">RFC9110</a>]</span>) is also successful
-and indicates that the retained response is current.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
-<p id="section-4.1-2">Publishers <span class="bcp14">MUST NOT</span> require authentication to retrieve a Client IP Range
+response is successful if it either:<a href="#section-4.1-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-4.1-2.1">
+            <p id="section-4.1-2.1.1">has status code 200 (OK), the <code>application/json</code> media type, and a
+complete body within the consumer's bounds (<a href="#resource-exhaustion" class="auto internal xref">Section 7.4</a>);
+or<a href="#section-4.1-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-4.1-2.2">
+            <p id="section-4.1-2.2.1">has status code 304 (Not Modified) (<span><a href="https://rfc-editor.org/rfc/rfc9110#section-15.4.5" class="relref">Section 15.4.5</a> of [<a href="#RFC9110" class="cite xref">RFC9110</a>]</span>)
+and answers a conditional request (<a href="#retrieval-scheduling" class="auto internal xref">Section 6.2</a>). Such a
+response indicates that the retained response is current.<a href="#section-4.1-2.2.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+<p id="section-4.1-3">Publishers <span class="bcp14">MUST NOT</span> require authentication to retrieve a Client IP Range
 Document unless the publisher and consumer have agreed on an
 authentication mechanism, which is outside the scope of this
 specification. Consumers <span class="bcp14">MUST NOT</span> send credentials associated with an
 OAuth request, such as client credentials, access tokens, or
-authorization codes, when retrieving a Client IP Range Document.<a href="#section-4.1-2" class="pilcrow">¶</a></p>
-<p id="section-4.1-3">A failed retrieval, a malformed response, or a document that is
-incomplete or exceeds the consumer's bounds (<a href="#resource-exhaustion" class="auto internal xref">Section 7.4</a>)
+authorization codes, when retrieving a Client IP Range Document.<a href="#section-4.1-3" class="pilcrow">¶</a></p>
+<p id="section-4.1-4">A failed retrieval, an unsuccessful response, or an invalid document
 <span class="bcp14">MUST NOT</span> be treated as an empty IP range set; it is a failure
-(<a href="#retrieval-failures" class="auto internal xref">Section 4.5</a>).<a href="#section-4.1-3" class="pilcrow">¶</a></p>
+(<a href="#retrieval-failures" class="auto internal xref">Section 4.5</a>).<a href="#section-4.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="caching">
@@ -1615,26 +1641,18 @@ incomplete or exceeds the consumer's bounds (<a href="#resource-exhaustion" clas
 <p id="section-4.2-1">Publishers <span class="bcp14">SHOULD</span> support HTTP caching <span>[<a href="#RFC9111" class="cite xref">RFC9111</a>]</span> and <span class="bcp14">SHOULD</span> include
 the <code>Cache-Control</code> (<span><a href="https://rfc-editor.org/rfc/rfc9111#section-5.2" class="relref">Section 5.2</a> of [<a href="#RFC9111" class="cite xref">RFC9111</a>]</span>) and <code>ETag</code>
 (<span><a href="https://rfc-editor.org/rfc/rfc9110#section-8.8.3" class="relref">Section 8.8.3</a> of [<a href="#RFC9110" class="cite xref">RFC9110</a>]</span>) response header fields.<a href="#section-4.2-1" class="pilcrow">¶</a></p>
-<p id="section-4.2-2">Consumers <span class="bcp14">SHOULD</span> revalidate the document with a conditional GET request
-carrying the <code>If-None-Match</code> header field
-(<span><a href="https://rfc-editor.org/rfc/rfc9110#section-13.1.2" class="relref">Section 13.1.2</a> of [<a href="#RFC9110" class="cite xref">RFC9110</a>]</span>) and the entity tag of the most recent
-complete response from that URI that the consumer has retained
-(<span><a href="https://rfc-editor.org/rfc/rfc9111#section-4.3" class="relref">Section 4.3</a> of [<a href="#RFC9111" class="cite xref">RFC9111</a>]</span>). That response can hold an IP range set
-that awaits approval; it need not be the one from which the accepted IP
-range set was obtained. A consumer that has retained no complete
-response sends an unconditional request.<a href="#section-4.2-2" class="pilcrow">¶</a></p>
-<p id="section-4.2-3">The accepted IP range set is application state, distinct from any HTTP
-cache (<span><a href="https://rfc-editor.org/rfc/rfc9111#section-6" class="relref">Section 6</a> of [<a href="#RFC9111" class="cite xref">RFC9111</a>]</span>):<a href="#section-4.2-3" class="pilcrow">¶</a></p>
+<p id="section-4.2-2">The accepted IP range set is application state, distinct from any HTTP
+cache (<span><a href="https://rfc-editor.org/rfc/rfc9111#section-6" class="relref">Section 6</a> of [<a href="#RFC9111" class="cite xref">RFC9111</a>]</span>):<a href="#section-4.2-2" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-4.2-4.1">
-            <p id="section-4.2-4.1.1">A fresh response does not make its IP range set accepted.<a href="#section-4.2-4.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-4.2-3.1">
+            <p id="section-4.2-3.1.1">A fresh response does not make its IP range set accepted.<a href="#section-4.2-3.1.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="section-4.2-4.2">
-            <p id="section-4.2-4.2.1">Expiry of a cached response does not end use of the accepted IP range
-set (<a href="#acceptance" class="auto internal xref">Section 4.3</a>).<a href="#section-4.2-4.2.1" class="pilcrow">¶</a></p>
+          <li class="normal" id="section-4.2-3.2">
+            <p id="section-4.2-3.2.1">Expiry of a cached response does not end use of the accepted IP range
+set (<a href="#acceptance" class="auto internal xref">Section 4.3</a>).<a href="#section-4.2-3.2.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-4.2-5">Consumers <span class="bcp14">SHOULD</span> retrieve the document periodically to obtain changes.<a href="#section-4.2-5" class="pilcrow">¶</a></p>
+<p id="section-4.2-4">Consumers <span class="bcp14">SHOULD</span> retrieve the document periodically to obtain changes.<a href="#section-4.2-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="acceptance">
@@ -1646,15 +1664,18 @@ set (<a href="#acceptance" class="auto internal xref">Section 4.3</a>).<a href="
 prefix, before accepting it, whether the set is conveyed by
 <code>client_ip_ranges</code> or in a Client IP Range Document, and <span class="bcp14">MUST</span> reject the
 entire set if any part of it is invalid. For a set obtained from a
-Client IP Range Document, the consumer <span class="bcp14">MUST</span> also validate the response
-and the complete document (<a href="#document" class="auto internal xref">Section 3</a>) before accepting the set, and
-<span class="bcp14">MUST</span> reject the entire document if either is invalid. Acceptance is also
-subject to local policy (<a href="#range-changes" class="auto internal xref">Section 7.2</a>).<a href="#section-4.3-1" class="pilcrow">¶</a></p>
+Client IP Range Document, the consumer <span class="bcp14">MUST</span> also confirm that the
+response is successful (<a href="#fetch" class="auto internal xref">Section 4.1</a>) and validate the complete document
+(<a href="#document" class="auto internal xref">Section 3</a>) before accepting the set, and <span class="bcp14">MUST</span> reject the entire
+document if either check fails. Acceptance is also
+subject to local policy (<a href="#range-changes" class="auto internal xref">Section 7.2</a>). Registering client IP range
+metadata does not by itself accept its IP range set.<a href="#section-4.3-1" class="pilcrow">¶</a></p>
 <p id="section-4.3-2">An accepted IP range set replaces the previously accepted IP range set
 in full; this specification defines no incremental update format. The
 accepted IP range set remains in effect until the consumer accepts a
-replacement or stops using it (<a href="#range-changes" class="auto internal xref">Section 7.2</a>). A validated IP range
-set that awaits approval does not replace it.<a href="#section-4.3-2" class="pilcrow">¶</a></p>
+replacement, narrows it, or stops using it (<a href="#range-changes" class="auto internal xref">Section 7.2</a>). A
+validated IP range set that has not yet been accepted under local policy
+does not replace it.<a href="#section-4.3-2" class="pilcrow">¶</a></p>
 <p id="section-4.3-3">Publishers <span class="bcp14">SHOULD</span> publish a new prefix before the client originates
 requests from it and <span class="bcp14">SHOULD</span> continue to publish a prefix until the
 client no longer originates requests from it.<a href="#section-4.3-3" class="pilcrow">¶</a></p>
@@ -1678,8 +1699,7 @@ invalid new declaration or an unretrievable new document is a failure
 </li>
           <li class="normal" id="section-4.4-3.2">
             <p id="section-4.4-3.2.1">If the previous metadata contained <code>client_ip_ranges_uri</code>, the
-consumer does not retrieve that URI again for the client or reuse its
-cached responses or validators (<span><a href="https://rfc-editor.org/rfc/rfc9111#section-2" class="relref">Section 2</a> of [<a href="#RFC9111" class="cite xref">RFC9111</a>]</span>).<a href="#section-4.4-3.2.1" class="pilcrow">¶</a></p>
+consumer does not retrieve that URI again for the client.<a href="#section-4.4-3.2.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 <p id="section-4.4-4">Removal of both parameters withdraws the client's declaration
@@ -1711,8 +1731,9 @@ itself.<a href="#section-4.5-2.3.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 <p id="section-4.5-3">After a failure, the consumer <span class="bcp14">MAY</span> continue to use the accepted IP range
-set, within the limit described in <a href="#range-changes" class="auto internal xref">Section 7.2</a>. Whether to relax
-enforcement after a withdrawal is local policy.<a href="#section-4.5-3" class="pilcrow">¶</a></p>
+set, within the limit described in <a href="#range-changes" class="auto internal xref">Section 7.2</a>. Relaxing
+enforcement after a withdrawal is a local policy decision, not an
+automatic consequence of the withdrawal.<a href="#section-4.5-3" class="pilcrow">¶</a></p>
 <p id="section-4.5-4">A consumer can require an accepted IP range set for a client. Such a
 consumer <span class="bcp14">MUST</span> reject requests from the client while it has no accepted
 IP range set for the client, whether because:<a href="#section-4.5-4" class="pilcrow">¶</a></p>
@@ -1724,11 +1745,60 @@ IP range set for the client, whether because:<a href="#section-4.5-4" class="pil
             <p id="section-4.5-5.2.1">its declaration is invalid or cannot be retrieved; or<a href="#section-4.5-5.2.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-4.5-5.3">
-            <p id="section-4.5-5.3.1">a validated IP range set awaits approval.<a href="#section-4.5-5.3.1" class="pilcrow">¶</a></p>
+            <p id="section-4.5-5.3.1">a validated IP range set has not yet been accepted under local
+policy.<a href="#section-4.5-5.3.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 <p id="section-4.5-6">For other consumers, what applies while a client has no accepted IP
-range set is local policy.<a href="#section-4.5-6" class="pilcrow">¶</a></p>
+range set is local policy, except after the limit in <a href="#range-changes" class="auto internal xref">Section 7.2</a>
+is exceeded.<a href="#section-4.5-6" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="lifecycle">
+<section id="section-4.6">
+        <h3 id="name-lifecycle-summary">
+<a href="#section-4.6" class="section-number selfRef">4.6. </a><a href="#name-lifecycle-summary" class="section-name selfRef">Lifecycle Summary</a>
+        </h3>
+<p id="section-4.6-1">The following table summarizes the accepted IP range set after each
+event, as specified in <a href="#acceptance" class="auto internal xref">Section 4.3</a>, <a href="#retrieval-failures" class="auto internal xref">Section 4.5</a>, and
+<a href="#range-changes" class="auto internal xref">Section 7.2</a>. It adds no requirements. Whenever a client has no
+accepted IP range set, a consumer that requires one rejects requests
+from the client.<a href="#section-4.6-1" class="pilcrow">¶</a></p>
+<table class="center" id="table-1">
+          <caption><a href="#table-1" class="selfRef">Table 1</a></caption>
+<thead>
+            <tr>
+              <th class="text-left" rowspan="1" colspan="1">Event</th>
+              <th class="text-left" rowspan="1" colspan="1">Accepted IP range set afterward</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">First declaration validated</td>
+              <td class="text-left" rowspan="1" colspan="1">None, until accepted under local policy</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">Replacement accepted</td>
+              <td class="text-left" rowspan="1" colspan="1">The replacement</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">Replacement validated, not yet accepted</td>
+              <td class="text-left" rowspan="1" colspan="1">Unchanged or narrowed to the intersection, at most until the limit</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">Retrieval or validation fails</td>
+              <td class="text-left" rowspan="1" colspan="1">Unchanged, at most until the limit</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">Declaration withdrawn</td>
+              <td class="text-left" rowspan="1" colspan="1">Unchanged, at most until the limit</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">Limit exceeded</td>
+              <td class="text-left" rowspan="1" colspan="1">None; a consumer that was enforcing the set rejects requests from the client until it accepts a new set or local policy removes the client from enforcement</td>
+            </tr>
+          </tbody>
+        </table>
 </section>
 </div>
 </section>
@@ -1764,20 +1834,23 @@ be addressed by a companion specification.<a href="#section-5-4" class="pilcrow"
         </h3>
 <p id="section-5.1-1">An authorization server can enforce a client's accepted IP range set at
 the token endpoint and at other endpoints that receive direct requests
-from the client. Enforcement requires identifying the client:<a href="#section-5.1-1" class="pilcrow">¶</a></p>
+from the client, once it has identified the client:<a href="#section-5.1-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-5.1-2.1">
             <p id="section-5.1-2.1.1">through client authentication; or<a href="#section-5.1-2.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-5.1-2.2">
             <p id="section-5.1-2.2.1">for a public client (<span><a href="https://rfc-editor.org/rfc/rfc6749#section-2.1" class="relref">Section 2.1</a> of [<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>), through the client
-to which the grant presented in the request was issued.<a href="#section-5.1-2.2.1" class="pilcrow">¶</a></p>
+to which a grant presented in the request was issued.<a href="#section-5.1-2.2.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-5.1-3">An authorization server <span class="bcp14">SHOULD NOT</span> indicate, in a response to a party
+<p id="section-5.1-3">This specification does not define how an authorization server
+identifies a public client in a request that presents no grant, such
+as a device authorization request (<span><a href="https://rfc-editor.org/rfc/rfc8628#section-3.1" class="relref">Section 3.1</a> of [<a href="#RFC8628" class="cite xref">RFC8628</a>]</span>).<a href="#section-5.1-3" class="pilcrow">¶</a></p>
+<p id="section-5.1-4">An authorization server <span class="bcp14">SHOULD NOT</span> indicate, in a response to a party
 that has not authenticated as the client, that a request was rejected
 because of its source address. This specification does not yet define
-an error response for such a rejection (<a href="#open-issues" class="auto internal xref">Appendix B</a>).<a href="#section-5.1-3" class="pilcrow">¶</a></p>
+an error response for such a rejection (<a href="#open-issues" class="auto internal xref">Appendix B</a>).<a href="#section-5.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1815,6 +1888,12 @@ them. When the publisher later changes the set, local
 policy determines whether the change is applied automatically, such as
 an addition within an approved scope, or is held for administrator
 approval (<a href="#range-changes" class="auto internal xref">Section 7.2</a>).<a href="#section-6.1-3" class="pilcrow">¶</a></p>
+<p id="section-6.1-4">A client can be locked out if its egress addresses change before the
+consumer accepts an updated declaration. Deployments that require an
+accepted IP range set need an administrative path to restore access,
+such as approving a replacement set. Enforcing a client's IP range set
+at the client configuration endpoint (<span><a href="https://rfc-editor.org/rfc/rfc7592#section-2" class="relref">Section 2</a> of [<a href="#RFC7592" class="cite xref">RFC7592</a>]</span>) can
+prevent the client from correcting a declaration made by value.<a href="#section-6.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="retrieval-scheduling">
@@ -1824,9 +1903,18 @@ approval (<a href="#range-changes" class="auto internal xref">Section 7.2</a>).<
         </h3>
 <p id="section-6.2-1">This specification does not require retrieval during the processing of
 an OAuth request; consumers can retrieve documents in the background.
-Consumers choose retrieval intervals within local minimum and maximum
-values. Publishers allow for these intervals, and for approval delays,
-when publishing a new prefix (<a href="#acceptance" class="auto internal xref">Section 4.3</a>).<a href="#section-6.2-1" class="pilcrow">¶</a></p>
+Consumers typically schedule the next retrieval when the retained
+response's freshness lifetime (<span><a href="https://rfc-editor.org/rfc/rfc9111#section-4.2" class="relref">Section 4.2</a> of [<a href="#RFC9111" class="cite xref">RFC9111</a>]</span>) ends, within
+local minimum and maximum intervals. Publishers allow for these
+intervals, and for approval delays, when publishing a new prefix
+(<a href="#acceptance" class="auto internal xref">Section 4.3</a>).<a href="#section-6.2-1" class="pilcrow">¶</a></p>
+<p id="section-6.2-2">To revalidate, a consumer sends a conditional GET request carrying the
+<code>If-None-Match</code> header field (<span><a href="https://rfc-editor.org/rfc/rfc9110#section-13.1.2" class="relref">Section 13.1.2</a> of [<a href="#RFC9110" class="cite xref">RFC9110</a>]</span>) with the
+entity tag of the most recent complete response it retained from that
+URI (<span><a href="https://rfc-editor.org/rfc/rfc9111#section-4.3" class="relref">Section 4.3</a> of [<a href="#RFC9111" class="cite xref">RFC9111</a>]</span>). That response can be newer than the
+one from which the accepted IP range set was derived. Without a
+retained complete response, the consumer sends an unconditional
+request.<a href="#section-6.2-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="document-size">
@@ -1903,23 +1991,41 @@ scope, such as prefixes contained in supernets that the consumer has
 configured for the client.<a href="#section-7.2-2.2.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-7.2-2.3">
-            <p id="section-7.2-2.3.1">Consumers <span class="bcp14">SHOULD</span> detect unexpected expansion of a declared IP range
-set, including the addition of overly broad IPv4 or IPv6 prefixes.<a href="#section-7.2-2.3.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-7.2-2.4">
-            <p id="section-7.2-2.4.1">Consumers <span class="bcp14">SHOULD</span> apply changes atomically, so that no intermediate
+            <p id="section-7.2-2.3.1">Consumers <span class="bcp14">SHOULD</span> apply changes atomically, so that no intermediate
 state admits a source address that neither the previous nor the new
-IP range set contains.<a href="#section-7.2-2.4.1" class="pilcrow">¶</a></p>
+IP range set contains.<a href="#section-7.2-2.3.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-7.2-3">Continued use of an accepted IP range set after the publisher has
-removed a prefix admits addresses that may have been reassigned to
-another party. Consumers <span class="bcp14">SHOULD</span> limit how long they continue to use an
-accepted IP range set while retrieval or validation of the client's
-current declaration fails. When the limit is exceeded, the consumer
-stops using the set and has no accepted IP range set for the client.
-Because of <a href="#retrieval-failures" class="auto internal xref">Section 4.5</a>, stopping can narrow, but not widen,
-the source addresses admitted for the client.<a href="#section-7.2-3" class="pilcrow">¶</a></p>
+<p id="section-7.2-3">Detecting unexpected expansion of a declared IP range set, including
+the addition of overly broad prefixes, helps a consumer decide which
+changes to hold for approval.<a href="#section-7.2-3" class="pilcrow">¶</a></p>
+<p id="section-7.2-4">Continued use of an accepted IP range set that may no longer match the
+client's current declaration admits addresses that may have been
+reassigned to another party. Consumers <span class="bcp14">SHOULD</span> limit how long they
+continue to use an accepted IP range set in the following cases:<a href="#section-7.2-4" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-7.2-5.1">
+            <p id="section-7.2-5.1.1">while retrieval or validation of the client's current declaration
+fails;<a href="#section-7.2-5.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-7.2-5.2">
+            <p id="section-7.2-5.2.1">after the client withdraws its declaration; and<a href="#section-7.2-5.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-7.2-5.3">
+            <p id="section-7.2-5.3.1">while a validated replacement has not been accepted under local
+policy.<a href="#section-7.2-5.3.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+<p id="section-7.2-6">Before accepting a validated replacement, a consumer <span class="bcp14">MAY</span> narrow the
+accepted IP range set to its intersection with the replacement, so that
+it admits only source addresses that both sets match. The narrowed set
+remains the accepted IP range set; the replacement is still not
+accepted.<a href="#section-7.2-6" class="pilcrow">¶</a></p>
+<p id="section-7.2-7">When the limit is exceeded, the consumer stops using the set and has no
+accepted IP range set for the client. A consumer that was enforcing the
+set rejects requests from the client until it accepts a new IP range set
+or an explicit local policy decision removes the client from
+enforcement. The limit therefore trades availability for safety.<a href="#section-7.2-7" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="ssrf">
@@ -1937,7 +2043,9 @@ forgery vector. When retrieving a Client IP Range Document, consumers:<a href="#
 </li>
           <li id="section-7.3-2.2">
             <p id="section-7.3-2.2.1"><span class="bcp14">MUST</span> verify the server certificate as described in
-<span><a href="https://rfc-editor.org/rfc/rfc9110#section-4.3.4" class="relref">Section 4.3.4</a> of [<a href="#RFC9110" class="cite xref">RFC9110</a>]</span>.<a href="#section-7.3-2.2.1" class="pilcrow">¶</a></p>
+<span><a href="https://rfc-editor.org/rfc/rfc9110#section-4.3.4" class="relref">Section 4.3.4</a> of [<a href="#RFC9110" class="cite xref">RFC9110</a>]</span> and <span class="bcp14">MUST NOT</span> accept a document retrieved
+over a connection that fails this verification, strengthening the
+requirement of that section for automated clients.<a href="#section-7.3-2.2.1" class="pilcrow">¶</a></p>
 </li>
           <li id="section-7.3-2.3">
             <p id="section-7.3-2.3.1"><span class="bcp14">MUST NOT</span> automatically follow HTTP redirects
@@ -1945,7 +2053,8 @@ forgery vector. When retrieving a Client IP Range Document, consumers:<a href="#
 </li>
           <li id="section-7.3-2.4">
             <p id="section-7.3-2.4.1"><span class="bcp14">MUST NOT</span> connect to an address that the IANA special-purpose address
-registries <span>[<a href="#RFC6890" class="cite xref">RFC6890</a>]</span> list as not globally reachable, unless local
+registries (<span>[<a href="#RFC6890" class="cite xref">RFC6890</a>]</span>, <span>[<a href="#RFC8190" class="cite xref">RFC8190</a>]</span>) list as not globally reachable,
+unless local
 policy explicitly permits that destination. This check applies to the
 address of each connection after DNS resolution. A consumer that
 retrieves through a configured forward proxy relies on the proxy to
@@ -1964,7 +2073,8 @@ Metadata Document is also subject to Section 8.6 of <span>[<a href="#CIMD" class
 <p id="section-7.4-1">A malicious or compromised publisher can return an oversized document, a
 highly compressed response, or a large number of overlapping prefixes.
 Consumers <span class="bcp14">MUST</span> bound retrieval time, response size, decompressed size,
-and prefix count. If a document exceeds any bound, the consumer <span class="bcp14">MUST</span>
+and the number of prefixes in an IP range set, whether conveyed by value
+or in a document. If a document exceeds any bound, the consumer <span class="bcp14">MUST</span>
 reject the entire document. This specification sets no minimum value for
 any of these bounds.<a href="#section-7.4-1" class="pilcrow">¶</a></p>
 </section>
@@ -2108,6 +2218,7 @@ that declares an IP range set by reference:<a href="#section-10.2-1" class="pilc
 {
   "client_id": "https://client.example.com/oauth/client.json",
   "client_name": "Example Client",
+  "redirect_uris": ["https://client.example.com/callback"],
   "token_endpoint_auth_method": "private_key_jwt",
   "jwks_uri": "https://client.example.com/jwks.json",
   "client_ip_ranges_uri": "https://client.example.com/ip-ranges.json"
@@ -2214,6 +2325,10 @@ ETag: "ranges-v42"
         <dd>
 <span class="refAuthor">Richer, J., Ed.</span>, <span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Bradley, J.</span>, <span class="refAuthor">Machulak, M.</span>, and <span class="refAuthor">P. Hunt</span>, <span class="refTitle">"OAuth 2.0 Dynamic Client Registration Protocol"</span>, <span class="seriesInfo">RFC 7591</span>, <span class="seriesInfo">DOI 10.17487/RFC7591</span>, <time datetime="2015-07" class="refDate">July 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7591">https://www.rfc-editor.org/rfc/rfc7591</a>&gt;</span>. </dd>
 <dd class="break"></dd>
+<dt id="RFC8190">[RFC8190]</dt>
+        <dd>
+<span class="refAuthor">Bonica, R.</span>, <span class="refAuthor">Cotton, M.</span>, <span class="refAuthor">Haberman, B.</span>, and <span class="refAuthor">L. Vegoda</span>, <span class="refTitle">"Updates to the Special-Purpose IP Address Registries"</span>, <span class="seriesInfo">BCP 153</span>, <span class="seriesInfo">RFC 8190</span>, <span class="seriesInfo">DOI 10.17487/RFC8190</span>, <time datetime="2017-06" class="refDate">June 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8190">https://www.rfc-editor.org/rfc/rfc8190</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="RFC8259">[RFC8259]</dt>
         <dd>
 <span class="refAuthor">Bray, T., Ed.</span>, <span class="refTitle">"The JavaScript Object Notation (JSON) Data Interchange Format"</span>, <span class="seriesInfo">STD 90</span>, <span class="seriesInfo">RFC 8259</span>, <span class="seriesInfo">DOI 10.17487/RFC8259</span>, <time datetime="2017-12" class="refDate">December 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8259">https://www.rfc-editor.org/rfc/rfc8259</a>&gt;</span>. </dd>
@@ -2255,6 +2370,10 @@ ETag: "ranges-v42"
         <dd>
 <span class="refAuthor">Richer, J., Ed.</span>, <span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Bradley, J.</span>, and <span class="refAuthor">M. Machulak</span>, <span class="refTitle">"OAuth 2.0 Dynamic Client Registration Management Protocol"</span>, <span class="seriesInfo">RFC 7592</span>, <span class="seriesInfo">DOI 10.17487/RFC7592</span>, <time datetime="2015-07" class="refDate">July 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7592">https://www.rfc-editor.org/rfc/rfc7592</a>&gt;</span>. </dd>
 <dd class="break"></dd>
+<dt id="RFC8628">[RFC8628]</dt>
+        <dd>
+<span class="refAuthor">Denniss, W.</span>, <span class="refAuthor">Bradley, J.</span>, <span class="refAuthor">Jones, M.</span>, and <span class="refAuthor">H. Tschofenig</span>, <span class="refTitle">"OAuth 2.0 Device Authorization Grant"</span>, <span class="seriesInfo">RFC 8628</span>, <span class="seriesInfo">DOI 10.17487/RFC8628</span>, <time datetime="2019-08" class="refDate">August 2019</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8628">https://www.rfc-editor.org/rfc/rfc8628</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="SSF">[SSF]</dt>
       <dd>
 <span class="refAuthor">Tulshibagwale, A.</span>, <span class="refAuthor">Cappalli, T.</span>, <span class="refAuthor">Scurtescu, M.</span>, <span class="refAuthor">Backman, A.</span>, <span class="refAuthor">Bradley, J.</span>, and <span class="refAuthor">S. Miel</span>, <span class="refTitle">"OpenID Shared Signals Framework Specification 1.0"</span>, <time datetime="2025-08-29" class="refDate">29 August 2025</time>, <span>&lt;<a href="https://openid.net/specs/openid-sharedsignals-framework-1_0-final.html">https://openid.net/specs/openid-sharedsignals-framework-1_0-final.html</a>&gt;</span>. </dd>
@@ -2270,14 +2389,30 @@ ETag: "ranges-v42"
 <a href="#appendix-A" class="section-number selfRef">Appendix A. </a><a href="#name-related-work" class="section-name selfRef">Related Work</a>
       </h2>
 <p id="appendix-A-1"><span>[<a href="#JAFAR" class="cite xref">JAFAR</a>]</span> defines a format for publishing the IP address ranges of
-automated HTTP clients, with optional per-prefix service identifiers
-and a document creation time. A Client IP Range Document carries only
-prefixes, because client metadata associates it with the client.<a href="#appendix-A-1" class="pilcrow">¶</a></p>
-<p id="appendix-A-2">Publishers can announce planned changes to their IP range sets through
+automated HTTP clients. Its prefixes are objects with separate IPv4 and
+IPv6 members and optional service identifiers, the document carries a
+creation time, and consumers ignore a prefix object that has both or
+neither address member. This specification uses a different model:<a href="#appendix-A-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="appendix-A-2.1">
+          <p id="appendix-A-2.1.1">The Client IP Range Document uses the same prefix array as
+<code>client_ip_ranges</code>, so both forms share one syntax and one validation
+procedure.<a href="#appendix-A-2.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="appendix-A-2.2">
+          <p id="appendix-A-2.2.1">An invalid prefix invalidates the whole set (<a href="#acceptance" class="auto internal xref">Section 4.3</a>), so a
+partly invalid document is never partly applied.<a href="#appendix-A-2.2.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="appendix-A-2.3">
+          <p id="appendix-A-2.3.1">Client metadata associates the set with a client, so the document
+needs no service identifiers.<a href="#appendix-A-2.3.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<p id="appendix-A-3">Publishers can announce planned changes to their IP range sets through
 a separately specified notification mechanism, such as event types
 delivered using the Shared Signals Framework <span>[<a href="#SSF" class="cite xref">SSF</a>]</span>. This specification
 does not define advance announcement events or scheduled activation of
-ranges.<a href="#appendix-A-2" class="pilcrow">¶</a></p>
+ranges.<a href="#appendix-A-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="open-issues">
