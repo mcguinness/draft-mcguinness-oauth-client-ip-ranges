@@ -223,8 +223,8 @@ using `invalid_client_metadata` as the error code value, or
 `invalid_software_statement` if the invalid value comes from a trusted
 software statement. If a Client ID Metadata Document {{CIMD}} contains
 invalid client IP range metadata, the authorization server handles this
-as a validation failure ({{retrieval-failures}}) without treating the
-rest of the document as invalid.
+as a validation failure ({{failures}}) without treating the rest of the
+document as invalid.
 
 An authorization server that does not support these parameters ignores
 them ({{Section 2 of RFC7591}}). The client information response
@@ -287,7 +287,7 @@ tokens, or authorization codes, when retrieving the document.
 
 The authorization server MUST NOT treat a failed retrieval, an
 unsuccessful response, or an invalid document as an empty IP range set;
-each is a failure ({{retrieval-failures}}).
+each is a failure ({{failures}}).
 
 ## Caching {#caching}
 
@@ -322,8 +322,7 @@ itself accept its IP range set.
 An accepted IP range set replaces the previously accepted IP range set
 in full; this specification defines no incremental update format. The
 accepted IP range set remains in effect until the authorization server
-accepts a replacement, narrows it, or stops using it
-({{retrieval-failures}}).
+accepts a replacement, narrows it, or stops using it ({{retention}}).
 
 Before accepting a validated replacement, an authorization server MAY
 narrow the accepted IP range set to its intersection with the
@@ -335,6 +334,15 @@ A client SHOULD add a prefix to its IP range set before it originates
 requests from addresses in that prefix and SHOULD keep the prefix in the
 set until it no longer originates requests from them.
 
+If an authorization server requires an accepted IP range set for a
+client, it MUST reject requests from the client while it has no accepted
+IP range set for the client, whether because the client has made no
+declaration, because its declaration is invalid or cannot be retrieved
+({{failures}}), or because a validated IP range set has not yet been
+accepted under local policy. Otherwise, what applies while a client has
+no accepted IP range set is local policy, except after the retention
+limit ({{retention}}) is exceeded.
+
 ## Changes to Client Metadata {#metadata-changes}
 
 A client's metadata can change the value of `client_ip_ranges_uri`,
@@ -344,12 +352,12 @@ both. The new metadata replaces the previous declaration.
 When the metadata changes representation or URI, the accepted IP range
 set remains in effect as described in {{acceptance}}. An invalid new
 declaration or an unretrievable new document is a failure
-({{retrieval-failures}}). If the previous metadata contained
+({{failures}}). If the previous metadata contained
 `client_ip_ranges_uri`, the authorization server does not retrieve that
 URI again for the client.
 
 Removal of both parameters withdraws the client's declaration
-({{retrieval-failures}}). In a client update request
+({{withdrawal}}). In a client update request
 ({{Section 2.2 of RFC7592}}), omitting both parameters requests their
 removal, which the authorization server can ignore. The client
 information response ({{Section 3 of RFC7592}}) shows whether they were
@@ -357,36 +365,34 @@ removed.
 
 ## Failures, Withdrawal, and Retention {#retrieval-failures}
 
-An authorization server MUST NOT admit a source address that it did not
-admit before because of a failure to retrieve a Client IP Range
-Document, a failure to validate client IP range metadata or a retrieved
-document, or, by itself, withdrawal of the client's declaration
-({{metadata-changes}}).
+### Failures {#failures}
 
-After a failure, the authorization server MAY continue to use the
-accepted IP range set, within the retention limit. Relaxing enforcement
-after a withdrawal is a local policy decision.
+A failure to retrieve a Client IP Range Document, or to validate client
+IP range metadata or a retrieved document, MUST NOT cause an
+authorization server to admit a source address that it did not admit
+before the failure. After a failure, the authorization server MAY
+continue to use the accepted IP range set, within the retention limit
+({{retention}}).
+
+### Withdrawal {#withdrawal}
+
+Withdrawal of the client's declaration ({{metadata-changes}}) MUST NOT
+by itself cause an authorization server to admit a source address that
+it did not admit before the withdrawal. Relaxing enforcement after a
+withdrawal is a local policy decision.
+
+### Retention {#retention}
 
 An authorization server SHOULD set a retention limit on how long it
 continues to use an accepted IP range set while retrieval or validation
 of the client's current declaration fails, after the client withdraws
-its declaration, and while a validated replacement has not been accepted
-under local policy ({{range-changes}}). When the retention limit is
-exceeded, the authorization server stops using the set and has no
-accepted IP range set for the client. An authorization server that was
-enforcing the set rejects requests from the client until it accepts a
-new IP range set or an explicit local policy decision removes the client
-from enforcement.
-
-If an authorization server requires an accepted IP range set for a
-client, it MUST reject requests from the client while it has no accepted
-IP range set for the client, whether because the client has made no
-declaration, because its declaration is invalid or cannot be retrieved,
-or because a validated IP range set has not yet been accepted under
-local policy.
-
-Otherwise, what applies while a client has no accepted IP range set is
-local policy, except after the retention limit is exceeded.
+its declaration, and while a validated replacement has not been
+accepted under local policy ({{range-changes}}). When the retention
+limit is exceeded, the authorization server stops using the set and has
+no accepted IP range set for the client. An authorization server that
+was enforcing the set rejects requests from the client until it accepts
+a new IP range set or an explicit local policy decision removes the
+client from enforcement.
 
 # Use of Client IP Range Metadata {#use}
 
@@ -529,7 +535,7 @@ the new IP range set contains.
 
 An accepted IP range set that no longer matches the client's current
 declaration can include addresses that have since been reassigned to
-another party. The retention limit ({{retrieval-failures}}) and
+another party. The retention limit ({{retention}}) and
 narrowing ({{acceptance}}) bound how long such addresses remain
 admitted.
 
