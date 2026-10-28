@@ -412,6 +412,23 @@ IP range set for the client, whether because:
 For other consumers, what applies while a client has no accepted IP
 range set is local policy.
 
+## Lifecycle Summary {#lifecycle}
+
+The following table summarizes the accepted IP range set after each
+event, as specified in {{acceptance}}, {{retrieval-failures}}, and
+{{range-changes}}. It adds no requirements. Whenever a client has no
+accepted IP range set, a consumer that requires one rejects requests
+from the client.
+
+| Event | Accepted IP range set afterward |
+|---|---|
+| First declaration validated | None, until accepted under local policy |
+| Replacement accepted | The replacement |
+| Replacement validated, not yet accepted | Unchanged or narrowed to the intersection, until the limit |
+| Retrieval or validation fails | Unchanged, until the limit |
+| Declaration withdrawn | Unchanged, until the limit |
+| Limit exceeded | None; no source address is newly admitted |
+
 # Use of Client IP Range Metadata {#use}
 
 The IP range set identifies source addresses from which the client
