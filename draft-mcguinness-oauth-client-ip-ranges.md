@@ -116,9 +116,10 @@ mechanisms that convey client metadata.
 Declared ranges are an input to network access control. Deployments use
 source address restrictions to limit where a client's credentials and
 grants can be used. Declared ranges do not authenticate the client or
-authorize a request ({{use}}). They complement client authentication and
-sender-constrained tokens ({{RFC9449}}, {{RFC8705}}), which bind
-credentials and tokens to keys rather than to network locations.
+authorize a request ({{enforcement}}). They complement client
+authentication and sender-constrained tokens ({{RFC9449}}, {{RFC8705}}),
+which bind credentials and tokens to keys rather than to network
+locations.
 
 This specification defines the metadata and the processing requirements
 for authorization servers that use it. Other parties that obtain a
@@ -165,7 +166,7 @@ accepted IP range set:
 
 This specification defines the following client metadata parameters
 ({{Section 2 of RFC7591}}) for declaring the IP address ranges from
-which a client originates requests ({{use}}):
+which a client originates requests ({{enforcement}}):
 
 `client_ip_ranges`:
 : OPTIONAL. JSON array of strings, each an IPv4 or IPv6 prefix
@@ -340,7 +341,8 @@ itself accept its IP range set.
 An accepted IP range set replaces the previously accepted IP range set
 in full; this specification defines no incremental update format. The
 accepted IP range set remains in effect until the authorization server
-accepts a replacement, narrows it, or stops using it ({{retention}}).
+accepts a replacement, narrows it, or stops using it
+({{retention-limit}}).
 
 While a validated replacement awaits acceptance, an authorization server
 MAY
@@ -376,7 +378,7 @@ range set; it is not a request to delete the parameter. The client
 information response ({{Section 3 of RFC7592}}) shows whether the
 parameters were removed.
 
-## Retention {#continued-use}
+## Retention {#retention}
 
 ### After a Failure {#failures}
 
@@ -385,7 +387,7 @@ IP range metadata or a retrieved document, MUST NOT cause an
 authorization server to admit a source address that it did not admit
 before the failure. After a failure, the authorization server MAY
 continue to use the accepted IP range set, within its retention limit,
-if it sets one ({{retention}}).
+if it sets one ({{retention-limit}}).
 
 ### After a Withdrawal {#withdrawal}
 
@@ -394,7 +396,7 @@ by itself cause an authorization server to admit a source address that
 it did not admit before the withdrawal. Enforcement is relaxed after a
 withdrawal only by an explicit local policy decision.
 
-### Retention Limit {#retention}
+### Retention Limit {#retention-limit}
 
 An authorization server SHOULD set a retention limit on how long it
 continues to use an accepted IP range set in any of the following cases
@@ -416,9 +418,9 @@ admits is also in the replacement.
 
 When the retention limit is exceeded, the authorization server stops
 using the set and has no accepted IP range set for the client
-({{use}}).
+({{enforcement}}).
 
-# Enforcement {#use}
+# Enforcement {#enforcement}
 
 The IP range set identifies source addresses from which the client
 originates requests directly to authorization servers and resource
@@ -437,7 +439,7 @@ accepted IP range set:
 
 * an authorization server that requires an accepted IP range set for
   the client MUST reject requests from the client;
-* after the retention limit is exceeded ({{retention}}), an
+* after the retention limit is exceeded ({{retention-limit}}), an
   authorization server that was enforcing a set for the client MUST
   reject requests from the client until it accepts a new IP range set
   or an explicit local policy decision removes the client from
@@ -455,7 +457,7 @@ determines the client associated with a request and obtains that
 client's metadata, is outside the scope of this specification and could
 be addressed by a companion specification.
 
-## Client Identification and Error Responses {#as-enforcement}
+## Client Identification and Error Responses {#client-identification}
 
 An authorization server can enforce a client's accepted IP range set at
 the token endpoint and at other endpoints that receive direct requests
@@ -486,7 +488,7 @@ client, so it can enforce only the aggregate of the IP range sets of the
 clients permitted to reach an endpoint. An authorization server can
 enforce each client's accepted IP range set once it has identified the
 client
-({{as-enforcement}}).
+({{client-identification}}).
 
 For example, an enterprise adds a hosted client's approved ranges to the
 network allowlist in front of its token endpoint, and the authorization
@@ -576,7 +578,7 @@ the new IP range set contains.
 
 An accepted IP range set that no longer matches the client's current
 declaration can include addresses that have since been reassigned to
-another party. The retention limit ({{retention}}) and
+another party. The retention limit ({{retention-limit}}) and
 narrowing ({{acceptance}}) limit how long such addresses remain
 admitted.
 
@@ -587,9 +589,9 @@ tells that party that its other inputs were acceptable. If the
 authorization server checks the source address only after client
 authentication succeeds, such a rejection confirms to a party holding
 stolen or guessed client credentials that they are valid.
-{{as-enforcement}} limits this disclosure for parties that have not
-authenticated as the client; the error response for authenticated parties is
-an open issue ({{open-issues}}).
+{{client-identification}} limits this disclosure for parties that have
+not authenticated as the client; the error response for authenticated
+parties is an open issue ({{open-issues}}).
 
 ## Server-Side Request Forgery {#ssrf}
 
@@ -762,6 +764,7 @@ and a response indicating that the document is unchanged:
 GET /ip-ranges.json HTTP/1.1
 Host: client.example.com
 Accept: application/json
+Accept-Encoding: gzip
 If-None-Match: "ranges-v42"
 ~~~
 
@@ -774,13 +777,13 @@ ETag: "ranges-v42"
 # Related Work {#related-work}
 
 {{JAFAR}} defines a format for publishing the IP address ranges of
-automated HTTP clients. Its prefixes are objects with separate IPv4 and
-IPv6 members and optional service identifiers, the document carries a
-creation time, and a prefix object that has both or neither address
-member is ignored. This specification instead reuses the
-`client_ip_ranges` array, rejects the whole set when any prefix is
-invalid ({{acceptance}}), and relies on client metadata to associate the
-set with a client.
+automated HTTP clients. Each prefix is an object with exactly one of an
+IPv4 or an IPv6 member and optional service identifiers, the document
+carries a creation time, and a prefix object that has both or neither
+address member is ignored. This specification instead uses the same
+prefix array in the Client IP Range Document as in `client_ip_ranges`,
+rejects the whole set when any prefix is invalid ({{acceptance}}), and
+relies on client metadata to associate the set with a client.
 
 Clients can announce planned changes to their IP range sets through
 a separately specified notification mechanism, such as event types
@@ -789,6 +792,8 @@ does not define advance announcement events or scheduled activation of
 ranges.
 
 # Open Issues {#open-issues}
+
+*RFC EDITOR: Remove this section before publication.*
 
 1. Which error response indicates that an authorization server rejected
    a request under a client's source address policy? The
@@ -799,6 +804,8 @@ ranges.
    ({{rejection-responses}}).
 
 # Document History {#history}
+
+*RFC EDITOR: Remove this section before publication.*
 
 -00
 
