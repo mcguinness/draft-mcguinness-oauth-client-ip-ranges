@@ -413,12 +413,14 @@ continues to use an accepted IP range set in any of the following cases
 The limit runs from the first failed retrieval or validation, from the
 withdrawal, or from the first validation of the replacement, and ends
 when the authorization server accepts a set under the client's current
-declaration. A successful retrieval or validation that confirms the
-accepted IP range set, including one that ends in a 304 response, counts
-as such an acceptance. The third case does not apply to an accepted IP
-range set that the authorization server has narrowed to its intersection
-with the replacement ({{acceptance}}), because every source address that
-set admits is also in the replacement.
+declaration. The limit for the first case also ends when a successful
+retrieval or validation, including one that ends in a 304 response,
+confirms that the accepted IP range set is current. Revalidating a
+replacement that has not been accepted does not restart its limit. The
+third case does not apply to an accepted IP range set that the
+authorization server has narrowed to its intersection with the
+replacement ({{acceptance}}), because every source address that set
+admits is also in the replacement.
 
 When the retention limit is exceeded, the authorization server stops
 using the set and has no accepted IP range set for the client
@@ -467,16 +469,16 @@ An authorization server can enforce a client's accepted IP range set at
 the token endpoint and at other endpoints that receive direct requests
 from the client, once it has identified the client, either through
 client authentication or, for a public client
-({{Section 2.1 of RFC6749}}), as the client to which the authorization
-code, device code ({{Section 3.2 of RFC8628}}), or refresh token
-presented in the request was issued. At the client configuration
-endpoint, the registration access token identifies the client
-({{Section 2 of RFC7592}}). This specification does not define
-enforcement for a public client in a request that identifies the client
-only by an unauthenticated `client_id`, such as a device authorization
-request ({{Section 3.1 of RFC8628}}). A request rejected because of its
-source address does not count as a use of the authorization code it
-presents ({{Section 4.1.2 of RFC6749}}).
+({{Section 2.1 of RFC6749}}), as the client to which a grant or token
+presented in the request was issued, such as an authorization code, a
+device code ({{Section 3.4 of RFC8628}}), or a refresh token. At the
+client configuration endpoint, the registration access token identifies
+the client ({{Section 2 of RFC7592}}). This specification does not
+define enforcement for a public client in a request that identifies the
+client only by an unauthenticated `client_id`, such as a device
+authorization request ({{Section 3.1 of RFC8628}}). A request rejected
+because of its source address does not count as a use of the
+authorization code it presents ({{Section 4.1.2 of RFC6749}}).
 
 In a response to a party that has not authenticated as the client, an
 authorization server SHOULD NOT indicate that a request was rejected
