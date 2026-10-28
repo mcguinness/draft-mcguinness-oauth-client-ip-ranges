@@ -108,11 +108,6 @@ registration. The parameters can be used with OAuth 2.0 Dynamic Client
 Registration {{RFC7591}}, OAuth Client ID Metadata Documents {{CIMD}},
 and other mechanisms that convey client metadata.
 
-{{JAFAR}} defines a format for publishing the IP address ranges of
-automated HTTP clients, with optional per-prefix service identifiers
-and a document creation time. A Client IP Range Document carries only
-prefixes, because client metadata associates it with the client.
-
 For example, an enterprise administrator approves a hosted client for
 use with the enterprise's authorization server. The authorization server
 obtains the client's IP range set from its metadata and the
@@ -687,6 +682,13 @@ ETag: "ranges-v42"
 ~~~
 
 --- back
+
+# Related Work {#related-work}
+
+{{JAFAR}} defines a format for publishing the IP address ranges of
+automated HTTP clients, with optional per-prefix service identifiers
+and a document creation time. A Client IP Range Document carries only
+prefixes, because client metadata associates it with the client.
 
 # Open Issues {#open-issues}
 
