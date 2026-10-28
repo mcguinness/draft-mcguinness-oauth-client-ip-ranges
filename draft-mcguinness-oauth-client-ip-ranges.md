@@ -144,11 +144,9 @@ Client IP Range Document:
   set and is referenced by `client_ip_ranges_uri`.
 
 accepted IP range set:
-: The IP range set, if any, that an authorization server has validated
-  and accepted for a client and currently uses for it, including such a
-  set after narrowing ({{range-changes}}). An authorization server that
-  stops using an IP range set no longer has an accepted IP range set for
-  the client.
+: The IP range set, if any, that an authorization server has validated,
+  accepted, and currently uses for a client, possibly narrowed
+  ({{acceptance}}).
 
 # Client IP Range Metadata {#metadata}
 
@@ -169,8 +167,7 @@ which a client originates requests ({{use}}):
   {{RFC3986}}. The authorization server retrieves the document as
   described in {{retrieval}}.
 
-`client_ip_ranges_uri` conveys an IP range set by reference, with the
-same semantics as `client_ip_ranges`. The `client_ip_ranges` and
+The `client_ip_ranges` and
 `client_ip_ranges_uri` parameters MUST NOT both be present in the same
 client metadata. If neither is present, the client makes no declaration,
 which differs from declaring an empty IP range set. This specification
@@ -182,7 +179,7 @@ own bounds ({{resource-exhaustion}}).
 Each prefix MUST conform to the `ip-prefix` type defined in
 {{Section 4 of RFC9911}}, that is, match in full every pattern of either
 the `ipv4-prefix` or the `ipv6-prefix` type. A value that does not
-conform to the `ip-prefix` type is invalid.
+conform is invalid.
 
 The client, and the party hosting a Client IP Range Document, MUST
 represent each prefix in the canonical format of that type, with all
@@ -214,8 +211,8 @@ any of the following is true:
 1. Both `client_ip_ranges` and `client_ip_ranges_uri` are present.
 2. The value of `client_ip_ranges` is not an array of strings, or any
    entry is an invalid prefix ({{prefix-syntax}}).
-3. The value of `client_ip_ranges_uri` does not meet the requirements
-   for `client_ip_ranges_uri` in {{metadata}}.
+3. The value of `client_ip_ranges_uri` does not meet the requirements of
+   {{metadata}}.
 4. The value of `client_ip_ranges` has more entries than the
    authorization server's bound on prefixes ({{resource-exhaustion}}).
 
@@ -225,10 +222,9 @@ Request) error response as described in {{Section 3.2.2 of RFC7591}},
 using `invalid_client_metadata` as the error code value, or
 `invalid_software_statement` if the invalid value comes from a trusted
 software statement. If a Client ID Metadata Document {{CIMD}} contains
-invalid client IP range metadata, the authorization server treats the
-client IP range metadata as a validation failure
-({{retrieval-failures}}) and does not treat the rest of the document as
-invalid.
+invalid client IP range metadata, the authorization server handles this
+as a validation failure ({{failures}}) without treating the rest of the
+document as invalid.
 
 An authorization server that does not support these parameters ignores
 them ({{Section 2 of RFC7591}}). The client information response
@@ -287,12 +283,11 @@ retrieve it unless that party and the authorization server have agreed
 on an authentication mechanism, which is outside the scope of this
 specification. The authorization server MUST NOT send credentials
 associated with an OAuth request, such as client credentials, access
-tokens, or authorization codes, when retrieving a Client IP Range
-Document.
+tokens, or authorization codes, when retrieving the document.
 
 The authorization server MUST NOT treat a failed retrieval, an
 unsuccessful response, or an invalid document as an empty IP range set;
-each is a failure ({{retrieval-failures}}).
+each is a failure ({{failures}}).
 
 ## Caching {#caching}
 
@@ -309,9 +304,8 @@ SHOULD retrieve the document periodically to obtain changes.
 
 ## Acceptance {#acceptance}
 
-Before accepting an IP range set, whether it is conveyed by
-`client_ip_ranges` or in a Client IP Range Document, the authorization
-server MUST ensure the following:
+Before accepting an IP range set, the authorization server MUST ensure
+the following:
 
 1. The client IP range metadata that conveys the set is valid
    ({{validation}}), and every prefix in the set is valid
@@ -328,13 +322,26 @@ itself accept its IP range set.
 An accepted IP range set replaces the previously accepted IP range set
 in full; this specification defines no incremental update format. The
 accepted IP range set remains in effect until the authorization server
-accepts a replacement, narrows it, or stops using it
-({{range-changes}}). A validated IP range set that has not yet been
-accepted under local policy does not replace it.
+accepts a replacement, narrows it, or stops using it ({{retention}}).
+
+Before accepting a validated replacement, an authorization server MAY
+narrow the accepted IP range set to its intersection with the
+replacement, so that it admits only source addresses that both sets
+match. The narrowed set remains the accepted IP range set; the
+replacement is still not accepted.
 
 A client SHOULD add a prefix to its IP range set before it originates
 requests from addresses in that prefix and SHOULD keep the prefix in the
 set until it no longer originates requests from them.
+
+If an authorization server requires an accepted IP range set for a
+client, it MUST reject requests from the client while it has no accepted
+IP range set for the client, whether because the client has made no
+declaration, because its declaration is invalid or cannot be retrieved
+({{failures}}), or because a validated IP range set has not yet been
+accepted under local policy. Otherwise, what applies while a client has
+no accepted IP range set is local policy, except after the retention
+limit ({{retention}}) is exceeded.
 
 ## Changes to Client Metadata {#metadata-changes}
 
@@ -343,60 +350,49 @@ switch between `client_ip_ranges` and `client_ip_ranges_uri`, or remove
 both. The new metadata replaces the previous declaration.
 
 When the metadata changes representation or URI, the accepted IP range
-set remains in effect until the authorization server accepts a set under
-the new metadata or stops using it ({{acceptance}}). An invalid new
+set remains in effect as described in {{acceptance}}. An invalid new
 declaration or an unretrievable new document is a failure
-({{retrieval-failures}}). If the previous metadata contained
+({{failures}}). If the previous metadata contained
 `client_ip_ranges_uri`, the authorization server does not retrieve that
 URI again for the client.
 
 Removal of both parameters withdraws the client's declaration
-({{retrieval-failures}}). In a client update request
+({{withdrawal}}). In a client update request
 ({{Section 2.2 of RFC7592}}), omitting both parameters requests their
 removal, which the authorization server can ignore. The client
 information response ({{Section 3 of RFC7592}}) shows whether they were
 removed.
 
-## Failures and Withdrawal {#retrieval-failures}
+## Failures, Withdrawal, and Retention {#retrieval-failures}
 
-An authorization server MUST NOT admit a source address that it did not
-admit before because of a failure to retrieve a Client IP Range
-Document, a failure to validate client IP range metadata or a retrieved
-document, or, by itself, withdrawal of the client's declaration
-({{metadata-changes}}).
+### Failures {#failures}
 
-After a failure, the authorization server MAY continue to use the
-accepted IP range set, within the retention limit ({{range-changes}}).
-Relaxing enforcement after a withdrawal is a local policy decision, not
-an automatic consequence of the withdrawal.
+A failure to retrieve a Client IP Range Document, or to validate client
+IP range metadata or a retrieved document, MUST NOT cause an
+authorization server to admit a source address that it did not admit
+before the failure. After a failure, the authorization server MAY
+continue to use the accepted IP range set, within the retention limit
+({{retention}}).
 
-If an authorization server requires an accepted IP range set for a
-client, it MUST reject requests from the client while it has no accepted
-IP range set for the client, whether because the client has made no
-declaration, because its declaration is invalid or cannot be retrieved,
-or because a validated IP range set has not yet been accepted under
-local policy.
+### Withdrawal {#withdrawal}
 
-Otherwise, what applies while a client has no accepted IP range set is
-local policy, except after the retention limit ({{range-changes}}) is
-exceeded.
+Withdrawal of the client's declaration ({{metadata-changes}}) MUST NOT
+by itself cause an authorization server to admit a source address that
+it did not admit before the withdrawal. Relaxing enforcement after a
+withdrawal is a local policy decision.
 
-## Lifecycle Summary {#lifecycle}
+### Retention {#retention}
 
-The following table summarizes the accepted IP range set after each
-event, as specified in {{acceptance}}, {{retrieval-failures}}, and
-{{range-changes}}. It adds no requirements. Whenever a client has no
-accepted IP range set, an authorization server that requires one rejects
-requests from the client.
-
-| Event | Accepted IP range set afterward |
-|---|---|
-| First declaration validated | None, until accepted under local policy |
-| Replacement accepted | The replacement |
-| Replacement validated, not yet accepted | Unchanged or narrowed to the intersection, at most until the retention limit |
-| Retrieval or validation fails | Unchanged, at most until the retention limit |
-| Declaration withdrawn | Unchanged, at most until the retention limit |
-| Retention limit exceeded | None; an authorization server that was enforcing the set rejects requests from the client until it accepts a new set or local policy removes the client from enforcement |
+An authorization server SHOULD set a retention limit on how long it
+continues to use an accepted IP range set while retrieval or validation
+of the client's current declaration fails, after the client withdraws
+its declaration, and while a validated replacement has not been
+accepted under local policy ({{range-changes}}). When the retention
+limit is exceeded, the authorization server stops using the set and has
+no accepted IP range set for the client. An authorization server that
+was enforcing the set rejects requests from the client until it accepts
+a new IP range set or an explicit local policy decision removes the
+client from enforcement.
 
 # Use of Client IP Range Metadata {#use}
 
@@ -414,8 +410,7 @@ admits requests from the client only from source addresses that match
 it; if that set is empty, it admits none.
 
 An authorization server MAY use the IP range set as an input to local
-network access control. The IP range set is a declaration made by or on
-behalf of the client, and a match does not authenticate the client or
+network access control. A match does not authenticate the client or
 authorize a request. The authorization server MUST NOT use a source
 address match in place of client authentication, access token
 validation, or any other security control required by OAuth.
@@ -475,21 +470,17 @@ declaration made by value.
 
 ## Retrieval Scheduling {#retrieval-scheduling}
 
-This specification does not require retrieval during the processing of
-an OAuth request; an authorization server can retrieve documents in the
-background. An authorization server typically schedules the next
+An authorization server can retrieve documents in the background rather
+than while processing an OAuth request, and typically schedules the next
 retrieval when the stored response's freshness lifetime
 ({{Section 4.2 of RFC9111}}) ends, within local minimum and maximum
 intervals. A client needs to allow for these intervals, and for approval
 delays, when adding a prefix ({{acceptance}}).
 
-To revalidate, an authorization server sends a conditional GET request
-carrying the `If-None-Match` header field
-({{Section 13.1.2 of RFC9110}}) with the entity tag of the most recent
-complete response it stored from that URI ({{Section 4.3 of RFC9111}}).
-That response can be newer than the one from which the accepted IP range
-set was derived. Without a stored complete response, the authorization
-server sends an unconditional request.
+To revalidate with `If-None-Match` ({{Section 13.1.2 of RFC9110}}), an
+authorization server uses the entity tag of the most recent complete
+response it stored from that URI ({{Section 4.3 of RFC9111}}), which can
+be newer than the one from which the accepted IP range set was derived.
 
 ## Document Size {#document-size}
 
@@ -542,25 +533,11 @@ The authorization server SHOULD apply changes atomically, so that no
 intermediate state admits a source address that neither the previous nor
 the new IP range set contains.
 
-Continued use of an accepted IP range set that may no longer match the
-client's current declaration admits addresses that may have been
-reassigned to another party. An authorization server SHOULD set a
-retention limit on how long it continues to use an accepted IP range set
-while retrieval or validation of the client's current declaration fails,
-after the client withdraws its declaration, and while a validated
-replacement has not been accepted under local policy.
-
-Before accepting a validated replacement, an authorization server MAY
-narrow the accepted IP range set to its intersection with the
-replacement, so that it admits only source addresses that both sets
-match. The narrowed set remains the accepted IP range set; the
-replacement is still not accepted.
-
-When the retention limit is exceeded, the authorization server stops
-using the set and has no accepted IP range set for the client. An
-authorization server that was enforcing the set rejects requests from
-the client until it accepts a new IP range set or an explicit local
-policy decision removes the client from enforcement.
+An accepted IP range set that no longer matches the client's current
+declaration can include addresses that have since been reassigned to
+another party. The retention limit ({{retention}}) and
+narrowing ({{acceptance}}) bound how long such addresses remain
+admitted.
 
 ## Server-Side Request Forgery {#ssrf}
 
@@ -744,13 +721,10 @@ ETag: "ranges-v42"
 automated HTTP clients. Its prefixes are objects with separate IPv4 and
 IPv6 members and optional service identifiers, the document carries a
 creation time, and a prefix object that has both or neither address
-member is ignored. This specification instead uses one prefix array for
-both `client_ip_ranges` and the Client IP Range Document, so that both
-forms share one syntax and one validation procedure; rejects the whole
-set when any prefix is invalid ({{acceptance}}), so that a document is
-applied completely or not at all; and relies on client metadata to
-associate the set with a client, so that the document needs no service
-identifiers.
+member is ignored. This specification instead reuses the
+`client_ip_ranges` array, rejects the whole set when any prefix is
+invalid ({{acceptance}}), and relies on client metadata to associate the
+set with a client.
 
 Clients can announce planned changes to their IP range sets through
 a separately specified notification mechanism, such as event types
