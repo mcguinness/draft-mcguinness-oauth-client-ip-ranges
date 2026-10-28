@@ -191,8 +191,9 @@ both be present in the same client metadata.
 ## Prefix Syntax {#prefix-syntax}
 
 Each prefix MUST conform to the `ip-prefix` type defined in Section 4 of
-{{RFC9911}}. A value that does not conform to the `ip-prefix` type is
-invalid. In addition:
+{{RFC9911}}, that is, match in full every pattern of either the
+`ipv4-prefix` or the `ipv6-prefix` type. A value that does not conform
+to the `ip-prefix` type is invalid. In addition:
 
 * Publishers MUST use the canonical format of that type: all bits
   outside the prefix length set to zero and, for IPv6, the address
