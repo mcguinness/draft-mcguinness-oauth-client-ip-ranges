@@ -768,9 +768,18 @@ ETag: "ranges-v42"
 # Related Work {#related-work}
 
 {{JAFAR}} defines a format for publishing the IP address ranges of
-automated HTTP clients, with optional per-prefix service identifiers
-and a document creation time. A Client IP Range Document carries only
-prefixes, because client metadata associates it with the client.
+automated HTTP clients. Its prefixes are objects with separate IPv4 and
+IPv6 members and optional service identifiers, the document carries a
+creation time, and consumers ignore a prefix object that has both or
+neither address member. This specification uses a different model:
+
+* The Client IP Range Document uses the same prefix array as
+  `client_ip_ranges`, so both forms share one syntax and one validation
+  procedure.
+* An invalid prefix invalidates the whole set ({{acceptance}}), so a
+  partly invalid document does not change what a consumer admits.
+* Client metadata associates the set with a client, so the document
+  needs no service identifiers.
 
 Publishers can announce planned changes to their IP range sets through
 a separately specified notification mechanism, such as event types
