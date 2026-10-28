@@ -392,6 +392,14 @@ continues to use an accepted IP range set in any of the following cases
 * while a validated replacement has not been accepted under local
   policy.
 
+The limit runs from the first failed retrieval or validation, from the
+withdrawal, or from the first validation of the replacement, and ends
+when the authorization server accepts a set under the client's current
+declaration. The third case does not apply to an accepted IP range set
+that the authorization server has narrowed to its intersection with
+the replacement ({{acceptance}}), because every source address that set
+admits is also in the replacement.
+
 When the retention limit is exceeded, the authorization server stops
 using the set and has no accepted IP range set for the client
 ({{use}}).
