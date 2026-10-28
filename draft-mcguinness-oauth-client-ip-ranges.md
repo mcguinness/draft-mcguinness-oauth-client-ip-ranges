@@ -216,12 +216,15 @@ any of the following is true:
 4. The value of `client_ip_ranges` has more entries than the
    authorization server's bound on prefixes ({{resource-exhaustion}}).
 
-If a client registration request contains invalid client IP range
+If a client registration request, or a client update request
+({{Section 2.2 of RFC7592}}), contains invalid client IP range
 metadata, the authorization server responds with an HTTP 400 (Bad
 Request) error response as described in {{Section 3.2.2 of RFC7591}},
 using `invalid_client_metadata` as the error code value, or
 `invalid_software_statement` if the invalid value comes from a trusted
-software statement. If a Client ID Metadata Document {{CIMD}} contains
+software statement. The authorization server MUST NOT substitute a
+default value for invalid client IP range metadata. If a Client ID
+Metadata Document {{CIMD}} contains
 invalid client IP range metadata, the authorization server handles this
 as a validation failure ({{failures}}) without treating the rest of the
 document as invalid.
@@ -344,17 +347,20 @@ both. The new metadata replaces the previous declaration.
 
 When the metadata changes representation or URI, the accepted IP range
 set remains in effect as described in {{acceptance}}. An invalid new
-declaration or an unretrievable new document is a failure
-({{failures}}). If the previous metadata contained
+declaration in a Client ID Metadata Document, or an unretrievable or
+invalid new document, is a failure ({{failures}}). If the previous
+metadata contained
 `client_ip_ranges_uri`, the authorization server does not retrieve that
 URI again for the client.
 
 Removal of both parameters withdraws the client's declaration
 ({{withdrawal}}). In a client update request
 ({{Section 2.2 of RFC7592}}), omitting both parameters requests their
-removal, which the authorization server can ignore. The client
-information response ({{Section 3 of RFC7592}}) shows whether they were
-removed.
+removal, which the authorization server can ignore. An empty
+`client_ip_ranges` array in an update request declares an empty IP
+range set; it is not a request to delete the parameter. The client
+information response ({{Section 3 of RFC7592}}) shows whether the
+parameters were removed.
 
 ## Retention {#continued-use}
 
