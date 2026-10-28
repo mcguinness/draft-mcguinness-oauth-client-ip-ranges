@@ -155,34 +155,30 @@ accepted IP range set:
 
 # Client IP Range Metadata {#metadata}
 
-The following client metadata parameters convey a client's IP range
-set, by value or by reference.
+This specification defines the following client metadata parameters
+({{Section 2 of RFC7591}}) for declaring the IP address ranges from
+which a client originates requests ({{use}}):
 
-## `client_ip_ranges` {#client-ip-ranges}
+`client_ip_ranges`:
+: OPTIONAL. JSON array of strings, each an IPv4 or IPv6 prefix
+  ({{prefix-syntax}}). The array is a set. Authorization servers MUST
+  NOT assign meaning to the order of entries or to duplicate entries. An
+  empty array declares an empty IP range set.
 
-OPTIONAL. JSON array of strings, each an IPv4 or IPv6 prefix
-({{prefix-syntax}}) identifying source addresses from which the client
-originates requests ({{use}}).
+`client_ip_ranges_uri`:
+: OPTIONAL. URL of a Client IP Range Document ({{document}}) that
+  contains the client's IP range set. The URL MUST use the `https`
+  scheme and MUST NOT contain a fragment or userinfo component
+  {{RFC3986}}. Authorization servers retrieve the document as described
+  in {{retrieval}}.
 
-The array is a set. Authorization servers MUST NOT assign meaning to the
-order of entries or to duplicate entries. This specification sets no
-maximum number of entries; authorization servers apply their own bounds
+The two parameters convey the same IP range set, by value or by
+reference. The `client_ip_ranges` and `client_ip_ranges_uri` parameters
+MUST NOT both be present in the same client metadata. If neither is
+present, the client makes no declaration, which differs from declaring
+an empty IP range set. This specification sets no maximum number of
+entries; authorization servers apply their own bounds
 ({{resource-exhaustion}}).
-
-An empty array declares an empty IP range set. Absence of both
-`client_ip_ranges` and `client_ip_ranges_uri` means the client makes no
-declaration; it does not imply an empty IP range set.
-
-## `client_ip_ranges_uri` {#client-ip-ranges-uri}
-
-OPTIONAL. URL of a Client IP Range Document ({{document}}), whose IP
-range set has the same semantics as a `client_ip_ranges` value. The URL
-MUST use the `https` scheme and MUST NOT contain a fragment or userinfo
-component {{RFC3986}}. Authorization servers retrieve the document as
-described in {{retrieval}}.
-
-The `client_ip_ranges` and `client_ip_ranges_uri` parameters MUST NOT
-both be present in the same client metadata.
 
 ## Prefix Syntax {#prefix-syntax}
 
@@ -221,7 +217,7 @@ any of the following is true:
 2. The value of `client_ip_ranges` is not an array of strings, or any
    entry is an invalid prefix ({{prefix-syntax}}).
 3. The value of `client_ip_ranges_uri` does not meet the requirements of
-   {{client-ip-ranges-uri}}.
+   {{metadata}}.
 4. The value of `client_ip_ranges` has more entries than the
    authorization server's bound on prefixes ({{resource-exhaustion}}).
 
@@ -249,7 +245,7 @@ following member:
 
 `client_ip_ranges`:
 : REQUIRED. JSON array of prefixes, with the syntax and semantics
-  defined in {{client-ip-ranges}}.
+  defined in {{metadata}}.
 
 The following rules apply to the document:
 
@@ -605,7 +601,7 @@ server-side request forgery vector. When retrieving a Client IP Range
 Document, authorization servers:
 
 1. MUST NOT retrieve a URL that does not meet the requirements of
-   {{client-ip-ranges-uri}}.
+   {{metadata}}.
 2. MUST verify the server certificate as described in
    {{Section 4.3.4 of RFC9110}} and MUST NOT accept a document retrieved
    over a connection that fails this verification, strengthening the
@@ -676,14 +672,14 @@ established by {{RFC7591}}.
 * Client Metadata Description: Array of IPv4 and IPv6 prefixes from which
   the client originates requests
 * Change Controller: IETF
-* Specification Document(s): {{client-ip-ranges}} of this specification
+* Specification Document(s): {{metadata}} of this specification
 {: spacing="compact"}
 
 * Client Metadata Name: `client_ip_ranges_uri`
 * Client Metadata Description: HTTPS URL of a document containing the
   IPv4 and IPv6 prefixes from which the client originates requests
 * Change Controller: IETF
-* Specification Document(s): {{client-ip-ranges-uri}} of this
+* Specification Document(s): {{metadata}} of this
   specification
 {: spacing="compact"}
 
