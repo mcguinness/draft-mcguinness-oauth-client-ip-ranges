@@ -368,9 +368,11 @@ it did not admit before:
 
 * a failure to retrieve a Client IP Range Document;
 * a failure to validate client IP range metadata or a retrieved
-  document; and
+  document;
 * withdrawal of the client's declaration ({{metadata-changes}}), by
-  itself.
+  itself; and
+* ceasing to use an accepted IP range set when the limit in
+  {{range-changes}} is exceeded.
 
 After a failure, the consumer MAY continue to use the accepted IP range
 set, within the limit described in {{range-changes}}. Whether to relax
@@ -517,14 +519,24 @@ such changes:
   state admits a source address that neither the previous nor the new
   IP range set contains.
 
-Continued use of an accepted IP range set after the publisher has
-removed a prefix admits addresses that may have been reassigned to
-another party. Consumers SHOULD limit how long they continue to use an
-accepted IP range set while retrieval or validation of the client's
-current declaration fails. When the limit is exceeded, the consumer
-stops using the set and has no accepted IP range set for the client.
-Because of {{retrieval-failures}}, stopping can narrow, but not widen,
-the source addresses admitted for the client.
+Continued use of an accepted IP range set that no longer matches the
+client's current declaration admits addresses that may have been
+reassigned to another party. Consumers SHOULD limit how long they
+continue to use such a set, including:
+
+* while retrieval or validation of the client's current declaration
+  fails;
+* after the client withdraws its declaration; and
+* while a validated replacement has not been accepted under local
+  policy.
+
+Before accepting a validated replacement, a consumer MAY narrow the
+accepted IP range set to its intersection with the replacement, so that
+it admits only source addresses that both sets match. When the limit is
+exceeded, the consumer stops using the set and has no accepted IP range
+set for the client ({{retrieval-failures}}). The limit trades
+availability for safety: once it is exceeded, requests from the client
+are rejected until the consumer accepts a new IP range set.
 
 ## Server-Side Request Forgery {#ssrf}
 
