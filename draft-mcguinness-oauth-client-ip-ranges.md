@@ -333,11 +333,6 @@ A client SHOULD add a prefix to its IP range set before it originates
 requests from addresses in that prefix and SHOULD keep the prefix in the
 set until it no longer originates requests from them.
 
-If an authorization server requires an accepted IP range set for a
-client, it MUST reject requests from the client while it has no accepted
-IP range set for the client. Otherwise, what applies while a client has
-no accepted IP range set is local policy, subject to {{retention}}.
-
 ## Changes to Client Metadata {#metadata-changes}
 
 A client's metadata can change the value of `client_ip_ranges_uri`,
@@ -389,10 +384,8 @@ continues to use an accepted IP range set in any of the following cases
   policy.
 
 When the retention limit is exceeded, the authorization server stops
-using the set and has no accepted IP range set for the client. An
-authorization server that was enforcing the set rejects requests from
-the client until it accepts a new IP range set or an explicit local
-policy decision removes the client from enforcement.
+using the set and has no accepted IP range set for the client
+({{use}}).
 
 # Use of Client IP Range Metadata {#use}
 
@@ -404,10 +397,18 @@ endpoints, or requests initiated by the resource owner.
 
 A source address matches an IP range set if it is within any of its
 prefixes. Before matching, the authorization server MUST convert an
-IPv4-mapped IPv6 source address to the IPv4 address it contains. An
-authorization server that enforces a client's accepted IP range set
+IPv4-mapped IPv6 source address to the IPv4 address it contains.
+
+An authorization server that enforces a client's accepted IP range set
 admits requests from the client only from source addresses that match
-it; if that set is empty, it admits none.
+it; if that set is empty, it admits none. If an authorization server
+requires an accepted IP range set for a client, it MUST reject requests
+from the client while it has no accepted IP range set for the client.
+After the retention limit is exceeded ({{retention}}), an authorization
+server that was enforcing the set rejects requests from the client
+until it accepts a new IP range set or an explicit local policy
+decision removes the client from enforcement. Otherwise, what applies
+while a client has no accepted IP range set is local policy.
 
 An authorization server MAY use the IP range set as an input to local
 network access control. A match does not authenticate the client or
