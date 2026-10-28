@@ -171,8 +171,9 @@ OPTIONAL. JSON array of strings, each an IPv4 or IPv6 prefix
 originates requests ({{use}}).
 
 The array is a set. Consumers MUST NOT assign meaning to the order of
-entries or to duplicate entries. This specification does not limit the
-number of entries.
+entries or to duplicate entries. This specification sets no maximum
+number of entries; consumers apply their own bounds
+({{resource-exhaustion}}).
 
 An empty array declares an empty IP range set. Absence of both
 `client_ip_ranges` and `client_ip_ranges_uri` means the client makes no
@@ -228,13 +229,17 @@ any of the following is true:
    entry is an invalid prefix ({{prefix-syntax}}).
 3. The value of `client_ip_ranges_uri` does not meet the requirements of
    {{client-ip-ranges-uri}}.
+4. The value of `client_ip_ranges` has more entries than the
+   authorization server's bound on prefixes ({{resource-exhaustion}}).
 
 An authorization server handles invalid client IP range metadata as
 follows:
 
 * In a dynamic client registration request, the authorization server
   responds with HTTP status code 400 and the `invalid_client_metadata`
-  error code ({{Section 3.2.2 of RFC7591}}).
+  error code ({{Section 3.2.2 of RFC7591}}), or the
+  `invalid_software_statement` error code if the invalid value comes
+  from a trusted software statement.
 * In a Client ID Metadata Document {{CIMD}}, the authorization server
   handles the metadata as a validation failure ({{retrieval-failures}})
   and does not treat the rest of the document as invalid.
@@ -585,7 +590,8 @@ Metadata Document is also subject to Section 8.6 of {{CIMD}}.
 A malicious or compromised publisher can return an oversized document, a
 highly compressed response, or a large number of overlapping prefixes.
 Consumers MUST bound retrieval time, response size, decompressed size,
-and prefix count. If a document exceeds any bound, the consumer MUST
+and the number of prefixes in an IP range set, whether conveyed by value
+or in a document. If a document exceeds any bound, the consumer MUST
 reject the entire document. This specification sets no minimum value for
 any of these bounds.
 
