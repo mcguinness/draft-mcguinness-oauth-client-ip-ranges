@@ -377,8 +377,8 @@ continue to use the accepted IP range set, within the retention limit
 
 Withdrawal of the client's declaration ({{metadata-changes}}) MUST NOT
 by itself cause an authorization server to admit a source address that
-it did not admit before the withdrawal. Relaxing enforcement after a
-withdrawal is a local policy decision.
+it did not admit before the withdrawal. Enforcement is relaxed after a
+withdrawal only by an explicit local policy decision.
 
 ### Retention Limit {#retention}
 
@@ -410,14 +410,17 @@ IPv4-mapped IPv6 source address to the IPv4 address it contains.
 
 An authorization server that enforces a client's accepted IP range set
 admits requests from the client only from source addresses that match
-it; if that set is empty, it admits none. If an authorization server
-requires an accepted IP range set for a client, it MUST reject requests
-from the client while it has no accepted IP range set for the client.
-After the retention limit is exceeded ({{retention}}), an authorization
-server that was enforcing the set rejects requests from the client
-until it accepts a new IP range set or an explicit local policy
-decision removes the client from enforcement. Otherwise, what applies
-while a client has no accepted IP range set is local policy.
+it; if that set is empty, it admits none. While a client has no
+accepted IP range set:
+
+* an authorization server that requires an accepted IP range set for
+  the client MUST reject requests from the client;
+* after the retention limit is exceeded ({{retention}}), an
+  authorization server that was enforcing a set for the client MUST
+  reject requests from the client until it accepts a new IP range set
+  or an explicit local policy decision removes the client from
+  enforcement; and
+* in other cases, what applies is local policy.
 
 An authorization server MAY use the IP range set as an input to local
 network access control. A match does not authenticate the client or
