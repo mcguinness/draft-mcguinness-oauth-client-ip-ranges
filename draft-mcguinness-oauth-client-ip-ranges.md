@@ -649,6 +649,8 @@ established by {{RFC7591}}.
   specification
 {: spacing="compact"}
 
+--- back
+
 # Examples {#examples}
 
 ## Dynamic Client Registration by Value
@@ -734,8 +736,6 @@ HTTP/1.1 304 Not Modified
 Cache-Control: public, max-age=3600
 ETag: "ranges-v42"
 ~~~
-
---- back
 
 # Related Work {#related-work}
 
