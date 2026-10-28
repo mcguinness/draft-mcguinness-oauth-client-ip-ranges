@@ -317,9 +317,9 @@ carrying the `If-None-Match` header field
 ({{Section 13.1.2 of RFC9110}}) and the entity tag of the most recent
 complete response from that URI that the consumer has retained
 ({{Section 4.3 of RFC9111}}). That response can hold an IP range set
-that awaits approval; it need not be the one from which the accepted IP
-range set was obtained. A consumer that has retained no complete
-response sends an unconditional request.
+that has not yet been accepted; it need not be the one from which the
+accepted IP range set was obtained. A consumer that has retained no
+complete response sends an unconditional request.
 
 The accepted IP range set is application state, distinct from any HTTP
 cache ({{Section 6 of RFC9111}}):
@@ -340,13 +340,15 @@ Client IP Range Document, the consumer MUST also validate the response
 ({{fetch}}) and the complete document ({{document}}) before accepting
 the set, and
 MUST reject the entire document if either is invalid. Acceptance is also
-subject to local policy ({{range-changes}}).
+subject to local policy ({{range-changes}}). Registering client IP range
+metadata does not by itself accept its IP range set.
 
 An accepted IP range set replaces the previously accepted IP range set
 in full; this specification defines no incremental update format. The
 accepted IP range set remains in effect until the consumer accepts a
 replacement or stops using it ({{range-changes}}). A validated IP range
-set that awaits approval does not replace it.
+set that has not yet been accepted under local policy does not replace
+it.
 
 Publishers SHOULD publish a new prefix before the client originates
 requests from it and SHOULD continue to publish a prefix until the
@@ -398,7 +400,8 @@ IP range set for the client, whether because:
 
 * the client has made no declaration;
 * its declaration is invalid or cannot be retrieved; or
-* a validated IP range set awaits approval.
+* a validated IP range set has not yet been accepted under local
+  policy.
 
 For other consumers, what applies while a client has no accepted IP
 range set is local policy.
