@@ -62,6 +62,7 @@ informative:
       - ins: S. Miel
     date: 2025-08-29
   CIMD: I-D.ietf-oauth-client-id-metadata-document
+  JAFAR: I-D.illyes-webbotauth-jafar
 
 --- abstract
 
@@ -106,6 +107,11 @@ client publish a large or frequently changing set without updating its
 registration. The parameters can be used with OAuth 2.0 Dynamic Client
 Registration {{RFC7591}}, OAuth Client ID Metadata Documents {{CIMD}},
 and other mechanisms that convey client metadata.
+
+{{JAFAR}} defines a format for publishing the IP address ranges of
+automated HTTP clients, with optional per-prefix service identifiers
+and a document creation time. A Client IP Range Document carries only
+prefixes, because client metadata associates it with the client.
 
 For example, an enterprise administrator approves a hosted client for
 use with the enterprise's authorization server. The authorization server
