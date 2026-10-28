@@ -1211,10 +1211,18 @@ access control.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
                 <p id="section-toc.1-1.4.2.4.1"><a href="#section-4.4" class="auto internal xref">4.4</a>.  <a href="#name-changes-to-client-metadata" class="internal xref">Changes to Client Metadata</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.5">
-                <p id="section-toc.1-1.4.2.5.1"><a href="#section-4.5" class="auto internal xref">4.5</a>.  <a href="#name-failures-and-withdrawal" class="internal xref">Failures and Withdrawal</a></p>
+                <p id="section-toc.1-1.4.2.5.1"><a href="#section-4.5" class="auto internal xref">4.5</a>.  <a href="#name-failures-withdrawal-and-ret" class="internal xref">Failures, Withdrawal, and Retention</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.5.2.1">
+                    <p id="section-toc.1-1.4.2.5.2.1.1"><a href="#section-4.5.1" class="auto internal xref">4.5.1</a>.  <a href="#name-failures" class="internal xref">Failures</a></p>
 </li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.6">
-                <p id="section-toc.1-1.4.2.6.1"><a href="#section-4.6" class="auto internal xref">4.6</a>.  <a href="#name-lifecycle-summary" class="internal xref">Lifecycle Summary</a></p>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.5.2.2">
+                    <p id="section-toc.1-1.4.2.5.2.2.1"><a href="#section-4.5.2" class="auto internal xref">4.5.2</a>.  <a href="#name-withdrawal" class="internal xref">Withdrawal</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.5.2.3">
+                    <p id="section-toc.1-1.4.2.5.2.3.1"><a href="#section-4.5.3" class="auto internal xref">4.5.3</a>.  <a href="#name-retention" class="internal xref">Retention</a></p>
+</li>
+                </ul>
 </li>
             </ul>
 </li>
@@ -1382,11 +1390,9 @@ set and is referenced by <code>client_ip_ranges_uri</code>.<a href="#section-1.2
           <dd class="break"></dd>
 <dt id="section-1.2-3.5">accepted IP range set:</dt>
           <dd style="margin-left: 1.5em" id="section-1.2-3.6">
-            <p id="section-1.2-3.6.1">The IP range set, if any, that an authorization server has validated
-and accepted for a client and currently uses for it, including such a
-set after narrowing (<a href="#range-changes" class="auto internal xref">Section 7.2</a>). An authorization server that
-stops using an IP range set no longer has an accepted IP range set for
-the client.<a href="#section-1.2-3.6.1" class="pilcrow">¶</a></p>
+            <p id="section-1.2-3.6.1">The IP range set, if any, that an authorization server has validated,
+accepted, and currently uses for a client, possibly narrowed
+(<a href="#acceptance" class="auto internal xref">Section 4.3</a>).<a href="#section-1.2-3.6.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 </dl>
@@ -1422,8 +1428,7 @@ described in <a href="#retrieval" class="auto internal xref">Section 4</a>.<a hr
 </dd>
       <dd class="break"></dd>
 </dl>
-<p id="section-2-3"><code>client_ip_ranges_uri</code> conveys an IP range set by reference, with the
-same semantics as <code>client_ip_ranges</code>. The <code>client_ip_ranges</code> and
+<p id="section-2-3">The <code>client_ip_ranges</code> and
 <code>client_ip_ranges_uri</code> parameters <span class="bcp14">MUST NOT</span> both be present in the same
 client metadata. If neither is present, the client makes no declaration,
 which differs from declaring an empty IP range set. This specification
@@ -1437,7 +1442,7 @@ own bounds (<a href="#resource-exhaustion" class="auto internal xref">Section 7.
 <p id="section-2.1-1">Each prefix <span class="bcp14">MUST</span> conform to the <code>ip-prefix</code> type defined in
 <span><a href="https://rfc-editor.org/rfc/rfc9911#section-4" class="relref">Section 4</a> of [<a href="#RFC9911" class="cite xref">RFC9911</a>]</span>, that is, match in full every pattern of either
 the <code>ipv4-prefix</code> or the <code>ipv6-prefix</code> type. A value that does not
-conform to the <code>ip-prefix</code> type is invalid.<a href="#section-2.1-1" class="pilcrow">¶</a></p>
+conform is invalid.<a href="#section-2.1-1" class="pilcrow">¶</a></p>
 <p id="section-2.1-2">The client, and the party hosting a Client IP Range Document, <span class="bcp14">MUST</span>
 represent each prefix in the canonical format of that type, with all
 bits outside the prefix length set to zero and, for IPv6, the address
@@ -1475,8 +1480,8 @@ any of the following is true:<a href="#section-2.2-2" class="pilcrow">¶</a></p>
 entry is an invalid prefix (<a href="#prefix-syntax" class="auto internal xref">Section 2.1</a>).<a href="#section-2.2-3.2.1" class="pilcrow">¶</a></p>
 </li>
           <li id="section-2.2-3.3">
-            <p id="section-2.2-3.3.1">The value of <code>client_ip_ranges_uri</code> does not meet the requirements
-for <code>client_ip_ranges_uri</code> in <a href="#metadata" class="auto internal xref">Section 2</a>.<a href="#section-2.2-3.3.1" class="pilcrow">¶</a></p>
+            <p id="section-2.2-3.3.1">The value of <code>client_ip_ranges_uri</code> does not meet the requirements of
+<a href="#metadata" class="auto internal xref">Section 2</a>.<a href="#section-2.2-3.3.1" class="pilcrow">¶</a></p>
 </li>
           <li id="section-2.2-3.4">
             <p id="section-2.2-3.4.1">The value of <code>client_ip_ranges</code> has more entries than the
@@ -1489,10 +1494,9 @@ Request) error response as described in <span><a href="https://rfc-editor.org/rf
 using <code>invalid_client_metadata</code> as the error code value, or
 <code>invalid_software_statement</code> if the invalid value comes from a trusted
 software statement. If a Client ID Metadata Document <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> contains
-invalid client IP range metadata, the authorization server treats the
-client IP range metadata as a validation failure
-(<a href="#retrieval-failures" class="auto internal xref">Section 4.5</a>) and does not treat the rest of the document as
-invalid.<a href="#section-2.2-4" class="pilcrow">¶</a></p>
+invalid client IP range metadata, the authorization server handles this
+as a validation failure (<a href="#failures" class="auto internal xref">Section 4.5.1</a>) without treating the rest of the
+document as invalid.<a href="#section-2.2-4" class="pilcrow">¶</a></p>
 <p id="section-2.2-5">An authorization server that does not support these parameters ignores
 them (<span><a href="https://rfc-editor.org/rfc/rfc7591#section-2" class="relref">Section 2</a> of [<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>). The client information response
 (<span><a href="https://rfc-editor.org/rfc/rfc7591#section-3.2.1" class="relref">Section 3.2.1</a> of [<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>) shows whether the authorization server
@@ -1565,11 +1569,10 @@ retrieve it unless that party and the authorization server have agreed
 on an authentication mechanism, which is outside the scope of this
 specification. The authorization server <span class="bcp14">MUST NOT</span> send credentials
 associated with an OAuth request, such as client credentials, access
-tokens, or authorization codes, when retrieving a Client IP Range
-Document.<a href="#section-4.1-2" class="pilcrow">¶</a></p>
+tokens, or authorization codes, when retrieving the document.<a href="#section-4.1-2" class="pilcrow">¶</a></p>
 <p id="section-4.1-3">The authorization server <span class="bcp14">MUST NOT</span> treat a failed retrieval, an
 unsuccessful response, or an invalid document as an empty IP range set;
-each is a failure (<a href="#retrieval-failures" class="auto internal xref">Section 4.5</a>).<a href="#section-4.1-3" class="pilcrow">¶</a></p>
+each is a failure (<a href="#failures" class="auto internal xref">Section 4.5.1</a>).<a href="#section-4.1-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="caching">
@@ -1593,9 +1596,8 @@ the accepted IP range set (<a href="#acceptance" class="auto internal xref">Sect
         <h3 id="name-acceptance">
 <a href="#section-4.3" class="section-number selfRef">4.3. </a><a href="#name-acceptance" class="section-name selfRef">Acceptance</a>
         </h3>
-<p id="section-4.3-1">Before accepting an IP range set, whether it is conveyed by
-<code>client_ip_ranges</code> or in a Client IP Range Document, the authorization
-server <span class="bcp14">MUST</span> ensure the following:<a href="#section-4.3-1" class="pilcrow">¶</a></p>
+<p id="section-4.3-1">Before accepting an IP range set, the authorization server <span class="bcp14">MUST</span> ensure
+the following:<a href="#section-4.3-1" class="pilcrow">¶</a></p>
 <ol start="1" type="1" class="normal type-1" id="section-4.3-2">
 <li id="section-4.3-2.1">
             <p id="section-4.3-2.1.1">The client IP range metadata that conveys the set is valid
@@ -1615,12 +1617,23 @@ itself accept its IP range set.<a href="#section-4.3-3" class="pilcrow">¶</a></
 <p id="section-4.3-4">An accepted IP range set replaces the previously accepted IP range set
 in full; this specification defines no incremental update format. The
 accepted IP range set remains in effect until the authorization server
-accepts a replacement, narrows it, or stops using it
-(<a href="#range-changes" class="auto internal xref">Section 7.2</a>). A validated IP range set that has not yet been
-accepted under local policy does not replace it.<a href="#section-4.3-4" class="pilcrow">¶</a></p>
-<p id="section-4.3-5">A client <span class="bcp14">SHOULD</span> add a prefix to its IP range set before it originates
+accepts a replacement, narrows it, or stops using it (<a href="#retention" class="auto internal xref">Section 4.5.3</a>).<a href="#section-4.3-4" class="pilcrow">¶</a></p>
+<p id="section-4.3-5">Before accepting a validated replacement, an authorization server <span class="bcp14">MAY</span>
+narrow the accepted IP range set to its intersection with the
+replacement, so that it admits only source addresses that both sets
+match. The narrowed set remains the accepted IP range set; the
+replacement is still not accepted.<a href="#section-4.3-5" class="pilcrow">¶</a></p>
+<p id="section-4.3-6">A client <span class="bcp14">SHOULD</span> add a prefix to its IP range set before it originates
 requests from addresses in that prefix and <span class="bcp14">SHOULD</span> keep the prefix in the
-set until it no longer originates requests from them.<a href="#section-4.3-5" class="pilcrow">¶</a></p>
+set until it no longer originates requests from them.<a href="#section-4.3-6" class="pilcrow">¶</a></p>
+<p id="section-4.3-7">If an authorization server requires an accepted IP range set for a
+client, it <span class="bcp14">MUST</span> reject requests from the client while it has no accepted
+IP range set for the client, whether because the client has made no
+declaration, because its declaration is invalid or cannot be retrieved
+(<a href="#failures" class="auto internal xref">Section 4.5.1</a>), or because a validated IP range set has not yet been
+accepted under local policy. Otherwise, what applies while a client has
+no accepted IP range set is local policy, except after the retention
+limit (<a href="#retention" class="auto internal xref">Section 4.5.3</a>) is exceeded.<a href="#section-4.3-7" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="metadata-changes">
@@ -1632,14 +1645,13 @@ set until it no longer originates requests from them.<a href="#section-4.3-5" cl
 switch between <code>client_ip_ranges</code> and <code>client_ip_ranges_uri</code>, or remove
 both. The new metadata replaces the previous declaration.<a href="#section-4.4-1" class="pilcrow">¶</a></p>
 <p id="section-4.4-2">When the metadata changes representation or URI, the accepted IP range
-set remains in effect until the authorization server accepts a set under
-the new metadata or stops using it (<a href="#acceptance" class="auto internal xref">Section 4.3</a>). An invalid new
+set remains in effect as described in <a href="#acceptance" class="auto internal xref">Section 4.3</a>. An invalid new
 declaration or an unretrievable new document is a failure
-(<a href="#retrieval-failures" class="auto internal xref">Section 4.5</a>). If the previous metadata contained
+(<a href="#failures" class="auto internal xref">Section 4.5.1</a>). If the previous metadata contained
 <code>client_ip_ranges_uri</code>, the authorization server does not retrieve that
 URI again for the client.<a href="#section-4.4-2" class="pilcrow">¶</a></p>
 <p id="section-4.4-3">Removal of both parameters withdraws the client's declaration
-(<a href="#retrieval-failures" class="auto internal xref">Section 4.5</a>). In a client update request
+(<a href="#withdrawal" class="auto internal xref">Section 4.5.2</a>). In a client update request
 (<span><a href="https://rfc-editor.org/rfc/rfc7592#section-2.2" class="relref">Section 2.2</a> of [<a href="#RFC7592" class="cite xref">RFC7592</a>]</span>), omitting both parameters requests their
 removal, which the authorization server can ignore. The client
 information response (<span><a href="https://rfc-editor.org/rfc/rfc7592#section-3" class="relref">Section 3</a> of [<a href="#RFC7592" class="cite xref">RFC7592</a>]</span>) shows whether they were
@@ -1648,74 +1660,50 @@ removed.<a href="#section-4.4-3" class="pilcrow">¶</a></p>
 </div>
 <div id="retrieval-failures">
 <section id="section-4.5">
-        <h3 id="name-failures-and-withdrawal">
-<a href="#section-4.5" class="section-number selfRef">4.5. </a><a href="#name-failures-and-withdrawal" class="section-name selfRef">Failures and Withdrawal</a>
+        <h3 id="name-failures-withdrawal-and-ret">
+<a href="#section-4.5" class="section-number selfRef">4.5. </a><a href="#name-failures-withdrawal-and-ret" class="section-name selfRef">Failures, Withdrawal, and Retention</a>
         </h3>
-<p id="section-4.5-1">An authorization server <span class="bcp14">MUST NOT</span> admit a source address that it did not
-admit before because of a failure to retrieve a Client IP Range
-Document, a failure to validate client IP range metadata or a retrieved
-document, or, by itself, withdrawal of the client's declaration
-(<a href="#metadata-changes" class="auto internal xref">Section 4.4</a>).<a href="#section-4.5-1" class="pilcrow">¶</a></p>
-<p id="section-4.5-2">After a failure, the authorization server <span class="bcp14">MAY</span> continue to use the
-accepted IP range set, within the retention limit (<a href="#range-changes" class="auto internal xref">Section 7.2</a>).
-Relaxing enforcement after a withdrawal is a local policy decision, not
-an automatic consequence of the withdrawal.<a href="#section-4.5-2" class="pilcrow">¶</a></p>
-<p id="section-4.5-3">If an authorization server requires an accepted IP range set for a
-client, it <span class="bcp14">MUST</span> reject requests from the client while it has no accepted
-IP range set for the client, whether because the client has made no
-declaration, because its declaration is invalid or cannot be retrieved,
-or because a validated IP range set has not yet been accepted under
-local policy.<a href="#section-4.5-3" class="pilcrow">¶</a></p>
-<p id="section-4.5-4">Otherwise, what applies while a client has no accepted IP range set is
-local policy, except after the retention limit (<a href="#range-changes" class="auto internal xref">Section 7.2</a>) is
-exceeded.<a href="#section-4.5-4" class="pilcrow">¶</a></p>
+<div id="failures">
+<section id="section-4.5.1">
+          <h4 id="name-failures">
+<a href="#section-4.5.1" class="section-number selfRef">4.5.1. </a><a href="#name-failures" class="section-name selfRef">Failures</a>
+          </h4>
+<p id="section-4.5.1-1">A failure to retrieve a Client IP Range Document, or to validate client
+IP range metadata or a retrieved document, <span class="bcp14">MUST NOT</span> cause an
+authorization server to admit a source address that it did not admit
+before the failure. After a failure, the authorization server <span class="bcp14">MAY</span>
+continue to use the accepted IP range set, within the retention limit
+(<a href="#retention" class="auto internal xref">Section 4.5.3</a>).<a href="#section-4.5.1-1" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="lifecycle">
-<section id="section-4.6">
-        <h3 id="name-lifecycle-summary">
-<a href="#section-4.6" class="section-number selfRef">4.6. </a><a href="#name-lifecycle-summary" class="section-name selfRef">Lifecycle Summary</a>
-        </h3>
-<p id="section-4.6-1">The following table summarizes the accepted IP range set after each
-event, as specified in <a href="#acceptance" class="auto internal xref">Section 4.3</a>, <a href="#retrieval-failures" class="auto internal xref">Section 4.5</a>, and
-<a href="#range-changes" class="auto internal xref">Section 7.2</a>. It adds no requirements. Whenever a client has no
-accepted IP range set, an authorization server that requires one rejects
-requests from the client.<a href="#section-4.6-1" class="pilcrow">¶</a></p>
-<table class="center" id="table-1">
-          <caption><a href="#table-1" class="selfRef">Table 1</a></caption>
-<thead>
-            <tr>
-              <th class="text-left" rowspan="1" colspan="1">Event</th>
-              <th class="text-left" rowspan="1" colspan="1">Accepted IP range set afterward</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">First declaration validated</td>
-              <td class="text-left" rowspan="1" colspan="1">None, until accepted under local policy</td>
-            </tr>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">Replacement accepted</td>
-              <td class="text-left" rowspan="1" colspan="1">The replacement</td>
-            </tr>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">Replacement validated, not yet accepted</td>
-              <td class="text-left" rowspan="1" colspan="1">Unchanged or narrowed to the intersection, at most until the retention limit</td>
-            </tr>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">Retrieval or validation fails</td>
-              <td class="text-left" rowspan="1" colspan="1">Unchanged, at most until the retention limit</td>
-            </tr>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">Declaration withdrawn</td>
-              <td class="text-left" rowspan="1" colspan="1">Unchanged, at most until the retention limit</td>
-            </tr>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">Retention limit exceeded</td>
-              <td class="text-left" rowspan="1" colspan="1">None; an authorization server that was enforcing the set rejects requests from the client until it accepts a new set or local policy removes the client from enforcement</td>
-            </tr>
-          </tbody>
-        </table>
+<div id="withdrawal">
+<section id="section-4.5.2">
+          <h4 id="name-withdrawal">
+<a href="#section-4.5.2" class="section-number selfRef">4.5.2. </a><a href="#name-withdrawal" class="section-name selfRef">Withdrawal</a>
+          </h4>
+<p id="section-4.5.2-1">Withdrawal of the client's declaration (<a href="#metadata-changes" class="auto internal xref">Section 4.4</a>) <span class="bcp14">MUST NOT</span>
+by itself cause an authorization server to admit a source address that
+it did not admit before the withdrawal. Relaxing enforcement after a
+withdrawal is a local policy decision.<a href="#section-4.5.2-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="retention">
+<section id="section-4.5.3">
+          <h4 id="name-retention">
+<a href="#section-4.5.3" class="section-number selfRef">4.5.3. </a><a href="#name-retention" class="section-name selfRef">Retention</a>
+          </h4>
+<p id="section-4.5.3-1">An authorization server <span class="bcp14">SHOULD</span> set a retention limit on how long it
+continues to use an accepted IP range set while retrieval or validation
+of the client's current declaration fails, after the client withdraws
+its declaration, and while a validated replacement has not been
+accepted under local policy (<a href="#range-changes" class="auto internal xref">Section 7.2</a>). When the retention
+limit is exceeded, the authorization server stops using the set and has
+no accepted IP range set for the client. An authorization server that
+was enforcing the set rejects requests from the client until it accepts
+a new IP range set or an explicit local policy decision removes the
+client from enforcement.<a href="#section-4.5.3-1" class="pilcrow">¶</a></p>
+</section>
+</div>
 </section>
 </div>
 </section>
@@ -1737,8 +1725,7 @@ authorization server that enforces a client's accepted IP range set
 admits requests from the client only from source addresses that match
 it; if that set is empty, it admits none.<a href="#section-5-2" class="pilcrow">¶</a></p>
 <p id="section-5-3">An authorization server <span class="bcp14">MAY</span> use the IP range set as an input to local
-network access control. The IP range set is a declaration made by or on
-behalf of the client, and a match does not authenticate the client or
+network access control. A match does not authenticate the client or
 authorize a request. The authorization server <span class="bcp14">MUST NOT</span> use a source
 address match in place of client authentication, access token
 validation, or any other security control required by OAuth.<a href="#section-5-3" class="pilcrow">¶</a></p>
@@ -1809,20 +1796,16 @@ declaration made by value.<a href="#section-6.1-3" class="pilcrow">¶</a></p>
         <h3 id="name-retrieval-scheduling">
 <a href="#section-6.2" class="section-number selfRef">6.2. </a><a href="#name-retrieval-scheduling" class="section-name selfRef">Retrieval Scheduling</a>
         </h3>
-<p id="section-6.2-1">This specification does not require retrieval during the processing of
-an OAuth request; an authorization server can retrieve documents in the
-background. An authorization server typically schedules the next
+<p id="section-6.2-1">An authorization server can retrieve documents in the background rather
+than while processing an OAuth request, and typically schedules the next
 retrieval when the stored response's freshness lifetime
 (<span><a href="https://rfc-editor.org/rfc/rfc9111#section-4.2" class="relref">Section 4.2</a> of [<a href="#RFC9111" class="cite xref">RFC9111</a>]</span>) ends, within local minimum and maximum
 intervals. A client needs to allow for these intervals, and for approval
 delays, when adding a prefix (<a href="#acceptance" class="auto internal xref">Section 4.3</a>).<a href="#section-6.2-1" class="pilcrow">¶</a></p>
-<p id="section-6.2-2">To revalidate, an authorization server sends a conditional GET request
-carrying the <code>If-None-Match</code> header field
-(<span><a href="https://rfc-editor.org/rfc/rfc9110#section-13.1.2" class="relref">Section 13.1.2</a> of [<a href="#RFC9110" class="cite xref">RFC9110</a>]</span>) with the entity tag of the most recent
-complete response it stored from that URI (<span><a href="https://rfc-editor.org/rfc/rfc9111#section-4.3" class="relref">Section 4.3</a> of [<a href="#RFC9111" class="cite xref">RFC9111</a>]</span>).
-That response can be newer than the one from which the accepted IP range
-set was derived. Without a stored complete response, the authorization
-server sends an unconditional request.<a href="#section-6.2-2" class="pilcrow">¶</a></p>
+<p id="section-6.2-2">To revalidate with <code>If-None-Match</code> (<span><a href="https://rfc-editor.org/rfc/rfc9110#section-13.1.2" class="relref">Section 13.1.2</a> of [<a href="#RFC9110" class="cite xref">RFC9110</a>]</span>), an
+authorization server uses the entity tag of the most recent complete
+response it stored from that URI (<span><a href="https://rfc-editor.org/rfc/rfc9111#section-4.3" class="relref">Section 4.3</a> of [<a href="#RFC9111" class="cite xref">RFC9111</a>]</span>), which can
+be newer than the one from which the accepted IP range set was derived.<a href="#section-6.2-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="document-size">
@@ -1889,23 +1872,11 @@ helps an authorization server decide which changes to hold for approval.
 The authorization server <span class="bcp14">SHOULD</span> apply changes atomically, so that no
 intermediate state admits a source address that neither the previous nor
 the new IP range set contains.<a href="#section-7.2-1" class="pilcrow">¶</a></p>
-<p id="section-7.2-2">Continued use of an accepted IP range set that may no longer match the
-client's current declaration admits addresses that may have been
-reassigned to another party. An authorization server <span class="bcp14">SHOULD</span> set a
-retention limit on how long it continues to use an accepted IP range set
-while retrieval or validation of the client's current declaration fails,
-after the client withdraws its declaration, and while a validated
-replacement has not been accepted under local policy.<a href="#section-7.2-2" class="pilcrow">¶</a></p>
-<p id="section-7.2-3">Before accepting a validated replacement, an authorization server <span class="bcp14">MAY</span>
-narrow the accepted IP range set to its intersection with the
-replacement, so that it admits only source addresses that both sets
-match. The narrowed set remains the accepted IP range set; the
-replacement is still not accepted.<a href="#section-7.2-3" class="pilcrow">¶</a></p>
-<p id="section-7.2-4">When the retention limit is exceeded, the authorization server stops
-using the set and has no accepted IP range set for the client. An
-authorization server that was enforcing the set rejects requests from
-the client until it accepts a new IP range set or an explicit local
-policy decision removes the client from enforcement.<a href="#section-7.2-4" class="pilcrow">¶</a></p>
+<p id="section-7.2-2">An accepted IP range set that no longer matches the client's current
+declaration can include addresses that have since been reassigned to
+another party. The retention limit (<a href="#retention" class="auto internal xref">Section 4.5.3</a>) and
+narrowing (<a href="#acceptance" class="auto internal xref">Section 4.3</a>) bound how long such addresses remain
+admitted.<a href="#section-7.2-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="ssrf">
@@ -2260,13 +2231,10 @@ ETag: "ranges-v42"
 automated HTTP clients. Its prefixes are objects with separate IPv4 and
 IPv6 members and optional service identifiers, the document carries a
 creation time, and a prefix object that has both or neither address
-member is ignored. This specification instead uses one prefix array for
-both <code>client_ip_ranges</code> and the Client IP Range Document, so that both
-forms share one syntax and one validation procedure; rejects the whole
-set when any prefix is invalid (<a href="#acceptance" class="auto internal xref">Section 4.3</a>), so that a document is
-applied completely or not at all; and relies on client metadata to
-associate the set with a client, so that the document needs no service
-identifiers.<a href="#appendix-B-1" class="pilcrow">¶</a></p>
+member is ignored. This specification instead reuses the
+<code>client_ip_ranges</code> array, rejects the whole set when any prefix is
+invalid (<a href="#acceptance" class="auto internal xref">Section 4.3</a>), and relies on client metadata to associate the
+set with a client.<a href="#appendix-B-1" class="pilcrow">¶</a></p>
 <p id="appendix-B-2">Clients can announce planned changes to their IP range sets through
 a separately specified notification mechanism, such as event types
 delivered using the Shared Signals Framework <span>[<a href="#SSF" class="cite xref">SSF</a>]</span>. This specification
