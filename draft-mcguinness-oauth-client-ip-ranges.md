@@ -571,7 +571,8 @@ Client IP Range Document, the following requirements apply:
    a configured forward proxy relies on the proxy to apply this check.
 
 An authorization server retrieving a URL obtained from a Client ID
-Metadata Document is also subject to {{Section 8.6 of CIMD}}.
+Metadata Document is also subject to {{Section 8.6 of CIMD}}; the local
+policy exception in item 4 does not override that section.
 
 ## Resource Exhaustion {#resource-exhaustion}
 
