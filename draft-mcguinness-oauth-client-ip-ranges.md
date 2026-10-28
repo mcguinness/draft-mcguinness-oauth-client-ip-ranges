@@ -201,11 +201,10 @@ to the `ip-prefix` type is invalid. In addition:
 * Publishers MUST use the canonical format of that type: all bits
   outside the prefix length set to zero and, for IPv6, the address
   represented as defined in Section 4 of {{RFC5952}}.
-* Consumers MUST interpret each prefix by its network address and
-  prefix length, not by its textual form. Consumers MUST NOT treat a
-  value as invalid solely because it is not in canonical format. For
-  example, a consumer interprets `192.0.2.1/24` as `192.0.2.0/24` and
-  `2001:DB8::1/64` as `2001:db8::/64`.
+* A value that is not in canonical format is valid and denotes the
+  prefix given by its network address and prefix length (Section 4 of
+  {{RFC9911}}). For example, `192.0.2.1/24` denotes `192.0.2.0/24`, and
+  `2001:DB8::1/64` denotes `2001:db8::/64`.
 * A prefix within the IPv4-mapped IPv6 address range `::ffff:0:0/96`
   ({{Section 2.5.5.2 of RFC4291}}) is invalid. IPv4 ranges are
   expressed as IPv4 prefixes.
@@ -298,7 +297,8 @@ response is successful if it either:
   complete body within the consumer's bounds ({{resource-exhaustion}});
   or
 * has status code 304 (Not Modified) ({{Section 15.4.5 of RFC9110}}) in
-  response to a conditional request ({{caching}}), which indicates that
+  response to a conditional request ({{retrieval-scheduling}}), which
+  indicates that
   the retained response is current.
 
 Publishers MUST NOT require authentication to retrieve a Client IP Range
@@ -318,14 +318,6 @@ Publishers SHOULD support HTTP caching {{RFC9111}} and SHOULD include
 the `Cache-Control` ({{Section 5.2 of RFC9111}}) and `ETag`
 ({{Section 8.8.3 of RFC9110}}) response header fields.
 
-Consumers SHOULD revalidate the document with a conditional GET request
-carrying the `If-None-Match` header field
-({{Section 13.1.2 of RFC9110}}) and the entity tag of the most recent
-complete response from that URI that the consumer has retained
-({{Section 4.3 of RFC9111}}). That response can hold an IP range set
-that has not yet been accepted; it need not be the one from which the
-accepted IP range set was obtained. A consumer that has retained no
-complete response sends an unconditional request.
 
 The accepted IP range set is application state, distinct from any HTTP
 cache ({{Section 6 of RFC9111}}):
@@ -373,8 +365,7 @@ When the metadata changes representation or URI:
   invalid new declaration or an unretrievable new document is a failure
   ({{retrieval-failures}}).
 * If the previous metadata contained `client_ip_ranges_uri`, the
-  consumer does not retrieve that URI again for the client or reuse its
-  cached responses or validators ({{Section 2 of RFC9111}}).
+  consumer does not retrieve that URI again for the client.
 
 Removal of both parameters withdraws the client's declaration
 ({{retrieval-failures}}). In a client update request
@@ -515,6 +506,14 @@ local minimum and maximum intervals. Publishers allow for these
 intervals, and for approval delays, when publishing a new prefix
 ({{acceptance}}).
 
+To revalidate, a consumer sends a conditional GET request carrying the
+`If-None-Match` header field ({{Section 13.1.2 of RFC9110}}) with the
+entity tag of the most recent complete response it retained from that
+URI ({{Section 4.3 of RFC9111}}). That response can be newer than the
+one from which the accepted IP range set was obtained. Without a
+retained complete response, the consumer sends an unconditional
+request.
+
 ## Document Size {#document-size}
 
 Section 8.7 of {{CIMD}} recommends that authorization servers read at
@@ -566,11 +565,13 @@ such changes:
   authorizes the publisher and the change falls within an approved
   scope, such as prefixes contained in supernets that the consumer has
   configured for the client.
-* Consumers SHOULD detect unexpected expansion of a declared IP range
-  set, including the addition of overly broad IPv4 or IPv6 prefixes.
 * Consumers SHOULD apply changes atomically, so that no intermediate
   state admits a source address that neither the previous nor the new
   IP range set contains.
+
+Detecting unexpected expansion of a declared IP range set, including
+the addition of overly broad prefixes, helps a consumer decide which
+changes to hold for approval.
 
 Continued use of an accepted IP range set that no longer matches the
 client's current declaration admits addresses that may have been
