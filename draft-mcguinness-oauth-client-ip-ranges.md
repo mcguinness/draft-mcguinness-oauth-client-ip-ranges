@@ -53,6 +53,8 @@ informative:
   RFC7239:
   RFC7592:
   RFC8628:
+  RFC8705:
+  RFC9449:
   SSF:
     title: "OpenID Shared Signals Framework Specification 1.0"
     target: https://openid.net/specs/openid-sharedsignals-framework-1_0-final.html
@@ -73,8 +75,10 @@ This specification defines OAuth client metadata parameters for
 declaring the IP address ranges from which a client originates network
 requests. The `client_ip_ranges` parameter carries a set of IPv4 and
 IPv6 prefixes by value. The `client_ip_ranges_uri` parameter references
-an HTTPS resource containing the set, which supports large and
-frequently changing sets through standard HTTP retrieval and caching.
+an HTTPS resource containing the set, so that large and frequently
+changing sets can use standard HTTP retrieval and caching. The
+specification also defines how authorization servers validate, accept,
+and retain declared ranges.
 The parameters can be used with OAuth 2.0 Dynamic Client Registration,
 OAuth Client ID Metadata Documents, and other mechanisms that convey
 client metadata. Authorization servers and other parties that obtain a
@@ -91,9 +95,11 @@ servers, and the network infrastructure in front of them use these
 addresses to restrict which sources can reach the token endpoint and
 protected resources. In current practice, client operators publish their
 address ranges through vendor-specific mechanisms, and deployments
-transcribe them into network access controls by hand. Client metadata
-({{Section 2 of RFC7591}}) has no parameter for the network origins of a
-client.
+transcribe them into network access controls by hand. Clients that use
+OAuth Client ID Metadata Documents {{CIMD}} can reach authorization
+servers without prior registration, leaving no opportunity to exchange
+ranges by hand in advance. Client metadata ({{Section 2 of RFC7591}})
+has no parameter for the network origins of a client.
 
 This specification defines two client metadata parameters that declare
 the IP address ranges from which a client originates requests:
@@ -110,7 +116,9 @@ mechanisms that convey client metadata.
 Declared ranges are an input to network access control. Deployments use
 source address restrictions to limit where a client's credentials and
 grants can be used. Declared ranges do not authenticate the client or
-authorize a request ({{use}}).
+authorize a request ({{use}}). They complement client authentication and
+sender-constrained tokens ({{RFC9449}}, {{RFC8705}}), which bind
+credentials and tokens to keys rather than to network locations.
 
 This specification defines the metadata and the processing requirements
 for authorization servers that use it. Other parties that obtain a
