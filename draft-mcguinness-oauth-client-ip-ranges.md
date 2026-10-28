@@ -108,17 +108,6 @@ registration. The parameters can be used with OAuth 2.0 Dynamic Client
 Registration {{RFC7591}}, OAuth Client ID Metadata Documents {{CIMD}},
 and other mechanisms that convey client metadata.
 
-For example, an enterprise administrator approves a hosted client for
-use with the enterprise's authorization server. The authorization server
-obtains the client's IP range set from its metadata and the
-administrator reviews it. The enterprise adds the approved ranges to the
-network allowlist in front of its token endpoint, and the authorization
-server rejects token requests from that client that originate outside
-them ({{as-enforcement}}). When the client operator later publishes a
-changed set, local policy determines whether the change is applied
-automatically, such as an addition within an approved scope, or is held
-for administrator approval ({{range-changes}}).
-
 Declared ranges are an input to network access control. They do not
 authenticate the client or authorize a request ({{use}}). Firewall
 policy, network access authorization decisions, and the configuration of
@@ -196,10 +185,6 @@ the value of the `client_ip_ranges` parameter.
 The `client_ip_ranges` and `client_ip_ranges_uri` parameters MUST NOT
 both be present in the same client metadata.
 
-Section 8.7 of {{CIMD}} recommends that authorization servers read at
-most 5 kilobytes of a Client ID Metadata Document. A client whose IP
-range set does not fit within such a limit uses `client_ip_ranges_uri`.
-
 ## Prefix Syntax {#prefix-syntax}
 
 Each prefix MUST conform to the `ip-prefix` type defined in Section 4 of
@@ -216,8 +201,7 @@ interprets `192.0.2.1/24` as `192.0.2.0/24` and `2001:DB8::1/64` as
 
 A prefix within the IPv4-mapped IPv6 address range `::ffff:0:0/96`
 ({{Section 2.5.5.2 of RFC4291}}) is invalid; IPv4 ranges are expressed
-as IPv4 prefixes. Before matching, consumers MUST convert an IPv4-mapped
-IPv6 source address to the IPv4 address it contains.
+as IPv4 prefixes.
 
 Every prefix length that the `ip-prefix` type permits, including zero,
 is valid. Whether to accept a broad prefix is local policy
@@ -318,9 +302,6 @@ consumer's bounds ({{resource-exhaustion}}) MUST NOT be treated as an
 empty IP range set; it is handled as described in
 {{retrieval-failures}}.
 
-This specification does not require retrieval during the processing of
-any OAuth request.
-
 ## Caching {#caching}
 
 Publishers SHOULD support HTTP caching {{RFC9111}} and SHOULD include
@@ -346,9 +327,6 @@ accepted IP range set ({{acceptance}}). Consumers SHOULD retrieve the
 document periodically, within local minimum and maximum intervals, to
 obtain changes.
 
-Publishers and consumers SHOULD support the gzip content coding
-({{Section 8.4.1.3 of RFC9110}}).
-
 ## Acceptance {#acceptance}
 
 A consumer MUST validate an IP range set completely before accepting it,
@@ -367,12 +345,6 @@ Publishers SHOULD publish a new prefix before the client originates
 requests from it, allowing for consumer retrieval intervals and approval
 delays, and SHOULD continue to publish a prefix until the client no
 longer originates requests from it.
-
-Publishers can use a separately specified notification mechanism to
-announce planned changes to their IP range sets. Such a mechanism could
-define event types delivered using the Shared Signals Framework {{SSF}}.
-This specification does not define advance announcement events or
-scheduled activation of ranges.
 
 ## Changes to Client Metadata {#metadata-changes}
 
@@ -403,14 +375,6 @@ IP range metadata or a retrieved document, MUST NOT cause a consumer to
 admit a source address that it did not admit before the failure. The
 consumer MAY continue to use the accepted IP range set.
 
-Consumers SHOULD limit how long they continue to use an accepted IP
-range set while retrieval or validation of the client's current
-declaration fails, because the publisher may have removed prefixes that
-have since been reassigned ({{range-changes}}). When the limit is
-exceeded, the consumer stops using the set and has no accepted IP range
-set for the client. Under the first paragraph of this section, stopping
-can narrow, but not widen, the source addresses admitted for the client.
-
 Withdrawal of a client's declaration ({{metadata-changes}}) MUST NOT by
 itself cause a consumer to admit a source address that it did not admit
 before the withdrawal. Whether to relax enforcement after a withdrawal
@@ -434,20 +398,15 @@ origins of user agents, redirection endpoints, or requests initiated by
 the resource owner.
 
 Consumers MAY use the IP range set as an input to local network access
-control. Matching a source address against the IP range set of a
-specific client requires knowing which client sent the request:
+control.
 
-* A network enforcement point that operates below HTTP, such as a
-  firewall, observes the source address but not the client. It can
-  enforce only an aggregate of the IP range sets of the clients
-  permitted to reach an endpoint.
-* An authorization server can match the source address against the
-  client's IP range set once it has identified the client
-  ({{as-enforcement}}).
 * Enforcement by resource servers, including how a resource server
   determines the client associated with a request and obtains that
   client's metadata, is outside the scope of this specification and
   could be addressed by a companion specification.
+
+Before matching, consumers MUST convert an IPv4-mapped
+IPv6 source address to the IPv4 address it contains.
 
 An empty IP range set declares that the client originates no direct
 requests. A consumer that enforces it for a client admits no source
@@ -472,6 +431,50 @@ An authorization server SHOULD NOT indicate, in a response to a party
 that has not authenticated as the client, that a request was rejected
 because of its source address. This specification does not yet define
 the error response for this case ({{open-issues}}).
+
+# Implementation Considerations {#implementation}
+
+## Enforcement Points {#enforcement-points}
+
+Matching a source address against the IP range set of a
+specific client requires knowing which client sent the request:
+
+* A network enforcement point that operates below HTTP, such as a
+  firewall, observes the source address but not the client. It can
+  enforce only an aggregate of the IP range sets of the clients
+  permitted to reach an endpoint.
+* An authorization server can match the source address against the
+  client's IP range set once it has identified the client
+  ({{as-enforcement}}).
+
+For example, an enterprise administrator approves a hosted client for
+use with the enterprise's authorization server. The authorization server
+obtains the client's IP range set from its metadata and the
+administrator reviews it. The enterprise adds the approved ranges to the
+network allowlist in front of its token endpoint, and the authorization
+server rejects token requests from that client that originate outside
+them ({{as-enforcement}}). When the client operator later publishes a
+changed set, local policy determines whether the change is applied
+automatically, such as an addition within an approved scope, or is held
+for administrator approval ({{range-changes}}).
+
+## Retrieval Scheduling {#retrieval-scheduling}
+
+This specification does not require retrieval during the processing of
+any OAuth request.
+
+Publishers and consumers SHOULD support the gzip content coding
+({{Section 8.4.1.3 of RFC9110}}).
+
+## Document Size {#document-size}
+
+Section 8.7 of {{CIMD}} recommends that authorization servers read at
+most 5 kilobytes of a Client ID Metadata Document. A client whose IP
+range set does not fit within such a limit uses `client_ip_ranges_uri`.
+
+These bounds are set independently of any bound on client metadata,
+such as the limit recommended in Section 8.7 of {{CIMD}}, because a
+Client IP Range Document is expected to be larger.
 
 # Security Considerations {#security}
 
@@ -514,6 +517,14 @@ Continued use of an accepted IP range set after the publisher has
 removed a prefix admits addresses that may have been reassigned to
 another party.
 
+Consumers SHOULD limit how long they continue to use an accepted IP
+range set while retrieval or validation of the client's current
+declaration fails, because the publisher may have removed prefixes that
+have since been reassigned ({{range-changes}}). When the limit is
+exceeded, the consumer stops using the set and has no accepted IP range
+set for the client. Under the first paragraph of this section, stopping
+can narrow, but not widen, the source addresses admitted for the client.
+
 ## Server-Side Request Forgery {#ssrf}
 
 Retrieval of `client_ip_ranges_uri` causes a consumer to send a request
@@ -545,10 +556,6 @@ Consumers MUST bound retrieval time, response size, decompressed size,
 and prefix count. If a document exceeds any bound, the consumer MUST
 reject the entire document and MUST NOT accept part of it. This
 specification sets no minimum value for any of these bounds.
-
-These bounds are set independently of any bound on client metadata,
-such as the limit recommended in Section 8.7 of {{CIMD}}, because a
-Client IP Range Document is expected to be larger.
 
 ## Source Address Interpretation {#source-address}
 
@@ -693,6 +700,12 @@ ETag: "ranges-v42"
 automated HTTP clients, with optional per-prefix service identifiers
 and a document creation time. A Client IP Range Document carries only
 prefixes, because client metadata associates it with the client.
+
+Publishers can use a separately specified notification mechanism to
+announce planned changes to their IP range sets. Such a mechanism could
+define event types delivered using the Shared Signals Framework {{SSF}}.
+This specification does not define advance announcement events or
+scheduled activation of ranges.
 
 # Open Issues {#open-issues}
 
