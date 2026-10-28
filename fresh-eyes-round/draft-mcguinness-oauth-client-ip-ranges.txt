@@ -462,27 +462,34 @@ Table of Contents
    adds no requirements.  Whenever a client has no accepted IP range
    set, a consumer that requires one rejects requests from the client.
 
-   +========================+=========================================+
-   | Event                  | Accepted IP range set afterward         |
-   +========================+=========================================+
-   | First declaration      | None, until accepted under local policy |
-   | validated              |                                         |
-   +------------------------+-----------------------------------------+
-   | Replacement accepted   | The replacement                         |
-   +------------------------+-----------------------------------------+
-   | Replacement validated, | Unchanged or narrowed to the            |
-   | not yet accepted       | intersection, at most until the limit   |
-   +------------------------+-----------------------------------------+
-   | Retrieval or           | Unchanged, at most until the limit      |
-   | validation fails       |                                         |
-   +------------------------+-----------------------------------------+
-   | Declaration withdrawn  | Unchanged, at most until the limit      |
-   +------------------------+-----------------------------------------+
-   | Limit exceeded         | None; a consumer that was enforcing the |
-   |                        | set rejects requests from the client    |
-   +------------------------+-----------------------------------------+
+      +================+============================================+
+      | Event          | Accepted IP range set afterward            |
+      +================+============================================+
+      | First          | None, until accepted under local policy    |
+      | declaration    |                                            |
+      | validated      |                                            |
+      +----------------+--------------------------------------------+
+      | Replacement    | The replacement                            |
+      | accepted       |                                            |
+      +----------------+--------------------------------------------+
+      | Replacement    | Unchanged or narrowed to the intersection, |
+      | validated, not | at most until the limit                    |
+      | yet accepted   |                                            |
+      +----------------+--------------------------------------------+
+      | Retrieval or   | Unchanged, at most until the limit         |
+      | validation     |                                            |
+      | fails          |                                            |
+      +----------------+--------------------------------------------+
+      | Declaration    | Unchanged, at most until the limit         |
+      | withdrawn      |                                            |
+      +----------------+--------------------------------------------+
+      | Limit exceeded | None; a consumer that was enforcing the    |
+      |                | set rejects requests from the client until |
+      |                | it accepts a new set or local policy       |
+      |                | removes the client from enforcement        |
+      +----------------+--------------------------------------------+
 
-                                 Table 1
+                                  Table 1
 
 5.  Use of Client IP Range Metadata
 
@@ -664,7 +671,8 @@ Table of Contents
    When the limit is exceeded, the consumer stops using the set and has
    no accepted IP range set for the client.  A consumer that was
    enforcing the set rejects requests from the client until it accepts a
-   new IP range set.  The limit therefore trades availability for
+   new IP range set or an explicit local policy decision removes the
+   client from enforcement.  The limit therefore trades availability for
    safety.
 
 7.3.  Server-Side Request Forgery

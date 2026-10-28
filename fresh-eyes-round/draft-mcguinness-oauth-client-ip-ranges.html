@@ -1795,7 +1795,7 @@ from the client.<a href="#section-4.6-1" class="pilcrow">¶</a></p>
             </tr>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">Limit exceeded</td>
-              <td class="text-left" rowspan="1" colspan="1">None; a consumer that was enforcing the set rejects requests from the client</td>
+              <td class="text-left" rowspan="1" colspan="1">None; a consumer that was enforcing the set rejects requests from the client until it accepts a new set or local policy removes the client from enforcement</td>
             </tr>
           </tbody>
         </table>
@@ -2023,8 +2023,9 @@ remains the accepted IP range set; the replacement is still not
 accepted.<a href="#section-7.2-6" class="pilcrow">¶</a></p>
 <p id="section-7.2-7">When the limit is exceeded, the consumer stops using the set and has no
 accepted IP range set for the client. A consumer that was enforcing the
-set rejects requests from the client until it accepts a new IP range
-set. The limit therefore trades availability for safety.<a href="#section-7.2-7" class="pilcrow">¶</a></p>
+set rejects requests from the client until it accepts a new IP range set
+or an explicit local policy decision removes the client from
+enforcement. The limit therefore trades availability for safety.<a href="#section-7.2-7" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="ssrf">
