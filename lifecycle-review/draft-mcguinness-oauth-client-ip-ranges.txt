@@ -110,8 +110,9 @@ Table of Contents
    10. References
      10.1.  Normative References
      10.2.  Informative References
-   Appendix A.  Open Issues
-   Appendix B.  Document History
+   Appendix A.  Related Work
+   Appendix B.  Open Issues
+   Appendix C.  Document History
    Authors' Addresses
 
 1.  Introduction
@@ -141,11 +142,6 @@ Table of Contents
    its registration.  The parameters can be used with OAuth 2.0 Dynamic
    Client Registration [RFC7591], OAuth Client ID Metadata Documents
    [CIMD], and other mechanisms that convey client metadata.
-
-   [JAFAR] defines a format for publishing the IP address ranges of
-   automated HTTP clients, with optional per-prefix service identifiers
-   and a document creation time.  A Client IP Range Document carries
-   only prefixes, because client metadata associates it with the client.
 
    For example, an enterprise administrator approves a hosted client for
    use with the enterprise's authorization server.  The authorization
@@ -507,7 +503,7 @@ Table of Contents
    An authorization server SHOULD NOT indicate, in a response to a party
    that has not authenticated as the client, that a request was rejected
    because of its source address.  This specification does not yet
-   define the error response for this case (Appendix A).
+   define the error response for this case (Appendix B).
 
 6.  Security Considerations
 
@@ -804,14 +800,21 @@ Table of Contents
               <https://openid.net/specs/openid-sharedsignals-framework-
               1_0-final.html>.
 
-Appendix A.  Open Issues
+Appendix A.  Related Work
+
+   [JAFAR] defines a format for publishing the IP address ranges of
+   automated HTTP clients, with optional per-prefix service identifiers
+   and a document creation time.  A Client IP Range Document carries
+   only prefixes, because client metadata associates it with the client.
+
+Appendix B.  Open Issues
 
    1.  Which error response indicates that an authorization server
        rejected a request under a client's source address policy?  The
        invalid_client error code signals failed client authentication
        (Section 5.2 of [RFC6749]) and could prompt credential rotation.
 
-Appendix B.  Document History
+Appendix C.  Document History
 
    -00
 
