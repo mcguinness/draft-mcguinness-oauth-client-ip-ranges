@@ -291,7 +291,7 @@ The following is an example of a Client IP Range Document:
 }
 ~~~
 
-# Retrieval and Synchronization {#retrieval}
+# Retrieval and Acceptance {#retrieval}
 
 ## Retrieval {#fetch}
 
@@ -350,15 +350,19 @@ minimum and maximum intervals, to obtain changes.
 Publishers and consumers SHOULD support the gzip content coding
 ({{Section 8.4.1.3 of RFC9110}}).
 
-## Updates {#updates}
+## Acceptance {#acceptance}
 
-Each accepted document replaces the accepted IP range set in full. This
-specification defines no incremental update format.
+A consumer MUST validate an IP range set completely before accepting it,
+whether the set is conveyed by `client_ip_ranges` or in a Client IP
+Range Document. Acceptance is subject to local policy
+({{range-changes}}).
 
-A consumer MUST validate a new document completely before replacing the
-accepted IP range set. Consumers can compare the two sets to
-identify added and removed prefixes. Activation of changes is subject to
-local policy ({{range-changes}}).
+An accepted IP range set replaces the previously accepted IP range set
+in full. This specification defines no incremental update format.
+Consumers can compare the two sets to identify added and removed
+prefixes. The accepted IP range set remains in effect until the consumer
+accepts a replacement or stops using it ({{retrieval-failures}}). A
+validated IP range set that awaits approval does not replace it.
 
 Publishers SHOULD publish a new prefix before the client originates
 requests from it, allowing for consumer retrieval intervals and approval
@@ -377,12 +381,13 @@ A client's metadata can change the value of `client_ip_ranges_uri`,
 switch between `client_ip_ranges` and `client_ip_ranges_uri`, or remove
 both. The new metadata replaces the previous declaration.
 
-When the metadata changes representation or URI, the consumer keeps its
-accepted IP range set until it accepts a set under the new metadata. If
-the new document cannot be retrieved or validated, the consumer handles
-this as a retrieval failure ({{retrieval-failures}}). The consumer does
-not retrieve the previous URI again for that client or reuse its cached
-responses or validators ({{caching}}).
+When the metadata changes representation or URI, the accepted IP range
+set remains in effect until the consumer accepts a set under the new
+metadata ({{acceptance}}). If the new declaration is invalid or the new
+document cannot be retrieved, the consumer handles this as a failure
+({{retrieval-failures}}). The consumer does not retrieve the previous
+URI again for that client or reuse its cached responses or validators
+({{caching}}).
 
 Removal of both parameters withdraws the client's declaration. In a
 client update request ({{Section 2.2 of RFC7592}}), omitted metadata
