@@ -62,6 +62,7 @@ informative:
       - ins: S. Miel
     date: 2025-08-29
   CIMD: I-D.ietf-oauth-client-id-metadata-document
+  JAFAR: I-D.illyes-webbotauth-jafar
 
 --- abstract
 
@@ -148,8 +149,9 @@ Client IP Range Document:
   set and is referenced by `client_ip_ranges_uri`.
 
 accepted IP range set:
-: The IP range set that a consumer has most recently validated and
-  accepted for a client.
+: The IP range set, if any, that a consumer has validated and accepted
+  for a client and currently uses for it. A consumer that stops using
+  an IP range set no longer has an accepted IP range set for the client.
 
 publisher:
 : An entity that publishes a client's IP range set, either by value in
@@ -291,7 +293,7 @@ The following is an example of a Client IP Range Document:
 }
 ~~~
 
-# Retrieval and Synchronization {#retrieval}
+# Retrieval and Acceptance {#retrieval}
 
 ## Retrieval {#fetch}
 
@@ -325,40 +327,41 @@ Publishers SHOULD support HTTP caching {{RFC9111}} and SHOULD include
 the `Cache-Control` ({{Section 5.2 of RFC9111}}) and `ETag`
 ({{Section 8.8.3 of RFC9110}}) response header fields.
 
-Consumers SHOULD revalidate a cached document with a conditional GET
-request carrying the `If-None-Match` header field
-({{Section 13.1.2 of RFC9110}}) and the entity tag of the document from
-which the accepted IP range set was obtained. A 304 (Not Modified)
-response ({{Section 15.4.5 of RFC9110}}) indicates that this document
-remains current.
+Consumers SHOULD revalidate the document with a conditional GET request
+carrying the `If-None-Match` header field
+({{Section 13.1.2 of RFC9110}}) and the entity tag of the most recent
+complete response from that URI that the consumer has retained
+({{Section 4.3 of RFC9111}}). That response can hold an IP range set
+that awaits approval; it need not be the one from which the accepted IP
+range set was obtained. A consumer that has retained no complete
+response sends an unconditional request. A 304 (Not Modified) response
+({{Section 15.4.5 of RFC9110}}) indicates that the retained response is
+current. A consumer that uses an HTTP cache follows {{RFC9111}}.
 
-Cached responses and their validators are specific to the URI from which
-they were retrieved ({{Section 2 of RFC9111}}). A consumer MUST NOT use
-an entity tag obtained from one `client_ip_ranges_uri` in a request to
-another.
-
-HTTP caching applies only to retrieving the document. A consumer that
-uses an HTTP cache follows {{RFC9111}}, including the `no-cache`,
-`no-store`, and `must-revalidate` cache directives. The accepted IP
+HTTP caching applies only to retrieving the document. The accepted IP
 range set is application state, distinct from any HTTP cache
-({{Section 6 of RFC9111}}). It stays in use until the consumer accepts a
-replacement or local policy ends its use ({{retrieval-failures}}); cache
-freshness does not determine when enforcement of a prefix starts or
-stops. Consumers SHOULD retrieve the document periodically, within local
-minimum and maximum intervals, to obtain changes.
+({{Section 6 of RFC9111}}). A fresh response does not make its IP range
+set accepted, and expiry of a cached response does not end use of the
+accepted IP range set ({{acceptance}}). Consumers SHOULD retrieve the
+document periodically, within local minimum and maximum intervals, to
+obtain changes.
 
 Publishers and consumers SHOULD support the gzip content coding
 ({{Section 8.4.1.3 of RFC9110}}).
 
-## Updates {#updates}
+## Acceptance {#acceptance}
 
-Each accepted document replaces the accepted IP range set in full. This
-specification defines no incremental update format.
+A consumer MUST validate an IP range set completely before accepting it,
+whether the set is conveyed by `client_ip_ranges` or in a Client IP
+Range Document. Acceptance is subject to local policy
+({{range-changes}}).
 
-A consumer MUST validate a new document completely before replacing the
-accepted IP range set. Consumers can compare the two sets to
-identify added and removed prefixes. Activation of changes is subject to
-local policy ({{range-changes}}).
+An accepted IP range set replaces the previously accepted IP range set
+in full. This specification defines no incremental update format.
+Consumers can compare the two sets to identify added and removed
+prefixes. The accepted IP range set remains in effect until the consumer
+accepts a replacement or stops using it ({{retrieval-failures}}). A
+validated IP range set that awaits approval does not replace it.
 
 Publishers SHOULD publish a new prefix before the client originates
 requests from it, allowing for consumer retrieval intervals and approval
@@ -377,30 +380,49 @@ A client's metadata can change the value of `client_ip_ranges_uri`,
 switch between `client_ip_ranges` and `client_ip_ranges_uri`, or remove
 both. The new metadata replaces the previous declaration.
 
-When the metadata changes representation or URI, the consumer keeps its
-accepted IP range set until it accepts a set under the new metadata. If
-the new document cannot be retrieved or validated, the consumer handles
-this as a retrieval failure ({{retrieval-failures}}). The consumer does
-not retrieve the previous URI again for that client or reuse its cached
-responses or validators ({{caching}}).
+When the metadata changes representation or URI, the accepted IP range
+set remains in effect until the consumer accepts a set under the new
+metadata ({{acceptance}}). If the new declaration is invalid or the new
+document cannot be retrieved, the consumer handles this as a failure
+({{retrieval-failures}}). The consumer does not retrieve the previous
+URI again for that client or reuse its cached responses or validators
+({{Section 2 of RFC9111}}).
 
-Removal of both parameters withdraws the client's declaration. In a
-client update request ({{Section 2.2 of RFC7592}}), omitted metadata
-fields are treated as a request to delete them, so an update that omits
-both parameters withdraws the declaration.
-Withdrawal MUST NOT by itself cause a consumer to admit a source address
-that it did not admit before the withdrawal. Whether to relax
-enforcement after a withdrawal is local policy.
+Removal of both parameters withdraws the client's declaration; the
+effect of a withdrawal on enforcement is limited as described in
+{{retrieval-failures}}. In a client update request
+({{Section 2.2 of RFC7592}}), omitting both parameters requests their
+removal, which the authorization server can ignore. The client
+information response ({{Section 3 of RFC7592}}) shows whether they were
+removed.
 
-## Retrieval Failures {#retrieval-failures}
+## Failures and Withdrawal {#retrieval-failures}
 
-A retrieval or validation failure MUST NOT cause a consumer to admit a
-source address that it did not admit before the failure.
+A failure to retrieve a Client IP Range Document, or to validate client
+IP range metadata or a retrieved document, MUST NOT cause a consumer to
+admit a source address that it did not admit before the failure. The
+consumer MAY continue to use the accepted IP range set.
 
-The consumer MAY continue to use the accepted IP range set, subject to
-local freshness and security policy. How long an accepted IP range set
-remains usable, and what applies when no IP range set has been accepted
-for the client, is local policy.
+Consumers SHOULD limit how long they continue to use an accepted IP
+range set while retrieval or validation of the client's current
+declaration fails, because the publisher may have removed prefixes that
+have since been reassigned ({{range-changes}}). When the limit is
+exceeded, the consumer stops using the set and has no accepted IP range
+set for the client. Under the first paragraph of this section, stopping
+can narrow, but not widen, the source addresses admitted for the client.
+
+Withdrawal of a client's declaration ({{metadata-changes}}) MUST NOT by
+itself cause a consumer to admit a source address that it did not admit
+before the withdrawal. Whether to relax enforcement after a withdrawal
+is local policy.
+
+A consumer can require an accepted IP range set for a client. Such a
+consumer MUST reject requests from the client while it has no accepted
+IP range set for the client, whether because the client has made no
+declaration, its declaration is invalid or cannot be retrieved, or a
+validated IP range set awaits approval. For a consumer that does not
+require one, what applies when no IP range set has been accepted for
+the client is local policy.
 
 # Use of Client IP Range Metadata {#use}
 
@@ -422,10 +444,9 @@ specific client requires knowing which client sent the request:
 * An authorization server can match the source address against the
   client's IP range set once it has identified the client
   ({{as-enforcement}}).
-* A resource server can match the source address against the IP range
-  set of the client to which an access token was issued, if it can
-  obtain that client's metadata. How a resource server obtains
-  a client's metadata is outside the scope of this specification and
+* Enforcement by resource servers, including how a resource server
+  determines the client associated with a request and obtains that
+  client's metadata, is outside the scope of this specification and
   could be addressed by a companion specification.
 
 An empty IP range set declares that the client originates no direct
@@ -522,7 +543,8 @@ A malicious or compromised publisher can return an oversized document, a
 highly compressed response, or a large number of overlapping prefixes.
 Consumers MUST bound retrieval time, response size, decompressed size,
 and prefix count. If a document exceeds any bound, the consumer MUST
-reject the entire document and MUST NOT accept part of it.
+reject the entire document and MUST NOT accept part of it. This
+specification sets no minimum value for any of these bounds.
 
 These bounds are set independently of any bound on client metadata,
 such as the limit recommended in Section 8.7 of {{CIMD}}, because a
@@ -665,18 +687,19 @@ ETag: "ranges-v42"
 
 --- back
 
+# Related Work {#related-work}
+
+{{JAFAR}} defines a format for publishing the IP address ranges of
+automated HTTP clients, with optional per-prefix service identifiers
+and a document creation time. A Client IP Range Document carries only
+prefixes, because client metadata associates it with the client.
+
 # Open Issues {#open-issues}
 
 1. Which error response indicates that an authorization server rejected
    a request under a client's source address policy? The
    `invalid_client` error code signals failed client authentication
    ({{Section 5.2 of RFC6749}}) and could prompt credential rotation.
-2. Should every consumer support a minimum number of prefixes, so that
-   independently chosen limits do not prevent interoperability?
-3. Should authorization server metadata advertise support for these
-   parameters, and what would that signal? Recognizing the metadata,
-   retrieving Client IP Range Documents, and enforcing IP range sets are
-   distinct capabilities.
 
 # Document History {#history}
 
