@@ -439,11 +439,14 @@ An authorization server can enforce a client's accepted IP range set at
 the token endpoint and at other endpoints that receive direct requests
 from the client, once it has identified the client, either through
 client authentication or, for a public client
-({{Section 2.1 of RFC6749}}), as the client to which a grant presented
-in the request was issued. This specification does not define how an
-authorization server identifies a public client in a request that
-presents no grant, such as a device authorization request
-({{Section 3.1 of RFC8628}}).
+({{Section 2.1 of RFC6749}}), as the client to which the authorization
+code or refresh token presented in the request was issued. This
+specification does not define enforcement for a public client in a
+request that identifies the client only by an unauthenticated
+`client_id`, such as a device authorization request
+({{Section 3.1 of RFC8628}}). A request rejected because of its source
+address does not count as a use of the authorization code it presents
+({{Section 4.1.2 of RFC6749}}).
 
 In a response to a party that has not authenticated as the client, an
 authorization server SHOULD NOT indicate that a request was rejected
