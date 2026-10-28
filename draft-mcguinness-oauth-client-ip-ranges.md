@@ -385,7 +385,7 @@ event, as specified in {{acceptance}}, {{retrieval-failures}}, and
 | Replacement validated, not yet accepted | Unchanged or narrowed to the intersection, at most until the retention limit |
 | Retrieval or validation fails | Unchanged, at most until the retention limit |
 | Declaration withdrawn | Unchanged, at most until the retention limit |
-| Retention limit exceeded | None; requests are rejected until a new set is accepted or local policy removes the client from enforcement ({{range-changes}}) |
+| Retention limit exceeded | None; if the set was being enforced, requests are rejected until a new set is accepted or local policy removes the client from enforcement ({{range-changes}}) |
 
 # Use of Client IP Range Metadata {#use}
 
