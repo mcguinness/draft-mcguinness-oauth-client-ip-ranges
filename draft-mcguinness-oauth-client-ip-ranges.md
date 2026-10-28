@@ -353,9 +353,9 @@ removal, which the authorization server can ignore. The client
 information response ({{Section 3 of RFC7592}}) shows whether they were
 removed.
 
-## Continued Use {#continued-use}
+## Retention {#continued-use}
 
-### Failures {#failures}
+### After a Failure {#failures}
 
 A failure to retrieve a Client IP Range Document, or to validate client
 IP range metadata or a retrieved document, MUST NOT cause an
@@ -364,7 +364,7 @@ before the failure. After a failure, the authorization server MAY
 continue to use the accepted IP range set, within the retention limit
 ({{retention}}).
 
-### Withdrawal {#withdrawal}
+### After a Withdrawal {#withdrawal}
 
 Withdrawal of the client's declaration ({{metadata-changes}}) MUST NOT
 by itself cause an authorization server to admit a source address that
@@ -387,7 +387,7 @@ When the retention limit is exceeded, the authorization server stops
 using the set and has no accepted IP range set for the client
 ({{use}}).
 
-# Use of Client IP Range Metadata {#use}
+# Enforcement {#use}
 
 The IP range set identifies source addresses from which the client
 originates requests directly to authorization servers and resource
