@@ -530,7 +530,14 @@ vouches only for the values it contains: for `client_ip_ranges`, the
 prefixes; for `client_ip_ranges_uri`, the URL but not the referenced
 document. The party hosting the document asserts its contents, and
 accepting them automatically is a separate decision to trust that party
-within an approved scope ({{range-changes}}).
+within an approved scope ({{range-changes}}). A malicious or compromised
+party hosting a document can also deny service to every client that
+references it, by publishing an empty or unrelated IP range set or by
+keeping the document unavailable beyond the retention limit.
+
+A client cannot observe whether an authorization server enforces its
+declaration, so declaring an IP range set does not by itself protect
+the client's credentials.
 
 An authorization server can require that `client_ip_ranges_uri` share an
 origin with the client identifier URL of a Client ID Metadata Document
@@ -555,8 +562,19 @@ the new IP range set contains.
 An accepted IP range set that no longer matches the client's current
 declaration can include addresses that have since been reassigned to
 another party. The retention limit ({{retention}}) and
-narrowing ({{acceptance}}) bound how long such addresses remain
+narrowing ({{acceptance}}) limit how long such addresses remain
 admitted.
+
+## Rejection Responses {#rejection-responses}
+
+A rejection that a requesting party can attribute to its source address
+tells that party that its other inputs were acceptable. If the
+authorization server checks the source address only after client
+authentication succeeds, such a rejection confirms to a party holding
+stolen or guessed client credentials that they are valid.
+{{as-enforcement}} limits this disclosure for parties that have not
+authenticated as the client; the error response for authenticated parties is
+an open issue ({{open-issues}}).
 
 ## Server-Side Request Forgery {#ssrf}
 
@@ -619,8 +637,9 @@ Client IP range metadata describes network infrastructure rather than
 end users. However, when a client runs on infrastructure associated with
 an individual, such as a residential network, its declared ranges can
 reveal that individual's network location. A publicly retrievable
-Client IP Range Document discloses the client's egress infrastructure to
-any party.
+Client IP Range Document, or a publicly retrievable Client ID Metadata
+Document that carries `client_ip_ranges`, discloses the client's egress
+infrastructure to any party.
 
 Retrieval of `client_ip_ranges_uri` reveals to the party hosting the
 document the addresses and retrieval timing of authorization servers
@@ -759,7 +778,10 @@ ranges.
 1. Which error response indicates that an authorization server rejected
    a request under a client's source address policy? The
    `invalid_client` error code signals failed client authentication
-   ({{Section 5.2 of RFC6749}}) and could prompt credential rotation.
+   ({{Section 5.2 of RFC6749}}) and could prompt credential rotation,
+   while an error that identifies the source address confirms to a
+   party holding stolen credentials that they are valid
+   ({{rejection-responses}}).
 
 # Document History {#history}
 
