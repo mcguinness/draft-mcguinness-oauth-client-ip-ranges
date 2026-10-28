@@ -246,10 +246,9 @@ names is invalid; {{Section 4 of RFC8259}} notes that receivers handle
 such objects unpredictably. The document is self-contained, and the
 authorization server MUST NOT retrieve other resources to complete it.
 
-All prefixes in the document apply equally to each client whose metadata
-references it. Multiple clients can reference the same document, and the
-document can be hosted by a party other than the client, such as its
-hosting provider.
+Multiple clients can reference the same document; all its prefixes apply
+equally to each such client. The document can be hosted by a party other
+than the client, such as its hosting provider.
 
 The following is a non-normative example of a Client IP Range Document:
 
@@ -336,12 +335,8 @@ set until it no longer originates requests from them.
 
 If an authorization server requires an accepted IP range set for a
 client, it MUST reject requests from the client while it has no accepted
-IP range set for the client, whether because the client has made no
-declaration, because its declaration is invalid or cannot be retrieved
-({{failures}}), or because a validated IP range set has not yet been
-accepted under local policy. Otherwise, what applies while a client has
-no accepted IP range set is local policy, except after the retention
-limit ({{retention}}) is exceeded.
+IP range set for the client. Otherwise, what applies while a client has
+no accepted IP range set is local policy, subject to {{retention}}.
 
 ## Changes to Client Metadata {#metadata-changes}
 
@@ -384,15 +379,20 @@ withdrawal is a local policy decision.
 ### Retention Limit {#retention}
 
 An authorization server SHOULD set a retention limit on how long it
-continues to use an accepted IP range set while retrieval or validation
-of the client's current declaration fails, after the client withdraws
-its declaration, and while a validated replacement has not been
-accepted under local policy ({{range-changes}}). When the retention
-limit is exceeded, the authorization server stops using the set and has
-no accepted IP range set for the client. An authorization server that
-was enforcing the set rejects requests from the client until it accepts
-a new IP range set or an explicit local policy decision removes the
-client from enforcement.
+continues to use an accepted IP range set in any of the following cases
+({{range-changes}}):
+
+* while retrieval or validation of the client's current declaration
+  fails;
+* after the client withdraws its declaration; or
+* while a validated replacement has not been accepted under local
+  policy.
+
+When the retention limit is exceeded, the authorization server stops
+using the set and has no accepted IP range set for the client. An
+authorization server that was enforcing the set rejects requests from
+the client until it accepts a new IP range set or an explicit local
+policy decision removes the client from enforcement.
 
 # Use of Client IP Range Metadata {#use}
 
@@ -449,24 +449,17 @@ clients permitted to reach an endpoint. An authorization server can
 enforce each client's IP range set once it has identified the client
 ({{as-enforcement}}).
 
-For example, an enterprise administrator approves a hosted client for
-use with the enterprise's authorization server and reviews the IP range
-set in its metadata. The enterprise adds the approved ranges to the
+For example, an enterprise adds a hosted client's approved ranges to the
 network allowlist in front of its token endpoint, and the authorization
-server rejects token requests from that client that originate outside
-them. When the client's IP range set later changes, local policy
-determines whether the change is applied automatically, such as an
-addition within an approved scope, or is held for administrator approval
-({{range-changes}}).
+server also enforces the client's accepted IP range set. Local policy
+determines whether later changes are accepted automatically or require
+administrator approval ({{range-changes}}).
 
-When an authorization server enforces a client's accepted IP range set,
-requests from source addresses outside that set are rejected until the
-authorization server accepts a replacement that includes them.
 Deployments that require an accepted IP range set need an administrative
-path to restore access, such as approving a replacement set. Enforcing a
-client's IP range set at the client configuration endpoint
-({{Section 2 of RFC7592}}) can prevent the client from correcting a
-declaration made by value.
+recovery path for a client whose source addresses move outside that set,
+such as approving a replacement set. Enforcement at the client
+configuration endpoint ({{Section 2 of RFC7592}}) can prevent the client
+from updating a declaration made by value.
 
 ## Retrieval Scheduling {#retrieval-scheduling}
 
@@ -489,9 +482,9 @@ most 5 kilobytes of a Client ID Metadata Document. A client whose IP
 range set does not fit within such a limit can use
 `client_ip_ranges_uri`. An authorization server sets its bounds on
 Client IP Range Documents ({{resource-exhaustion}}) independently of
-bounds on client metadata, because such documents are expected to be
-larger. The gzip content coding ({{Section 8.4.1.3 of RFC9110}}) can
-reduce the transfer size of large documents.
+bounds on client metadata. The gzip content coding
+({{Section 8.4.1.3 of RFC9110}}) can reduce the transfer size of large
+documents.
 
 # Security Considerations {#security}
 
@@ -513,9 +506,11 @@ vouches only for the values it contains: for `client_ip_ranges`, the
 prefixes; for `client_ip_ranges_uri`, the URL but not the referenced
 document. The party hosting the document asserts its contents, and
 accepting them automatically is a separate decision to trust that party
-within an approved scope ({{range-changes}}). An authorization server
-can require that `client_ip_ranges_uri` share an origin with the client
-identifier URL of a Client ID Metadata Document {{CIMD}}.
+within an approved scope ({{range-changes}}).
+
+An authorization server can require that `client_ip_ranges_uri` share an
+origin with the client identifier URL of a Client ID Metadata Document
+{{CIMD}}.
 
 ## Changes to Declared Ranges {#range-changes}
 
