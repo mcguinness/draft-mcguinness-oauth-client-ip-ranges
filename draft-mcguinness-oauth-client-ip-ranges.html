@@ -1625,10 +1625,6 @@ replacement is still not accepted.<a href="#section-4.3-5" class="pilcrow">¶</a
 <p id="section-4.3-6">A client <span class="bcp14">SHOULD</span> add a prefix to its IP range set before it originates
 requests from addresses in that prefix and <span class="bcp14">SHOULD</span> keep the prefix in the
 set until it no longer originates requests from them.<a href="#section-4.3-6" class="pilcrow">¶</a></p>
-<p id="section-4.3-7">If an authorization server requires an accepted IP range set for a
-client, it <span class="bcp14">MUST</span> reject requests from the client while it has no accepted
-IP range set for the client. Otherwise, what applies while a client has
-no accepted IP range set is local policy, subject to <a href="#retention" class="auto internal xref">Section 4.5.3</a>.<a href="#section-4.3-7" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="metadata-changes">
@@ -1704,10 +1700,8 @@ policy.<a href="#section-4.5.3-2.3.1" class="pilcrow">¶</a></p>
 </li>
           </ul>
 <p id="section-4.5.3-3">When the retention limit is exceeded, the authorization server stops
-using the set and has no accepted IP range set for the client. An
-authorization server that was enforcing the set rejects requests from
-the client until it accepts a new IP range set or an explicit local
-policy decision removes the client from enforcement.<a href="#section-4.5.3-3" class="pilcrow">¶</a></p>
+using the set and has no accepted IP range set for the client
+(<a href="#use" class="auto internal xref">Section 5</a>).<a href="#section-4.5.3-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1726,19 +1720,26 @@ does not describe the network origins of user agents, redirection
 endpoints, or requests initiated by the resource owner.<a href="#section-5-1" class="pilcrow">¶</a></p>
 <p id="section-5-2">A source address matches an IP range set if it is within any of its
 prefixes. Before matching, the authorization server <span class="bcp14">MUST</span> convert an
-IPv4-mapped IPv6 source address to the IPv4 address it contains. An
-authorization server that enforces a client's accepted IP range set
+IPv4-mapped IPv6 source address to the IPv4 address it contains.<a href="#section-5-2" class="pilcrow">¶</a></p>
+<p id="section-5-3">An authorization server that enforces a client's accepted IP range set
 admits requests from the client only from source addresses that match
-it; if that set is empty, it admits none.<a href="#section-5-2" class="pilcrow">¶</a></p>
-<p id="section-5-3">An authorization server <span class="bcp14">MAY</span> use the IP range set as an input to local
+it; if that set is empty, it admits none. If an authorization server
+requires an accepted IP range set for a client, it <span class="bcp14">MUST</span> reject requests
+from the client while it has no accepted IP range set for the client.
+After the retention limit is exceeded (<a href="#retention" class="auto internal xref">Section 4.5.3</a>), an authorization
+server that was enforcing the set rejects requests from the client
+until it accepts a new IP range set or an explicit local policy
+decision removes the client from enforcement. Otherwise, what applies
+while a client has no accepted IP range set is local policy.<a href="#section-5-3" class="pilcrow">¶</a></p>
+<p id="section-5-4">An authorization server <span class="bcp14">MAY</span> use the IP range set as an input to local
 network access control. A match does not authenticate the client or
 authorize a request. The authorization server <span class="bcp14">MUST NOT</span> use a source
 address match in place of client authentication, access token
-validation, or any other security control required by OAuth.<a href="#section-5-3" class="pilcrow">¶</a></p>
-<p id="section-5-4">Enforcement by resource servers, including how a resource server
+validation, or any other security control required by OAuth.<a href="#section-5-4" class="pilcrow">¶</a></p>
+<p id="section-5-5">Enforcement by resource servers, including how a resource server
 determines the client associated with a request and obtains that
 client's metadata, is outside the scope of this specification and could
-be addressed by a companion specification.<a href="#section-5-4" class="pilcrow">¶</a></p>
+be addressed by a companion specification.<a href="#section-5-5" class="pilcrow">¶</a></p>
 <div id="as-enforcement">
 <section id="section-5.1">
         <h3 id="name-enforcement-by-authorizatio">
