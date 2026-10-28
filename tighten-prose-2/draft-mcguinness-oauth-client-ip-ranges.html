@@ -1,0 +1,2305 @@
+<!DOCTYPE html>
+<html lang="en" class="Internet-Draft">
+<head>
+<meta charset="utf-8">
+<meta content="Common,Latin" name="scripts">
+<meta content="initial-scale=1.0" name="viewport">
+<title>OAuth Client IP Range Metadata</title>
+<meta content="Karl McGuinness" name="author">
+<meta content="Xiaoyi Zhang" name="author">
+<meta content="
+       This specification defines OAuth client metadata parameters for
+declaring the IP address ranges from which a client originates network
+requests. The  client_ip_ranges  parameter carries a set of IPv4 and
+IPv6 prefixes by value. The  client_ip_ranges_uri  parameter references
+an HTTPS resource containing the set, which supports large and
+frequently changing sets through standard HTTP retrieval and caching.
+The parameters can be used with OAuth 2.0 Dynamic Client Registration,
+OAuth Client ID Metadata Documents, and other mechanisms that convey
+client metadata. Authorization servers and other parties that obtain a
+client's metadata can use the declared ranges as an input to network
+access control. 
+    " name="description">
+<meta content="xml2rfc 3.34.1" name="generator">
+<meta content="OAuth" name="keyword">
+<meta content="client metadata" name="keyword">
+<meta content="IP address" name="keyword">
+<meta content="network access control" name="keyword">
+<meta content="draft-mcguinness-oauth-client-ip-ranges-latest" name="ietf.draft">
+<!-- Generator version information:
+  xml2rfc 3.34.1
+    Python 3.14.8
+    ConfigArgParse 1.8.0
+    google-i18n-address 3.1.1
+    intervaltree 3.2.1
+    Jinja2 3.1.6
+    lxml 6.1.1
+    natsort 8.4.0
+    platformdirs 4.13.4
+    pycountry 24.6.1
+    PyYAML 6.0.3
+    requests 2.33.1
+    wcwidth 0.9.2
+-->
+<link href="draft-mcguinness-oauth-client-ip-ranges.xml" rel="alternate" type="application/rfc+xml">
+<link href="#copyright" rel="license">
+<style type="text/css">@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-cyrillic.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-cyrillic.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('Lora SemiBold'), local('Lora-SemiBold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-semibold-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Oxygen Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Oxygen Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-cyrillic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-greek.woff2') format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-cyrillic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-greek.woff2') format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+  color-scheme: light dark;
+  --background-color: #fff;
+  --text-color: #222;
+  --title-color: #191919;
+  --link-color: #2a6496;
+  --highlight-color: #f9f9f9;
+  --line-color: #eee;
+  --pilcrow-weak: #ddd;
+  --pilcrow-strong: #bbb;
+  --small-font-size: 14.5px;
+  --font-mono: 'Oxygen Mono', monospace;
+  --font-title: "Sofia Sans Semi Condensed", sans-serif;
+  scrollbar-color: #bbb #eee;
+}
+body {
+  max-width: 600px;
+  margin: 75px auto;
+  padding: 0 5px;
+  color: var(--text-color);
+  background-color: var(--background-color);
+  font: 16px/22px "Lora", serif;
+  scroll-behavior: smooth;
+}
+
+.ears {
+  display: none;
+}
+
+/* headings */
+section {
+  clear: both;
+}
+.section-number {
+  padding-right: 0.5em;
+}
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-title);
+  font-weight: 680;
+  margin: 0.8em 0 0.3em;
+  font-size-adjust: 0.5;
+  color: var(--title-color);
+}
+h1 {
+  &#title {
+    font-size: 32px;
+    line-height: 40px;
+    clear: both;
+    margin: 1.5em 0 0.2em;
+  }
+  &#rfcnum {
+    margin: 1.5em 0 0.2em;
+    & + h1#title {
+      margin: 0.2em 0;
+    }
+  }
+}
+
+h1, h2, h3 {
+  font-size: 22px;
+  line-height: 27px;
+}
+h4, h5, h6 {
+  font-size: 20px;
+  line-height: 24px;
+}
+
+/* general structure */
+.author {
+  padding-bottom: 0.3em;
+  vertical-align: top;
+}
+#abstract+p {
+  font-size: 18px;
+  line-height: 24px;
+  & code, & samp, & tt {
+    font-size: 16px;
+    line-height: 0;
+  }
+}
+
+p {
+  padding: 0;
+  margin: 0.5em 0;
+  text-align: left;
+}
+div {
+  margin: 0;
+}
+.alignRight {
+  margin: 1em 0;
+  &.art-text {
+    background-color: var(--highlight-color);
+    border: 1px solid var(--line-color);
+    border-radius: 3px;
+    padding: 0.5em 1em 0;
+    margin-bottom: 0.5em;
+    & pre {
+      padding: 0;
+      width: auto;
+    }
+  }
+  & > *:first-child {
+    border: none;
+    margin: 0;
+    float: right;
+    clear: both;
+  }
+  & > *:nth-child(2) {
+    clear: both;
+    display: block;
+    border: none;
+  }
+}
+svg {
+  display: block;
+  /* font-family isn't space-separated, but =~ will have to do */
+  &[font-family~="monospace" i], & [font-family~="monospace" i] {
+    font-family: var(--font-mono);
+  }
+}
+.alignCenter {
+  margin: 1em 0;
+  &.art-text {
+    background-color: var(--highlight-color);
+    border: 1px solid var(--line-color);
+    border-radius: 3px;
+    padding: 0.5em 1em 0;
+    margin-bottom: 0.5em;
+    & pre {
+      padding: 0;
+      width: auto;
+    }
+  }
+  & > *:first-child {
+    border: none;
+    /* this isn't optimal, but it's an existence proof.  PrinceXML doesn't
+       support flexbox yet.
+    */
+    display: table;
+    margin: 0 auto;
+  }
+}
+
+/* lists */
+ol, ul {
+  padding: 0;
+  margin: 0 0 0.5em 2em;
+  & :is(ol, ul) {
+    margin-left: 1em;
+  }
+}
+li {
+  margin: 0 0 0.25em 0;
+}
+ul.empty, .ulEmpty {
+  list-style-type: none;
+  & li {
+    margin-top: 0.5em;
+  }
+}
+:is(ul, ol).compact, .ulCompact, .olCompact {
+  margin: 0 0 0 2em;
+  & li {
+    margin: 0;
+    & :first-child { margin-top: 0; }
+    & :last-child { margin-bottom: 0; }
+  }
+}
+
+/* definition lists */
+dl {
+  clear: left;
+  --indent: 3ch;
+  /* --indent: attr(indent ch); not supported in any browser, but we can dream */
+  &.olPercent {
+    --indent: 5ch;
+    & > dt {
+      min-width: calc(var(--indent) - 2ch);
+      float: none;
+    }
+  }
+
+  dl > dd > & {
+    margin-top: 0.5em;
+    margin-bottom: 0;
+  }
+
+  &:not(.dlNewline) > dt {
+    float: left;
+    margin-right: 2ch;
+    min-width: 8ch;
+  }
+  & > dd {
+    margin-bottom: .8em;
+    margin-left: var(--indent) !important; /* stupid element overrides */
+    min-height: 2ex;
+  }
+}
+:is(dl.compact, .dlCompact) > dd {
+  margin-bottom: 0;
+  & > :is(:first-child, .break:first-child + *) {
+    margin-top: 0;
+  }
+  & > :is(:last-child) {
+    margin-bottom: 0;
+  }
+}
+:is(dd, span).break {
+  display: none;
+}
+
+/* links */
+a {
+  text-decoration: none;
+  &[href] {
+    color: var(--link-color);
+    &:hover { text-decoration: underline; }
+    &.selfRef {
+      color: var(--text-color);
+      &:hover {
+        text-decoration: none;
+        background-color: var(--highlight-color);
+      }
+    }
+  }
+}
+.iref + a[href].internal {
+  color: var(--text-color);
+}
+a.xref:is(.cite, .auto), :is(#status-of-memo, #copyright) a {
+  white-space: nowrap;
+}
+
+/* Figures */
+tt, code, pre {
+  background-color: var(--highlight-color);
+  font: 14px/22px var(--font-mono);
+}
+tt, code {
+  /* changing the font for inline elements leads to different ascender
+     and descender heights; as we want to retain baseline alignment,
+     remove leading to avoid altering the final height of lines
+     note: this fails if these blocks take an entire line,
+     a different solution would be great */
+  line-height: 0;
+}
+:is(h1, h2, h3, h4, h5, h6) :is(tt, code) {
+  font-size: 84%;
+}
+pre {
+  border: 1px solid var(--line-color);
+  font-size: 13.5px;
+  line-height: 16px;
+  letter-spacing: -0.2px;
+  margin: 5px;
+  padding: 5px;
+}
+img {
+  max-width: 100%;
+}
+figure {
+  margin: 0.5em 0;
+  padding: 0;
+  & blockquote {
+    margin: 0.8em 0.4em 0.4em;
+  }
+}
+figcaption, caption {
+  font-style: italic;
+  margin: 0.5em 1.5em;
+  text-align: left;
+  caption-side: bottom;
+}
+@media screen {
+  /* Auto-collapse boilerplate. */
+  :is(#status-of-memo, #copyright) {
+    & p {
+      margin: -2px 0;
+      max-height: 0;
+      transition: max-height 2s ease, margin 0.5s ease 0.5s;
+      overflow: hidden;
+    }
+    &:hover p,
+    & h2:target ~ p {
+      margin: 0.5em 0;
+      max-height: 500px;
+      overflow: auto;
+    }
+  }
+  pre, svg {
+    display: inline-block;
+    /* In the horizontal direction, sometimes people make over-sized figures.
+       Scrollbars for those is therefore necessary: auto adds them as necessary..
+       In the vertical direction, the line-height can combine with the font
+       asender/descender height to produce scrollbars: hidden avoids that. */
+    overflow: auto hidden;
+  }
+  pre {
+    max-width: 100%;
+    width: calc(100% - 22px - 1em);
+  }
+  svg {
+    max-width: calc(100% - 22px - 1em);
+  }
+  figure pre {
+    display: block;
+    width: calc(100% - 25px);
+  }
+  :is(pre, svg) + .pilcrow {
+    display: inline-block;
+    vertical-align: text-bottom;
+    padding-bottom: 8px;
+  }
+}
+
+/* aside, blockquote */
+aside, blockquote {
+  margin-left: 0;
+  padding: 0 2em;
+  font-style: italic;
+}
+blockquote {
+  margin: 1em 0;
+  border-left: 2px var(--pilcrow-strong) solid;
+}
+cite {
+  display: block;
+  text-align: right;
+  font-style: italic;
+}
+
+/* tables */
+table {
+  width: auto;
+  max-width: 100%;
+  margin: 0 0 1em;
+  border-collapse: collapse;
+  &.right { margin-left: auto; }
+  &.center { margin-left: auto; margin-right: auto; }
+  &.left { margin-right: auto; }
+  & .text-left { text-align: left; }
+  & .text-center { text-align: center; }
+  & .text-right { text-align: right; }
+  & caption {
+    margin: 0;
+    padding: 3px 0 3px 1em;
+  }
+  & p { margin: 0; }
+}
+
+thead, tbody {
+  border: 1px solid var(--line-color);
+}
+th, td {
+  text-align: left;
+  vertical-align: top;
+  padding: 5px 10px;
+}
+th {
+  background-color: var(--line-color);
+}
+:is(tr:nth-child(2n), thead+tbody > tr:nth-child(2n+1)) > td {
+  background-color: var(--background-color);
+}
+:is(tr:nth-child(2n+1), thead+tbody > tr:nth-child(2n)) > td {
+  background-color: var(--highlight-color);
+}
+
+/* pilcrow */
+a.pilcrow {
+  margin-left: 3px;
+  opacity: 0.2;
+  user-select: none;
+  &[href] {
+    color: var(--pilcrow-weak);
+    &:hover { text-decoration: none; }
+  }
+  @media not print {
+    :hover > &, &:focus {
+      opacity: 1;
+    }
+    &[href]:hover {
+      color: var(--pilcrow-strong);
+      background-color: transparent;
+    }
+  }
+  @media print {
+    display: none;
+  }
+}
+
+/* misc */
+hr {
+  border: 0;
+  border-top: 1px solid var(--line-color);
+}
+.bcp14 {
+  font-variant: small-caps;
+  font-weight: 600;
+  font-size: var(--small-font-size);
+}
+.role {
+  font-variant: all-small-caps;
+}
+sub, sup {
+  line-height: 1;
+  font-size: 80%;
+}
+
+/* info block */
+#identifiers {
+  margin: 0;
+  font-size: var(--small-font-size);
+  line-height: 18px;
+  --identifier-width: 15ch;
+  & dt {
+    width: var(--identifier-width);
+    min-width: var(--identifier-width);
+    clear: left;
+    float: left;
+    text-align: right;
+    margin-right: 1ch;
+  }
+  & dd {
+    margin: 0;
+    margin-left: calc(1em + var(--identifier-width)) !important;
+    min-width: 5em;
+  }
+  & .authors {
+    & .author {
+      display: inline-block;
+      margin-right: 1.5em;
+    }
+    & .org {
+      font-style: italic;
+    }
+  }
+}
+
+/* The prepared/rendered info at the very bottom of the page */
+.docInfo {
+  color: #999;
+  font-size: 0.9em;
+  font-style: italic;
+  margin-top: 2em;
+  & .prepared {
+    float: right;
+  }
+}
+
+/* table of contents */
+#toc {
+  padding: 0.75em 0 2em 0;
+  margin-bottom: 1em;
+
+  & nav {
+    & ul {
+      margin: 0 0.5em 0 0;
+      padding: 0;
+      list-style: none;
+    }
+    & li {
+      line-height: 1.3em;
+      margin: 2px 0;
+      padding-left: 1.2em;
+      text-indent: -1.2em;
+    }
+  }
+  & a.xref {
+    white-space: normal;
+  }
+}
+
+.references {
+  & > dt {
+    text-align: right;
+    font-weight: bold;
+    min-width: 10ch;
+    margin-right: 1.5ch;
+    &:target::before {
+      content: "⇒";
+      margin: 0 10px 0 -25px;
+    }
+  }
+  & > dd {
+    margin-left: 12ch !important;
+    overflow: visible;
+    & .refInstance {
+      margin-bottom: 0.8em;
+    }
+    & .ascii {
+      margin-bottom: 0.25em;
+    }
+  }
+}
+
+#rfc\.index\.index + ul {
+  margin-left: 0;
+}
+
+/* authors */
+address.vcard {
+  font-style: normal;
+  max-width: 20em;
+  margin: 1em auto 1em 0;
+
+  & .nameRole {
+    font-weight: 700;
+    margin-left: 0;
+  }
+  & .label {
+    margin: 0.5em 0;
+  }
+  & .type {
+    display: none;
+  }
+  & .alternative-contact {
+    margin: 0.5em 0 0.25em 0;
+  }
+  & .non-ascii {
+    margin: 0 0 0 2em;
+  }
+  & div.left {
+    text-align: left;
+  }
+  & div.right {
+    text-align: right;
+  }
+}
+
+hr.addr {
+  border-top: 1px dashed;
+  margin: 0;
+  color: #ddd;
+  max-width: calc(100% - 16px);
+}
+@media (min-width: 500px) {
+  #authors-addresses {
+    & > section {
+      column-count: 2;
+      column-gap: 20px;
+    }
+    & > section > h2 {
+      column-span: all;
+    }
+    /* hack for break-inside: avoid-column */
+    & address {
+      display: inline-block;
+      break-inside: avoid-column;
+    }
+  }
+}
+
+/* Comments */
+.rfcEditorRemove {
+  & p:first-of-type {
+    font-style: italic;
+  }
+}
+.cref {
+  background-color: rgba(249, 232, 105, 0.3);
+  padding: 2px 4px;
+}
+.crefSource {
+  font-style: italic;
+}
+
+@media screen {
+  #toc {
+    & nav {
+      font-family: var(--font-title);
+      font-weight: 360;
+      & > ul { margin-bottom: 2em; }
+      & ul {
+        margin: 0 0 0 4px;
+        & :is(p, li) {
+          margin: 2px 0;
+        }
+      }
+    }
+    & a.toplink {
+      float: right;
+    }
+  }
+}
+@media not screen {
+  #toc a.toplink {
+    display: none;
+  }
+}
+
+
+/* TOC layout for smaller screens */
+@media screen and (max-width: 929px) {
+  #toc {
+    position: fixed;
+    z-index: 2;
+    top: 0;
+    right: 0;
+    padding: 1px 0 0 0;
+    margin: 0;
+    border-bottom: 1px solid #ccc;
+    opacity: 0.6;
+    & h2 {
+      margin: 0;
+      padding: 2px 0 2px 6px;
+      padding-right: 1em;
+      font-size: 18px;
+      line-height: 24px;
+      min-width: 190px;
+      text-align: right;
+      background-color: #444;
+      color: white;
+      cursor: pointer;
+      &::before { /* css hamburger */
+        float: right;
+        position: relative;
+        width: 1em;
+        height: 1px;
+        left: -164px;
+        margin: 8px 0 0 0;
+        background: white none repeat scroll 0 0;
+        box-shadow: 0 4px 0 0 white, 0 8px 0 0 white;
+        content: "";
+      }
+    }
+    & nav {
+      display: none;
+      background-color: var(--background-color);
+      padding: 0.5em 1em 1em;
+      overflow: auto;
+      overscroll-behavior: contain;
+      height: calc(100vh - 48px);
+      border-left: 1px solid #ddd;
+    }
+    &.active {
+      opacity: 1;
+      & nav { display: block; }
+    }
+    /* Make the collapsed ToC header render white on gray also when it's a link */
+    & h2 a,
+    & h2 a:is(:link, :focus, :hover),
+    & a.toplink,
+    & a.toplink:hover {
+      color: white;
+      background-color: #444;
+      text-decoration: none;
+    }
+    & a.toplink {
+      margin: 2px 0.5em 0;
+    }
+  }
+}
+
+/* TOC layout for wide screens */
+@media screen and (min-width: 930px) {
+  body {
+    padding-right: 360px;
+    padding-right: calc(min(180px + 20%, 500px));
+  }
+  #toc {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    right: calc(50vw - 480px);
+    width: 312px;
+    margin: 0;
+    padding: 0;
+    z-index: 1;
+    & h2 {
+      margin: 0;
+      padding: 0.25em 1em 1em 0;
+    }
+    & nav {
+      display: block;
+      height: calc(90vh - 84px);
+      bottom: 0;
+      padding: 0.5em 0 2em;
+      overflow: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: thin;
+    }
+    & a.toplink {
+      margin: 8px 0.5em 0;
+    }
+  }
+  img { /* future proofing */
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* pagination */
+@media print {
+  body {
+    width: 100%;
+  }
+  p {
+    orphans: 3;
+    widows: 3;
+  }
+  #n-copyright-notice {
+    border-bottom: none;
+  }
+  #toc {
+    page-break-before: always;
+    border-top: none;
+    padding-top: 0;
+  }
+  #n-introduction {
+    page-break-before: always;
+  }
+  figure, pre, .vcard {
+    page-break-inside: avoid;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+  }
+  :is(h2, h3, h4, h5, h6)+*, dd {
+    page-break-before: avoid;
+  }
+  pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 10pt;
+  }
+  table {
+    border: 1px solid #ddd;
+  }
+  td {
+    border-top: 1px solid #ddd;
+  }
+}
+
+@page :first {
+  padding-top: 0;
+  @top-left {
+    content: normal;
+    border: none;
+  }
+  @top-center {
+    content: normal;
+    border: none;
+  }
+  @top-right {
+    content: normal;
+    border: none;
+  }
+}
+
+@page {
+  size: A4;
+  margin-bottom: 45mm;
+  padding-top: 20px;
+}
+
+/* Dark mode. */
+@media (prefers-color-scheme: dark) {
+:root {
+  --background-color: #121212;
+  --text-color: #f0f0f0;
+  --title-color: #fff;
+  --link-color: #4da4f0;
+  --highlight-color: #282828;
+  --line-color: #444;
+  --pilcrow-weak: #444;
+  --pilcrow-strong: #666;
+  scrollbar-color: #777 #333;
+}
+}
+
+/* SVG Trick: a prefix match works because only black and white are allowed */
+svg {
+  & :is([stroke="black"], [stroke^="#000"]) {
+    stroke: var(--text-color);
+  }
+  & :is([stroke="white"], [stroke^="#fff"]) {
+    stroke: var(--background-color);
+  }
+  & :is([fill="black"], [fill^="#000"], :not([fill])) {
+    fill: var(--text-color);
+  }
+  & :is([fill="white"], [fill^="#fff"]) {
+    fill: var(--background-color);
+  }
+}
+</style>
+
+</head>
+<body class="xml2rfc">
+<table class="ears">
+<thead><tr>
+<td class="left">Internet-Draft</td>
+<td class="center">OAuth Client IP Ranges</td>
+<td class="right">October 2026</td>
+</tr></thead>
+<tfoot><tr>
+<td class="left">McGuinness &amp; Zhang</td>
+<td class="center">Expires 1 May 2027</td>
+<td class="right">[Page]</td>
+</tr></tfoot>
+</table>
+<div id="external-metadata" class="document-information"></div>
+<div id="internal-metadata" class="document-information">
+<dl id="identifiers">
+<dt class="label-workgroup">Workgroup:</dt>
+<dd class="workgroup">Web Authorization Protocol</dd>
+<dt class="label-internet-draft">Internet-Draft:</dt>
+<dd class="internet-draft">draft-mcguinness-oauth-client-ip-ranges-latest</dd>
+<dt class="label-published">Published:</dt>
+<dd class="published">
+<time datetime="2026-10-28" class="published">28 October 2026</time>
+    </dd>
+<dt class="label-intended-status">Intended Status:</dt>
+<dd class="intended-status">Standards Track</dd>
+<dt class="label-expires">Expires:</dt>
+<dd class="expires"><time datetime="2027-05-01">1 May 2027</time></dd>
+<dt class="label-authors">Authors:</dt>
+<dd class="authors">
+<div class="author">
+      <div class="author-name">K. McGuinness</div>
+<div class="org">Independent</div>
+</div>
+<div class="author">
+      <div class="author-name">X. Zhang</div>
+<div class="org">Databricks</div>
+</div>
+</dd>
+</dl>
+</div>
+<h1 id="title">OAuth Client IP Range Metadata</h1>
+<section id="section-abstract">
+      <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
+<p id="section-abstract-1">This specification defines OAuth client metadata parameters for
+declaring the IP address ranges from which a client originates network
+requests. The <code>client_ip_ranges</code> parameter carries a set of IPv4 and
+IPv6 prefixes by value. The <code>client_ip_ranges_uri</code> parameter references
+an HTTPS resource containing the set, which supports large and
+frequently changing sets through standard HTTP retrieval and caching.
+The parameters can be used with OAuth 2.0 Dynamic Client Registration,
+OAuth Client ID Metadata Documents, and other mechanisms that convey
+client metadata. Authorization servers and other parties that obtain a
+client's metadata can use the declared ranges as an input to network
+access control.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+</section>
+<section class="note rfcEditorRemove" id="section-note.1">
+      <h2 id="name-about-this-document">
+<a href="#name-about-this-document" class="section-name selfRef">About This Document</a>
+      </h2>
+<p id="section-note.1-1">This note is to be removed before publishing as an RFC.<a href="#section-note.1-1" class="pilcrow">¶</a></p>
+<p id="section-note.1-2">
+        The latest revision of this draft can be found at <span><a href="https://mcguinness.github.io/draft-mcguinness-oauth-client-ip-ranges/draft-mcguinness-oauth-client-ip-ranges.html">https://mcguinness.github.io/draft-mcguinness-oauth-client-ip-ranges/draft-mcguinness-oauth-client-ip-ranges.html</a></span>.
+        Status information for this document may be found at <span><a href="https://datatracker.ietf.org/doc/draft-mcguinness-oauth-client-ip-ranges/">https://datatracker.ietf.org/doc/draft-mcguinness-oauth-client-ip-ranges/</a></span>.<a href="#section-note.1-2" class="pilcrow">¶</a></p>
+<p id="section-note.1-3">
+        Discussion of this document takes place on the
+        Web Authorization Protocol Working Group mailing list (<span><a href="mailto:oauth@ietf.org">mailto:oauth@ietf.org</a></span>),
+        which is archived at <span><a href="https://mailarchive.ietf.org/arch/browse/oauth/">https://mailarchive.ietf.org/arch/browse/oauth/</a></span>.
+        Subscribe at <span><a href="https://www.ietf.org/mailman/listinfo/oauth/">https://www.ietf.org/mailman/listinfo/oauth/</a></span>.<a href="#section-note.1-3" class="pilcrow">¶</a></p>
+<p id="section-note.1-4">Source for this draft and an issue tracker can be found at
+        <span><a href="https://github.com/mcguinness/draft-mcguinness-oauth-client-ip-ranges">https://github.com/mcguinness/draft-mcguinness-oauth-client-ip-ranges</a></span>.<a href="#section-note.1-4" class="pilcrow">¶</a></p>
+</section>
+<div id="status-of-memo">
+<section id="section-boilerplate.1">
+        <h2 id="name-status-of-this-memo">
+<a href="#name-status-of-this-memo" class="section-name selfRef">Status of This Memo</a>
+        </h2>
+<p id="section-boilerplate.1-1">
+        This Internet-Draft is submitted in full conformance with the
+        provisions of BCP 78 and BCP 79.<a href="#section-boilerplate.1-1" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-2">
+        Internet-Drafts are working documents of the Internet Engineering Task
+        Force (IETF). Note that other groups may also distribute working
+        documents as Internet-Drafts. The list of current Internet-Drafts is
+        at <span><a href="https://datatracker.ietf.org/drafts/current/">https://datatracker.ietf.org/drafts/current/</a></span>.<a href="#section-boilerplate.1-2" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-3">
+        Internet-Drafts are draft documents valid for a maximum of six months
+        and may be updated, replaced, or obsoleted by other documents at any
+        time. It is inappropriate to use Internet-Drafts as reference
+        material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-4">
+        This Internet-Draft will expire on 1 May 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="copyright">
+<section id="section-boilerplate.2">
+        <h2 id="name-copyright-notice">
+<a href="#name-copyright-notice" class="section-name selfRef">Copyright Notice</a>
+        </h2>
+<p id="section-boilerplate.2-1">
+            Copyright (c) 2026 IETF Trust and the persons identified as the
+            document authors. All rights reserved.<a href="#section-boilerplate.2-1" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.2-2">
+            This document is subject to BCP 78 and the IETF Trust's Legal
+            Provisions Relating to IETF Documents
+            (<span><a href="https://trustee.ietf.org/license-info">https://trustee.ietf.org/license-info</a></span>) in effect on the date of
+            publication of this document. Please review these documents
+            carefully, as they describe your rights and restrictions with
+            respect to this document. Code Components extracted from this
+            document must include Revised BSD License text as described in
+            Section 4.e of the Trust Legal Provisions and are provided without
+            warranty as described in the Revised BSD License.<a href="#section-boilerplate.2-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="toc">
+<section id="section-toc.1">
+        <a href="#" onclick="scroll(0,0)" class="toplink">▲</a><h2 id="name-table-of-contents">
+<a href="#name-table-of-contents" class="section-name selfRef">Table of Contents</a>
+        </h2>
+<nav class="toc"><ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1">
+            <p id="section-toc.1-1.1.1" class="keepWithNext"><a href="#section-1" class="auto internal xref">1</a>.  <a href="#name-introduction" class="internal xref">Introduction</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.1">
+                <p id="section-toc.1-1.1.2.1.1" class="keepWithNext"><a href="#section-1.1" class="auto internal xref">1.1</a>.  <a href="#name-requirements-notation-and-c" class="internal xref">Requirements Notation and Conventions</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.2">
+                <p id="section-toc.1-1.1.2.2.1" class="keepWithNext"><a href="#section-1.2" class="auto internal xref">1.2</a>.  <a href="#name-terminology" class="internal xref">Terminology</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2">
+            <p id="section-toc.1-1.2.1"><a href="#section-2" class="auto internal xref">2</a>.  <a href="#name-client-ip-range-metadata" class="internal xref">Client IP Range Metadata</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.1">
+                <p id="section-toc.1-1.2.2.1.1"><a href="#section-2.1" class="auto internal xref">2.1</a>.  <a href="#name-prefix-syntax" class="internal xref">Prefix Syntax</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.2">
+                <p id="section-toc.1-1.2.2.2.1"><a href="#section-2.2" class="auto internal xref">2.2</a>.  <a href="#name-metadata-validation" class="internal xref">Metadata Validation</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3">
+            <p id="section-toc.1-1.3.1"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-client-ip-range-document" class="internal xref">Client IP Range Document</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4">
+            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-retrieval-and-acceptance" class="internal xref">Retrieval and Acceptance</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1">
+                <p id="section-toc.1-1.4.2.1.1"><a href="#section-4.1" class="auto internal xref">4.1</a>.  <a href="#name-retrieval" class="internal xref">Retrieval</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.2">
+                <p id="section-toc.1-1.4.2.2.1"><a href="#section-4.2" class="auto internal xref">4.2</a>.  <a href="#name-caching" class="internal xref">Caching</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.3">
+                <p id="section-toc.1-1.4.2.3.1"><a href="#section-4.3" class="auto internal xref">4.3</a>.  <a href="#name-acceptance" class="internal xref">Acceptance</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.4">
+                <p id="section-toc.1-1.4.2.4.1"><a href="#section-4.4" class="auto internal xref">4.4</a>.  <a href="#name-changes-to-client-metadata" class="internal xref">Changes to Client Metadata</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.5">
+                <p id="section-toc.1-1.4.2.5.1"><a href="#section-4.5" class="auto internal xref">4.5</a>.  <a href="#name-continued-use" class="internal xref">Continued Use</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.5.2.1">
+                    <p id="section-toc.1-1.4.2.5.2.1.1"><a href="#section-4.5.1" class="auto internal xref">4.5.1</a>.  <a href="#name-failures" class="internal xref">Failures</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.5.2.2">
+                    <p id="section-toc.1-1.4.2.5.2.2.1"><a href="#section-4.5.2" class="auto internal xref">4.5.2</a>.  <a href="#name-withdrawal" class="internal xref">Withdrawal</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.5.2.3">
+                    <p id="section-toc.1-1.4.2.5.2.3.1"><a href="#section-4.5.3" class="auto internal xref">4.5.3</a>.  <a href="#name-retention-limit" class="internal xref">Retention Limit</a></p>
+</li>
+                </ul>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5">
+            <p id="section-toc.1-1.5.1"><a href="#section-5" class="auto internal xref">5</a>.  <a href="#name-use-of-client-ip-range-meta" class="internal xref">Use of Client IP Range Metadata</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.1">
+                <p id="section-toc.1-1.5.2.1.1"><a href="#section-5.1" class="auto internal xref">5.1</a>.  <a href="#name-enforcement-by-authorizatio" class="internal xref">Enforcement by Authorization Servers</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6">
+            <p id="section-toc.1-1.6.1"><a href="#section-6" class="auto internal xref">6</a>.  <a href="#name-implementation-consideratio" class="internal xref">Implementation Considerations</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.1">
+                <p id="section-toc.1-1.6.2.1.1"><a href="#section-6.1" class="auto internal xref">6.1</a>.  <a href="#name-enforcement-points" class="internal xref">Enforcement Points</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.2">
+                <p id="section-toc.1-1.6.2.2.1"><a href="#section-6.2" class="auto internal xref">6.2</a>.  <a href="#name-retrieval-scheduling" class="internal xref">Retrieval Scheduling</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.3">
+                <p id="section-toc.1-1.6.2.3.1"><a href="#section-6.3" class="auto internal xref">6.3</a>.  <a href="#name-document-size" class="internal xref">Document Size</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7">
+            <p id="section-toc.1-1.7.1"><a href="#section-7" class="auto internal xref">7</a>.  <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.1">
+                <p id="section-toc.1-1.7.2.1.1"><a href="#section-7.1" class="auto internal xref">7.1</a>.  <a href="#name-trust-in-declared-ranges" class="internal xref">Trust in Declared Ranges</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.2">
+                <p id="section-toc.1-1.7.2.2.1"><a href="#section-7.2" class="auto internal xref">7.2</a>.  <a href="#name-changes-to-declared-ranges" class="internal xref">Changes to Declared Ranges</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.3">
+                <p id="section-toc.1-1.7.2.3.1"><a href="#section-7.3" class="auto internal xref">7.3</a>.  <a href="#name-server-side-request-forgery" class="internal xref">Server-Side Request Forgery</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.4">
+                <p id="section-toc.1-1.7.2.4.1"><a href="#section-7.4" class="auto internal xref">7.4</a>.  <a href="#name-resource-exhaustion" class="internal xref">Resource Exhaustion</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.5">
+                <p id="section-toc.1-1.7.2.5.1"><a href="#section-7.5" class="auto internal xref">7.5</a>.  <a href="#name-source-address-interpretati" class="internal xref">Source Address Interpretation</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8">
+            <p id="section-toc.1-1.8.1"><a href="#section-8" class="auto internal xref">8</a>.  <a href="#name-privacy-considerations" class="internal xref">Privacy Considerations</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
+            <p id="section-toc.1-1.9.1"><a href="#section-9" class="auto internal xref">9</a>.  <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
+            <p id="section-toc.1-1.10.1"><a href="#section-10" class="auto internal xref">10</a>. <a href="#name-references" class="internal xref">References</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.1">
+                <p id="section-toc.1-1.10.2.1.1"><a href="#section-10.1" class="auto internal xref">10.1</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.2">
+                <p id="section-toc.1-1.10.2.2.1"><a href="#section-10.2" class="auto internal xref">10.2</a>.  <a href="#name-informative-references" class="internal xref">Informative References</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11">
+            <p id="section-toc.1-1.11.1"><a href="#appendix-A" class="auto internal xref">Appendix A</a>.  <a href="#name-examples" class="internal xref">Examples</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.1">
+                <p id="section-toc.1-1.11.2.1.1"><a href="#appendix-A.1" class="auto internal xref">A.1</a>.  <a href="#name-dynamic-client-registration" class="internal xref">Dynamic Client Registration by Value</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.2">
+                <p id="section-toc.1-1.11.2.2.1"><a href="#appendix-A.2" class="auto internal xref">A.2</a>.  <a href="#name-client-id-metadata-document" class="internal xref">Client ID Metadata Document by Reference</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.3">
+                <p id="section-toc.1-1.11.2.3.1"><a href="#appendix-A.3" class="auto internal xref">A.3</a>.  <a href="#name-document-retrieval" class="internal xref">Document Retrieval</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12">
+            <p id="section-toc.1-1.12.1"><a href="#appendix-B" class="auto internal xref">Appendix B</a>.  <a href="#name-related-work" class="internal xref">Related Work</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13">
+            <p id="section-toc.1-1.13.1"><a href="#appendix-C" class="auto internal xref">Appendix C</a>.  <a href="#name-open-issues" class="internal xref">Open Issues</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.14">
+            <p id="section-toc.1-1.14.1"><a href="#appendix-D" class="auto internal xref">Appendix D</a>.  <a href="#name-document-history" class="internal xref">Document History</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.15">
+            <p id="section-toc.1-1.15.1"><a href="#appendix-E" class="auto internal xref"></a><a href="#name-authors-addresses" class="internal xref">Authors' Addresses</a></p>
+</li>
+        </ul>
+</nav>
+</section>
+</div>
+<div id="intro">
+<section id="section-1">
+      <h2 id="name-introduction">
+<a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
+      </h2>
+<p id="section-1-1">OAuth clients that run as hosted services commonly originate requests
+from a known set of network addresses. Authorization servers, resource
+servers, and the network infrastructure in front of them use these
+addresses to restrict which sources can reach the token endpoint and
+protected resources. In current practice, client operators publish their
+address ranges through vendor-specific mechanisms, and deployments
+transcribe them into network access controls by hand. Client metadata
+(<span><a href="https://rfc-editor.org/rfc/rfc7591#section-2" class="relref">Section 2</a> of [<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>) has no parameter for the network origins of a
+client.<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-2">This specification defines two client metadata parameters that declare
+the IP address ranges from which a client originates requests:
+<code>client_ip_ranges</code>, which carries the ranges by value, and
+<code>client_ip_ranges_uri</code>, which references a Client IP Range Document that
+contains them. As with the <code>jwks</code> and <code>jwks_uri</code> parameters of
+<span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>, the two forms have the same semantics and are mutually
+exclusive. The reference form lets a client publish a large or
+frequently changing set without updating its registration. The
+parameters can be used with OAuth 2.0 Dynamic Client Registration
+<span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>, OAuth Client ID Metadata Documents <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>, and other
+mechanisms that convey client metadata.<a href="#section-1-2" class="pilcrow">¶</a></p>
+<p id="section-1-3">Declared ranges are an input to network access control. Deployments use
+source address restrictions to limit where a client's credentials and
+grants can be used. Declared ranges do not authenticate the client or
+authorize a request (<a href="#use" class="auto internal xref">Section 5</a>).<a href="#section-1-3" class="pilcrow">¶</a></p>
+<p id="section-1-4">This specification defines the metadata and the processing requirements
+for authorization servers that use it. Other parties that obtain a
+client's metadata can apply the same processing. Selecting the clients
+subject to enforcement, approving declared ranges, and configuring
+network enforcement points are local policy; <a href="#enforcement-points" class="auto internal xref">Section 6.1</a>
+describes typical deployments. Enforcement by resource servers is
+outside the scope of this specification.<a href="#section-1-4" class="pilcrow">¶</a></p>
+<div id="conventions">
+<section id="section-1.1">
+        <h3 id="name-requirements-notation-and-c">
+<a href="#section-1.1" class="section-number selfRef">1.1. </a><a href="#name-requirements-notation-and-c" class="section-name selfRef">Requirements Notation and Conventions</a>
+        </h3>
+<p id="section-1.1-1">The key words "<span class="bcp14">MUST</span>", "<span class="bcp14">MUST NOT</span>", "<span class="bcp14">REQUIRED</span>", "<span class="bcp14">SHALL</span>", "<span class="bcp14">SHALL NOT</span>", "<span class="bcp14">SHOULD</span>", "<span class="bcp14">SHOULD NOT</span>", "<span class="bcp14">RECOMMENDED</span>", "<span class="bcp14">NOT RECOMMENDED</span>",
+"<span class="bcp14">MAY</span>", and "<span class="bcp14">OPTIONAL</span>" in this document are to be interpreted as
+described in <span>[<a href="#BCP14" class="cite xref">BCP14</a>]</span> (<a href="#RFC2119" class="auto internal xref">RFC2119</a>) (<a href="#RFC8174" class="auto internal xref">RFC8174</a>) when, and only when, they
+appear in all capitals, as shown here.<a href="#section-1.1-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="terminology">
+<section id="section-1.2">
+        <h3 id="name-terminology">
+<a href="#section-1.2" class="section-number selfRef">1.2. </a><a href="#name-terminology" class="section-name selfRef">Terminology</a>
+        </h3>
+<p id="section-1.2-1">This specification uses the terms "access token", "authorization
+server", "client", "client authentication", "protected resource",
+"redirection endpoint", "resource owner", "resource server", and "token
+endpoint" defined by OAuth 2.0 <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>, and the terms "client
+metadata" and "software statement" defined by OAuth 2.0 Dynamic Client
+Registration <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>.<a href="#section-1.2-1" class="pilcrow">¶</a></p>
+<p id="section-1.2-2">This specification defines the following terms:<a href="#section-1.2-2" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-1.2-3">
+          <dt id="section-1.2-3.1">IP range set:</dt>
+          <dd style="margin-left: 1.5em" id="section-1.2-3.2">
+            <p id="section-1.2-3.2.1">The set of IPv4 and IPv6 prefixes that a client declares, either by
+value with <code>client_ip_ranges</code> or by reference with
+<code>client_ip_ranges_uri</code>.<a href="#section-1.2-3.2.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-1.2-3.3">Client IP Range Document:</dt>
+          <dd style="margin-left: 1.5em" id="section-1.2-3.4">
+            <p id="section-1.2-3.4.1">A JSON document, defined in <a href="#document" class="auto internal xref">Section 3</a>, that contains an IP range
+set and is referenced by <code>client_ip_ranges_uri</code>.<a href="#section-1.2-3.4.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-1.2-3.5">accepted IP range set:</dt>
+          <dd style="margin-left: 1.5em" id="section-1.2-3.6">
+            <p id="section-1.2-3.6.1">The IP range set, if any, that an authorization server has validated,
+accepted, and currently uses for a client, possibly narrowed
+(<a href="#acceptance" class="auto internal xref">Section 4.3</a>).<a href="#section-1.2-3.6.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+</dl>
+</section>
+</div>
+</section>
+</div>
+<div id="metadata">
+<section id="section-2">
+      <h2 id="name-client-ip-range-metadata">
+<a href="#section-2" class="section-number selfRef">2. </a><a href="#name-client-ip-range-metadata" class="section-name selfRef">Client IP Range Metadata</a>
+      </h2>
+<p id="section-2-1">This specification defines the following client metadata parameters
+(<span><a href="https://rfc-editor.org/rfc/rfc7591#section-2" class="relref">Section 2</a> of [<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>) for declaring the IP address ranges from
+which a client originates requests (<a href="#use" class="auto internal xref">Section 5</a>):<a href="#section-2-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-2-2">
+        <dt id="section-2-2.1">
+<code>client_ip_ranges</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-2-2.2">
+          <p id="section-2-2.2.1"><span class="bcp14">OPTIONAL</span>. JSON array of strings, each an IPv4 or IPv6 prefix
+(<a href="#prefix-syntax" class="auto internal xref">Section 2.1</a>). The array is a set. The authorization server <span class="bcp14">MUST NOT</span> assign meaning to the order of entries or to duplicate entries. An
+empty array declares an empty IP range set.<a href="#section-2-2.2.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-2-2.3">
+<code>client_ip_ranges_uri</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-2-2.4">
+          <p id="section-2-2.4.1"><span class="bcp14">OPTIONAL</span>. URL of a Client IP Range Document (<a href="#document" class="auto internal xref">Section 3</a>) that
+contains the client's IP range set. The URL <span class="bcp14">MUST</span> use the <code>https</code>
+scheme and <span class="bcp14">MUST NOT</span> contain a fragment or userinfo component
+<span>[<a href="#RFC3986" class="cite xref">RFC3986</a>]</span>. The authorization server retrieves the document as
+described in <a href="#retrieval" class="auto internal xref">Section 4</a>.<a href="#section-2-2.4.1" class="pilcrow">¶</a></p>
+</dd>
+      <dd class="break"></dd>
+</dl>
+<p id="section-2-3">The <code>client_ip_ranges</code> and
+<code>client_ip_ranges_uri</code> parameters <span class="bcp14">MUST NOT</span> both be present in the same
+client metadata. If neither is present, the client makes no declaration,
+which differs from declaring an empty IP range set. This specification
+sets no maximum number of entries; the authorization server applies its
+own bounds (<a href="#resource-exhaustion" class="auto internal xref">Section 7.4</a>).<a href="#section-2-3" class="pilcrow">¶</a></p>
+<div id="prefix-syntax">
+<section id="section-2.1">
+        <h3 id="name-prefix-syntax">
+<a href="#section-2.1" class="section-number selfRef">2.1. </a><a href="#name-prefix-syntax" class="section-name selfRef">Prefix Syntax</a>
+        </h3>
+<p id="section-2.1-1">Each prefix <span class="bcp14">MUST</span> conform to the <code>ip-prefix</code> type defined in
+<span><a href="https://rfc-editor.org/rfc/rfc9911#section-4" class="relref">Section 4</a> of [<a href="#RFC9911" class="cite xref">RFC9911</a>]</span>, that is, match in full every pattern of either
+the <code>ipv4-prefix</code> or the <code>ipv6-prefix</code> type. A value that does not
+conform is invalid.<a href="#section-2.1-1" class="pilcrow">¶</a></p>
+<p id="section-2.1-2">The client, and the party hosting a Client IP Range Document, <span class="bcp14">MUST</span>
+represent each prefix in the canonical format of that type, with all
+bits outside the prefix length set to zero and, for IPv6, the address
+represented as defined in <span><a href="https://rfc-editor.org/rfc/rfc5952#section-4" class="relref">Section 4</a> of [<a href="#RFC5952" class="cite xref">RFC5952</a>]</span>. A value that is not
+in canonical format is nonetheless valid and denotes the prefix given by
+its network address and prefix length (<span><a href="https://rfc-editor.org/rfc/rfc9911#section-4" class="relref">Section 4</a> of [<a href="#RFC9911" class="cite xref">RFC9911</a>]</span>). For
+example, <code>192.0.2.1/24</code> denotes <code>192.0.2.0/24</code>, and <code>2001:DB8::1/64</code>
+denotes <code>2001:db8::/64</code>.<a href="#section-2.1-2" class="pilcrow">¶</a></p>
+<p id="section-2.1-3">A prefix within the IPv4-mapped IPv6 address range <code>::ffff:0:0/96</code>
+(<span><a href="https://rfc-editor.org/rfc/rfc4291#section-2.5.5.2" class="relref">Section 2.5.5.2</a> of [<a href="#RFC4291" class="cite xref">RFC4291</a>]</span>) is invalid; IPv4 ranges are expressed
+as IPv4 prefixes. Every prefix length that the <code>ip-prefix</code> type permits,
+including zero, is valid. Whether to accept a broad prefix is local
+policy (<a href="#range-changes" class="auto internal xref">Section 7.2</a>).<a href="#section-2.1-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="validation">
+<section id="section-2.2">
+        <h3 id="name-metadata-validation">
+<a href="#section-2.2" class="section-number selfRef">2.2. </a><a href="#name-metadata-validation" class="section-name selfRef">Metadata Validation</a>
+        </h3>
+<p id="section-2.2-1">If a trusted software statement (<span><a href="https://rfc-editor.org/rfc/rfc7591#section-2.3" class="relref">Section 2.3</a> of [<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>) carries
+<code>client_ip_ranges</code> or <code>client_ip_ranges_uri</code>, the authorization server
+ignores both parameters elsewhere in the client metadata, whether in a
+registration request or in a Client ID Metadata Document
+(<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-client-id-metadata-document-02#section-4.3" class="relref">Section 4.3</a> of [<a href="#CIMD" class="cite xref">CIMD</a>]</span>). This extends the precedence rule of
+<span><a href="https://rfc-editor.org/rfc/rfc7591#section-2" class="relref">Section 2</a> of [<a href="#RFC7591" class="cite xref">RFC7591</a>]</span> to the pair of parameters.<a href="#section-2.2-1" class="pilcrow">¶</a></p>
+<p id="section-2.2-2">After this precedence is applied, client IP range metadata is invalid if
+any of the following is true:<a href="#section-2.2-2" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2-3">
+<li id="section-2.2-3.1">
+            <p id="section-2.2-3.1.1">Both <code>client_ip_ranges</code> and <code>client_ip_ranges_uri</code> are present.<a href="#section-2.2-3.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-2.2-3.2">
+            <p id="section-2.2-3.2.1">The value of <code>client_ip_ranges</code> is not an array of strings, or any
+entry is an invalid prefix (<a href="#prefix-syntax" class="auto internal xref">Section 2.1</a>).<a href="#section-2.2-3.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-2.2-3.3">
+            <p id="section-2.2-3.3.1">The value of <code>client_ip_ranges_uri</code> does not meet the requirements of
+<a href="#metadata" class="auto internal xref">Section 2</a>.<a href="#section-2.2-3.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-2.2-3.4">
+            <p id="section-2.2-3.4.1">The value of <code>client_ip_ranges</code> has more entries than the
+authorization server's bound on prefixes (<a href="#resource-exhaustion" class="auto internal xref">Section 7.4</a>).<a href="#section-2.2-3.4.1" class="pilcrow">¶</a></p>
+</li>
+        </ol>
+<p id="section-2.2-4">If a client registration request contains invalid client IP range
+metadata, the authorization server responds with an HTTP 400 (Bad
+Request) error response as described in <span><a href="https://rfc-editor.org/rfc/rfc7591#section-3.2.2" class="relref">Section 3.2.2</a> of [<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>,
+using <code>invalid_client_metadata</code> as the error code value, or
+<code>invalid_software_statement</code> if the invalid value comes from a trusted
+software statement. If a Client ID Metadata Document <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> contains
+invalid client IP range metadata, the authorization server handles this
+as a validation failure (<a href="#failures" class="auto internal xref">Section 4.5.1</a>) without treating the rest of the
+document as invalid.<a href="#section-2.2-4" class="pilcrow">¶</a></p>
+<p id="section-2.2-5">An authorization server that does not support these parameters ignores
+them (<span><a href="https://rfc-editor.org/rfc/rfc7591#section-2" class="relref">Section 2</a> of [<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>). The client information response
+(<span><a href="https://rfc-editor.org/rfc/rfc7591#section-3.2.1" class="relref">Section 3.2.1</a> of [<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>) shows whether the authorization server
+registered them.<a href="#section-2.2-5" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="document">
+<section id="section-3">
+      <h2 id="name-client-ip-range-document">
+<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-client-ip-range-document" class="section-name selfRef">Client IP Range Document</a>
+      </h2>
+<p id="section-3-1">A Client IP Range Document is a JSON <span>[<a href="#RFC8259" class="cite xref">RFC8259</a>]</span> object with the
+following member:<a href="#section-3-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-3-2">
+        <dt id="section-3-2.1">
+<code>client_ip_ranges</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-3-2.2">
+          <p id="section-3-2.2.1"><span class="bcp14">REQUIRED</span>. JSON array of prefixes, with the same syntax and semantics
+as <code>client_ip_ranges</code> (<a href="#metadata" class="auto internal xref">Section 2</a>).<a href="#section-3-2.2.1" class="pilcrow">¶</a></p>
+</dd>
+      <dd class="break"></dd>
+</dl>
+<p id="section-3-3">The authorization server <span class="bcp14">MUST</span> ignore members that it does not
+understand. A document whose top-level object contains duplicate member
+names is invalid; <span><a href="https://rfc-editor.org/rfc/rfc8259#section-4" class="relref">Section 4</a> of [<a href="#RFC8259" class="cite xref">RFC8259</a>]</span> notes that receivers handle
+such objects unpredictably. The document is self-contained, and the
+authorization server <span class="bcp14">MUST NOT</span> retrieve other resources to complete it.<a href="#section-3-3" class="pilcrow">¶</a></p>
+<p id="section-3-4">Multiple clients can reference the same document; all its prefixes apply
+equally to each such client. The document can be hosted by a party other
+than the client, such as its hosting provider.<a href="#section-3-4" class="pilcrow">¶</a></p>
+<p id="section-3-5">The following is a non-normative example of a Client IP Range Document:<a href="#section-3-5" class="pilcrow">¶</a></p>
+<div class="lang-json sourcecode" id="section-3-6">
+<pre>
+{
+  "client_ip_ranges": [
+    "192.0.2.0/24",
+    "198.51.100.10/32",
+    "2001:db8:100::/48",
+    "2001:db8:200::/48"
+  ]
+}
+</pre><a href="#section-3-6" class="pilcrow">¶</a>
+</div>
+</section>
+</div>
+<div id="retrieval">
+<section id="section-4">
+      <h2 id="name-retrieval-and-acceptance">
+<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-retrieval-and-acceptance" class="section-name selfRef">Retrieval and Acceptance</a>
+      </h2>
+<div id="fetch">
+<section id="section-4.1">
+        <h3 id="name-retrieval">
+<a href="#section-4.1" class="section-number selfRef">4.1. </a><a href="#name-retrieval" class="section-name selfRef">Retrieval</a>
+        </h3>
+<p id="section-4.1-1">An authorization server retrieves a Client IP Range Document by sending
+an HTTP GET request to the <code>client_ip_ranges_uri</code> URL, subject to
+<a href="#ssrf" class="auto internal xref">Section 7.3</a>. A response is successful if it has status code 200 (OK), the
+<code>application/json</code> media type, and a complete body within the
+authorization server's bounds (<a href="#resource-exhaustion" class="auto internal xref">Section 7.4</a>), or if it has
+status code 304 (Not Modified) (<span><a href="https://rfc-editor.org/rfc/rfc9110#section-15.4.5" class="relref">Section 15.4.5</a> of [<a href="#RFC9110" class="cite xref">RFC9110</a>]</span>) in answer
+to a conditional request (<a href="#retrieval-scheduling" class="auto internal xref">Section 6.2</a>). A 304 response
+indicates that the stored response is current.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
+<p id="section-4.1-2">The party hosting a Client IP Range Document <span class="bcp14">MUST</span> serve it with the
+<code>application/json</code> media type and <span class="bcp14">MUST NOT</span> require authentication to
+retrieve it unless that party and the authorization server have agreed
+on an authentication mechanism, which is outside the scope of this
+specification. The authorization server <span class="bcp14">MUST NOT</span> send credentials
+associated with an OAuth request, such as client credentials, access
+tokens, or authorization codes, when retrieving the document.<a href="#section-4.1-2" class="pilcrow">¶</a></p>
+<p id="section-4.1-3">The authorization server <span class="bcp14">MUST NOT</span> treat a failed retrieval, an
+unsuccessful response, or an invalid document as an empty IP range set;
+each is a failure (<a href="#failures" class="auto internal xref">Section 4.5.1</a>).<a href="#section-4.1-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="caching">
+<section id="section-4.2">
+        <h3 id="name-caching">
+<a href="#section-4.2" class="section-number selfRef">4.2. </a><a href="#name-caching" class="section-name selfRef">Caching</a>
+        </h3>
+<p id="section-4.2-1">The party hosting a Client IP Range Document <span class="bcp14">SHOULD</span> support HTTP caching
+<span>[<a href="#RFC9111" class="cite xref">RFC9111</a>]</span> and <span class="bcp14">SHOULD</span> include the <code>Cache-Control</code>
+(<span><a href="https://rfc-editor.org/rfc/rfc9111#section-5.2" class="relref">Section 5.2</a> of [<a href="#RFC9111" class="cite xref">RFC9111</a>]</span>) and <code>ETag</code> (<span><a href="https://rfc-editor.org/rfc/rfc9110#section-8.8.3" class="relref">Section 8.8.3</a> of [<a href="#RFC9110" class="cite xref">RFC9110</a>]</span>)
+response header fields.<a href="#section-4.2-1" class="pilcrow">¶</a></p>
+<p id="section-4.2-2">The accepted IP range set is application state, distinct from any HTTP
+cache (<span><a href="https://rfc-editor.org/rfc/rfc9111#section-6" class="relref">Section 6</a> of [<a href="#RFC9111" class="cite xref">RFC9111</a>]</span>). A fresh response does not make its IP
+range set accepted, and expiry of a cached response does not end use of
+the accepted IP range set (<a href="#acceptance" class="auto internal xref">Section 4.3</a>). The authorization server
+<span class="bcp14">SHOULD</span> retrieve the document periodically to obtain changes.<a href="#section-4.2-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="acceptance">
+<section id="section-4.3">
+        <h3 id="name-acceptance">
+<a href="#section-4.3" class="section-number selfRef">4.3. </a><a href="#name-acceptance" class="section-name selfRef">Acceptance</a>
+        </h3>
+<p id="section-4.3-1">Before accepting an IP range set, the authorization server <span class="bcp14">MUST</span> ensure
+the following:<a href="#section-4.3-1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-4.3-2">
+<li id="section-4.3-2.1">
+            <p id="section-4.3-2.1.1">The client IP range metadata that conveys the set is valid
+(<a href="#validation" class="auto internal xref">Section 2.2</a>), and every prefix in the set is valid
+(<a href="#prefix-syntax" class="auto internal xref">Section 2.1</a>).<a href="#section-4.3-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-4.3-2.2">
+            <p id="section-4.3-2.2.1">If the set was obtained from a Client IP Range Document, the response
+is successful (<a href="#fetch" class="auto internal xref">Section 4.1</a>) and the complete document is valid
+(<a href="#document" class="auto internal xref">Section 3</a>).<a href="#section-4.3-2.2.1" class="pilcrow">¶</a></p>
+</li>
+        </ol>
+<p id="section-4.3-3">If any of these checks fails, the authorization server <span class="bcp14">MUST</span> reject the
+entire set. Acceptance is also subject to local policy
+(<a href="#range-changes" class="auto internal xref">Section 7.2</a>). Registering client IP range metadata does not by
+itself accept its IP range set.<a href="#section-4.3-3" class="pilcrow">¶</a></p>
+<p id="section-4.3-4">An accepted IP range set replaces the previously accepted IP range set
+in full; this specification defines no incremental update format. The
+accepted IP range set remains in effect until the authorization server
+accepts a replacement, narrows it, or stops using it (<a href="#retention" class="auto internal xref">Section 4.5.3</a>).<a href="#section-4.3-4" class="pilcrow">¶</a></p>
+<p id="section-4.3-5">Before accepting a validated replacement, an authorization server <span class="bcp14">MAY</span>
+narrow the accepted IP range set to its intersection with the
+replacement, so that it admits only source addresses that both sets
+match. The narrowed set remains the accepted IP range set; the
+replacement is still not accepted.<a href="#section-4.3-5" class="pilcrow">¶</a></p>
+<p id="section-4.3-6">A client <span class="bcp14">SHOULD</span> add a prefix to its IP range set before it originates
+requests from addresses in that prefix and <span class="bcp14">SHOULD</span> keep the prefix in the
+set until it no longer originates requests from them.<a href="#section-4.3-6" class="pilcrow">¶</a></p>
+<p id="section-4.3-7">If an authorization server requires an accepted IP range set for a
+client, it <span class="bcp14">MUST</span> reject requests from the client while it has no accepted
+IP range set for the client. Otherwise, what applies while a client has
+no accepted IP range set is local policy, subject to <a href="#retention" class="auto internal xref">Section 4.5.3</a>.<a href="#section-4.3-7" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="metadata-changes">
+<section id="section-4.4">
+        <h3 id="name-changes-to-client-metadata">
+<a href="#section-4.4" class="section-number selfRef">4.4. </a><a href="#name-changes-to-client-metadata" class="section-name selfRef">Changes to Client Metadata</a>
+        </h3>
+<p id="section-4.4-1">A client's metadata can change the value of <code>client_ip_ranges_uri</code>,
+switch between <code>client_ip_ranges</code> and <code>client_ip_ranges_uri</code>, or remove
+both. The new metadata replaces the previous declaration.<a href="#section-4.4-1" class="pilcrow">¶</a></p>
+<p id="section-4.4-2">When the metadata changes representation or URI, the accepted IP range
+set remains in effect as described in <a href="#acceptance" class="auto internal xref">Section 4.3</a>. An invalid new
+declaration or an unretrievable new document is a failure
+(<a href="#failures" class="auto internal xref">Section 4.5.1</a>). If the previous metadata contained
+<code>client_ip_ranges_uri</code>, the authorization server does not retrieve that
+URI again for the client.<a href="#section-4.4-2" class="pilcrow">¶</a></p>
+<p id="section-4.4-3">Removal of both parameters withdraws the client's declaration
+(<a href="#withdrawal" class="auto internal xref">Section 4.5.2</a>). In a client update request
+(<span><a href="https://rfc-editor.org/rfc/rfc7592#section-2.2" class="relref">Section 2.2</a> of [<a href="#RFC7592" class="cite xref">RFC7592</a>]</span>), omitting both parameters requests their
+removal, which the authorization server can ignore. The client
+information response (<span><a href="https://rfc-editor.org/rfc/rfc7592#section-3" class="relref">Section 3</a> of [<a href="#RFC7592" class="cite xref">RFC7592</a>]</span>) shows whether they were
+removed.<a href="#section-4.4-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="continued-use">
+<section id="section-4.5">
+        <h3 id="name-continued-use">
+<a href="#section-4.5" class="section-number selfRef">4.5. </a><a href="#name-continued-use" class="section-name selfRef">Continued Use</a>
+        </h3>
+<div id="failures">
+<section id="section-4.5.1">
+          <h4 id="name-failures">
+<a href="#section-4.5.1" class="section-number selfRef">4.5.1. </a><a href="#name-failures" class="section-name selfRef">Failures</a>
+          </h4>
+<p id="section-4.5.1-1">A failure to retrieve a Client IP Range Document, or to validate client
+IP range metadata or a retrieved document, <span class="bcp14">MUST NOT</span> cause an
+authorization server to admit a source address that it did not admit
+before the failure. After a failure, the authorization server <span class="bcp14">MAY</span>
+continue to use the accepted IP range set, within the retention limit
+(<a href="#retention" class="auto internal xref">Section 4.5.3</a>).<a href="#section-4.5.1-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="withdrawal">
+<section id="section-4.5.2">
+          <h4 id="name-withdrawal">
+<a href="#section-4.5.2" class="section-number selfRef">4.5.2. </a><a href="#name-withdrawal" class="section-name selfRef">Withdrawal</a>
+          </h4>
+<p id="section-4.5.2-1">Withdrawal of the client's declaration (<a href="#metadata-changes" class="auto internal xref">Section 4.4</a>) <span class="bcp14">MUST NOT</span>
+by itself cause an authorization server to admit a source address that
+it did not admit before the withdrawal. Relaxing enforcement after a
+withdrawal is a local policy decision.<a href="#section-4.5.2-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="retention">
+<section id="section-4.5.3">
+          <h4 id="name-retention-limit">
+<a href="#section-4.5.3" class="section-number selfRef">4.5.3. </a><a href="#name-retention-limit" class="section-name selfRef">Retention Limit</a>
+          </h4>
+<p id="section-4.5.3-1">An authorization server <span class="bcp14">SHOULD</span> set a retention limit on how long it
+continues to use an accepted IP range set in any of the following cases
+(<a href="#range-changes" class="auto internal xref">Section 7.2</a>):<a href="#section-4.5.3-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-4.5.3-2.1">
+              <p id="section-4.5.3-2.1.1">while retrieval or validation of the client's current declaration
+fails;<a href="#section-4.5.3-2.1.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-4.5.3-2.2">
+              <p id="section-4.5.3-2.2.1">after the client withdraws its declaration; or<a href="#section-4.5.3-2.2.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-4.5.3-2.3">
+              <p id="section-4.5.3-2.3.1">while a validated replacement has not been accepted under local
+policy.<a href="#section-4.5.3-2.3.1" class="pilcrow">¶</a></p>
+</li>
+          </ul>
+<p id="section-4.5.3-3">When the retention limit is exceeded, the authorization server stops
+using the set and has no accepted IP range set for the client. An
+authorization server that was enforcing the set rejects requests from
+the client until it accepts a new IP range set or an explicit local
+policy decision removes the client from enforcement.<a href="#section-4.5.3-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+</section>
+</div>
+<div id="use">
+<section id="section-5">
+      <h2 id="name-use-of-client-ip-range-meta">
+<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-use-of-client-ip-range-meta" class="section-name selfRef">Use of Client IP Range Metadata</a>
+      </h2>
+<p id="section-5-1">The IP range set identifies source addresses from which the client
+originates requests directly to authorization servers and resource
+servers, such as token requests and requests to protected resources. It
+does not describe the network origins of user agents, redirection
+endpoints, or requests initiated by the resource owner.<a href="#section-5-1" class="pilcrow">¶</a></p>
+<p id="section-5-2">A source address matches an IP range set if it is within any of its
+prefixes. Before matching, the authorization server <span class="bcp14">MUST</span> convert an
+IPv4-mapped IPv6 source address to the IPv4 address it contains. An
+authorization server that enforces a client's accepted IP range set
+admits requests from the client only from source addresses that match
+it; if that set is empty, it admits none.<a href="#section-5-2" class="pilcrow">¶</a></p>
+<p id="section-5-3">An authorization server <span class="bcp14">MAY</span> use the IP range set as an input to local
+network access control. A match does not authenticate the client or
+authorize a request. The authorization server <span class="bcp14">MUST NOT</span> use a source
+address match in place of client authentication, access token
+validation, or any other security control required by OAuth.<a href="#section-5-3" class="pilcrow">¶</a></p>
+<p id="section-5-4">Enforcement by resource servers, including how a resource server
+determines the client associated with a request and obtains that
+client's metadata, is outside the scope of this specification and could
+be addressed by a companion specification.<a href="#section-5-4" class="pilcrow">¶</a></p>
+<div id="as-enforcement">
+<section id="section-5.1">
+        <h3 id="name-enforcement-by-authorizatio">
+<a href="#section-5.1" class="section-number selfRef">5.1. </a><a href="#name-enforcement-by-authorizatio" class="section-name selfRef">Enforcement by Authorization Servers</a>
+        </h3>
+<p id="section-5.1-1">An authorization server can enforce a client's accepted IP range set at
+the token endpoint and at other endpoints that receive direct requests
+from the client, once it has identified the client, either through
+client authentication or, for a public client
+(<span><a href="https://rfc-editor.org/rfc/rfc6749#section-2.1" class="relref">Section 2.1</a> of [<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>), as the client to which a grant presented
+in the request was issued. This specification does not define how an
+authorization server identifies a public client in a request that
+presents no grant, such as a device authorization request
+(<span><a href="https://rfc-editor.org/rfc/rfc8628#section-3.1" class="relref">Section 3.1</a> of [<a href="#RFC8628" class="cite xref">RFC8628</a>]</span>).<a href="#section-5.1-1" class="pilcrow">¶</a></p>
+<p id="section-5.1-2">In a response to a party that has not authenticated as the client, an
+authorization server <span class="bcp14">SHOULD NOT</span> indicate that a request was rejected
+because of its source address. This specification does not yet define an
+error response for such a rejection (<a href="#open-issues" class="auto internal xref">Appendix C</a>).<a href="#section-5.1-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="implementation">
+<section id="section-6">
+      <h2 id="name-implementation-consideratio">
+<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-implementation-consideratio" class="section-name selfRef">Implementation Considerations</a>
+      </h2>
+<div id="enforcement-points">
+<section id="section-6.1">
+        <h3 id="name-enforcement-points">
+<a href="#section-6.1" class="section-number selfRef">6.1. </a><a href="#name-enforcement-points" class="section-name selfRef">Enforcement Points</a>
+        </h3>
+<p id="section-6.1-1">Enforcing the IP range set of a specific client requires knowing which
+client sent a request. A network enforcement point that operates below
+HTTP, such as a firewall, observes the source address but not the
+client, so it can enforce only the aggregate of the IP range sets of the
+clients permitted to reach an endpoint. An authorization server can
+enforce each client's IP range set once it has identified the client
+(<a href="#as-enforcement" class="auto internal xref">Section 5.1</a>).<a href="#section-6.1-1" class="pilcrow">¶</a></p>
+<p id="section-6.1-2">For example, an enterprise adds a hosted client's approved ranges to the
+network allowlist in front of its token endpoint, and the authorization
+server also enforces the client's accepted IP range set. Local policy
+determines whether later changes are accepted automatically or require
+administrator approval (<a href="#range-changes" class="auto internal xref">Section 7.2</a>).<a href="#section-6.1-2" class="pilcrow">¶</a></p>
+<p id="section-6.1-3">Deployments that require an accepted IP range set need an administrative
+recovery path for a client whose source addresses move outside that set,
+such as approving a replacement set. Enforcement at the client
+configuration endpoint (<span><a href="https://rfc-editor.org/rfc/rfc7592#section-2" class="relref">Section 2</a> of [<a href="#RFC7592" class="cite xref">RFC7592</a>]</span>) can prevent the client
+from updating a declaration made by value.<a href="#section-6.1-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="retrieval-scheduling">
+<section id="section-6.2">
+        <h3 id="name-retrieval-scheduling">
+<a href="#section-6.2" class="section-number selfRef">6.2. </a><a href="#name-retrieval-scheduling" class="section-name selfRef">Retrieval Scheduling</a>
+        </h3>
+<p id="section-6.2-1">An authorization server can retrieve documents in the background rather
+than while processing an OAuth request, and typically schedules the next
+retrieval when the stored response's freshness lifetime
+(<span><a href="https://rfc-editor.org/rfc/rfc9111#section-4.2" class="relref">Section 4.2</a> of [<a href="#RFC9111" class="cite xref">RFC9111</a>]</span>) ends, within local minimum and maximum
+intervals. A client needs to allow for these intervals, and for approval
+delays, when adding a prefix (<a href="#acceptance" class="auto internal xref">Section 4.3</a>).<a href="#section-6.2-1" class="pilcrow">¶</a></p>
+<p id="section-6.2-2">To revalidate with <code>If-None-Match</code> (<span><a href="https://rfc-editor.org/rfc/rfc9110#section-13.1.2" class="relref">Section 13.1.2</a> of [<a href="#RFC9110" class="cite xref">RFC9110</a>]</span>), an
+authorization server uses the entity tag of the most recent complete
+response it stored from that URI (<span><a href="https://rfc-editor.org/rfc/rfc9111#section-4.3" class="relref">Section 4.3</a> of [<a href="#RFC9111" class="cite xref">RFC9111</a>]</span>), which can
+be newer than the one from which the accepted IP range set was derived.<a href="#section-6.2-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="document-size">
+<section id="section-6.3">
+        <h3 id="name-document-size">
+<a href="#section-6.3" class="section-number selfRef">6.3. </a><a href="#name-document-size" class="section-name selfRef">Document Size</a>
+        </h3>
+<p id="section-6.3-1"><span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-client-id-metadata-document-02#section-8.7" class="relref">Section 8.7</a> of [<a href="#CIMD" class="cite xref">CIMD</a>]</span> recommends that authorization servers read at
+most 5 kilobytes of a Client ID Metadata Document. A client whose IP
+range set does not fit within such a limit can use
+<code>client_ip_ranges_uri</code>. An authorization server sets its bounds on
+Client IP Range Documents (<a href="#resource-exhaustion" class="auto internal xref">Section 7.4</a>) independently of
+bounds on client metadata. The gzip content coding
+(<span><a href="https://rfc-editor.org/rfc/rfc9110#section-8.4.1.3" class="relref">Section 8.4.1.3</a> of [<a href="#RFC9110" class="cite xref">RFC9110</a>]</span>) can reduce the transfer size of large
+documents.<a href="#section-6.3-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="security">
+<section id="section-7">
+      <h2 id="name-security-considerations">
+<a href="#section-7" class="section-number selfRef">7. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
+      </h2>
+<p id="section-7-1">The security considerations of the mechanism that conveys the client
+metadata, such as <span><a href="https://rfc-editor.org/rfc/rfc7591#section-5" class="relref">Section 5</a> of [<a href="#RFC7591" class="cite xref">RFC7591</a>]</span> or <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-client-id-metadata-document-02#section-8" class="relref">Section 8</a> of [<a href="#CIMD" class="cite xref">CIMD</a>]</span>,
+also apply.<a href="#section-7-1" class="pilcrow">¶</a></p>
+<div id="trust">
+<section id="section-7.1">
+        <h3 id="name-trust-in-declared-ranges">
+<a href="#section-7.1" class="section-number selfRef">7.1. </a><a href="#name-trust-in-declared-ranges" class="section-name selfRef">Trust in Declared Ranges</a>
+        </h3>
+<p id="section-7.1-1">Client IP range metadata is a declaration made by or on behalf of the
+client. Inclusion of a prefix does not establish that the client
+exclusively owns or controls the addresses it contains. Prefixes of
+shared infrastructure, such as cloud provider or carrier-grade NAT
+egress ranges, also carry traffic from other parties.<a href="#section-7.1-1" class="pilcrow">¶</a></p>
+<p id="section-7.1-2">Whether to use declared ranges in network access control is a local
+trust decision. A software statement (<span><a href="https://rfc-editor.org/rfc/rfc7591#section-2.3" class="relref">Section 2.3</a> of [<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>)
+vouches only for the values it contains: for <code>client_ip_ranges</code>, the
+prefixes; for <code>client_ip_ranges_uri</code>, the URL but not the referenced
+document. The party hosting the document asserts its contents, and
+accepting them automatically is a separate decision to trust that party
+within an approved scope (<a href="#range-changes" class="auto internal xref">Section 7.2</a>).<a href="#section-7.1-2" class="pilcrow">¶</a></p>
+<p id="section-7.1-3">An authorization server can require that <code>client_ip_ranges_uri</code> share an
+origin with the client identifier URL of a Client ID Metadata Document
+<span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>.<a href="#section-7.1-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="range-changes">
+<section id="section-7.2">
+        <h3 id="name-changes-to-declared-ranges">
+<a href="#section-7.2" class="section-number selfRef">7.2. </a><a href="#name-changes-to-declared-ranges" class="section-name selfRef">Changes to Declared Ranges</a>
+        </h3>
+<p id="section-7.2-1">A change to a client's IP range set can broaden or narrow the source
+addresses admitted by a network policy derived from it. An authorization
+server <span class="bcp14">MUST NOT</span> treat the addition of a prefix to a client's IP range
+set as granting network access by itself. When local policy permits
+automatic updates for the client and the change falls within an approved
+scope, such as prefixes contained in supernets that the authorization
+server has configured for the client, the authorization server <span class="bcp14">MAY</span>
+accept the change automatically. Detecting unexpected expansion of a
+client's IP range set, including the addition of overly broad prefixes,
+helps an authorization server decide which changes to hold for approval.
+The authorization server <span class="bcp14">SHOULD</span> apply changes atomically, so that no
+intermediate state admits a source address that neither the previous nor
+the new IP range set contains.<a href="#section-7.2-1" class="pilcrow">¶</a></p>
+<p id="section-7.2-2">An accepted IP range set that no longer matches the client's current
+declaration can include addresses that have since been reassigned to
+another party. The retention limit (<a href="#retention" class="auto internal xref">Section 4.5.3</a>) and
+narrowing (<a href="#acceptance" class="auto internal xref">Section 4.3</a>) bound how long such addresses remain
+admitted.<a href="#section-7.2-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="ssrf">
+<section id="section-7.3">
+        <h3 id="name-server-side-request-forgery">
+<a href="#section-7.3" class="section-number selfRef">7.3. </a><a href="#name-server-side-request-forgery" class="section-name selfRef">Server-Side Request Forgery</a>
+        </h3>
+<p id="section-7.3-1">Retrieval of <code>client_ip_ranges_uri</code> causes an authorization server to
+send a request to a URL supplied in client metadata, which creates a
+risk of Server-Side Request Forgery (SSRF) attacks. When retrieving a
+Client IP Range Document, the following requirements apply:<a href="#section-7.3-1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-7.3-2">
+<li id="section-7.3-2.1">
+            <p id="section-7.3-2.1.1">The authorization server <span class="bcp14">MUST NOT</span> retrieve a URL that does not meet
+the requirements for <code>client_ip_ranges_uri</code> in <a href="#metadata" class="auto internal xref">Section 2</a>.<a href="#section-7.3-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-7.3-2.2">
+            <p id="section-7.3-2.2.1">The authorization server <span class="bcp14">MUST</span> verify the server certificate as
+described in <span><a href="https://rfc-editor.org/rfc/rfc9110#section-4.3.4" class="relref">Section 4.3.4</a> of [<a href="#RFC9110" class="cite xref">RFC9110</a>]</span> and <span class="bcp14">MUST NOT</span> accept a
+document retrieved over a connection that fails this verification.
+This strengthens the requirement of that section for automated
+clients.<a href="#section-7.3-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-7.3-2.3">
+            <p id="section-7.3-2.3.1">The authorization server <span class="bcp14">MUST NOT</span> automatically follow HTTP redirects
+(<span><a href="https://rfc-editor.org/rfc/rfc9110#section-15.4" class="relref">Section 15.4</a> of [<a href="#RFC9110" class="cite xref">RFC9110</a>]</span>).<a href="#section-7.3-2.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-7.3-2.4">
+            <p id="section-7.3-2.4.1">The authorization server <span class="bcp14">MUST NOT</span> connect to an address that the IANA
+special-purpose address registries (<span>[<a href="#RFC6890" class="cite xref">RFC6890</a>]</span>, <span>[<a href="#RFC8190" class="cite xref">RFC8190</a>]</span>) list as
+not globally reachable, unless local policy explicitly permits that
+destination. This check applies to the address of each connection
+after DNS resolution. An authorization server that retrieves through
+a configured forward proxy relies on the proxy to apply this check.<a href="#section-7.3-2.4.1" class="pilcrow">¶</a></p>
+</li>
+        </ol>
+<p id="section-7.3-3">An authorization server retrieving a URL obtained from a Client ID
+Metadata Document is also subject to <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-client-id-metadata-document-02#section-8.6" class="relref">Section 8.6</a> of [<a href="#CIMD" class="cite xref">CIMD</a>]</span>.<a href="#section-7.3-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="resource-exhaustion">
+<section id="section-7.4">
+        <h3 id="name-resource-exhaustion">
+<a href="#section-7.4" class="section-number selfRef">7.4. </a><a href="#name-resource-exhaustion" class="section-name selfRef">Resource Exhaustion</a>
+        </h3>
+<p id="section-7.4-1">A malicious or compromised party hosting a Client IP Range Document can
+return an oversized document, a highly compressed response, or a large
+number of overlapping prefixes. An authorization server <span class="bcp14">MUST</span> bound
+retrieval time, response size, decompressed size, and the number of
+prefixes in an IP range set, whether conveyed by value or in a document.
+If a document exceeds any bound, the authorization server <span class="bcp14">MUST</span> reject
+the entire document. This specification sets no minimum value for any of
+these bounds.<a href="#section-7.4-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="source-address">
+<section id="section-7.5">
+        <h3 id="name-source-address-interpretati">
+<a href="#section-7.5" class="section-number selfRef">7.5. </a><a href="#name-source-address-interpretati" class="section-name selfRef">Source Address Interpretation</a>
+        </h3>
+<p id="section-7.5-1">Proxies, load balancers, and network address translation change the
+source address that an authorization server observes. The authorization
+server <span class="bcp14">MUST</span> determine the source address from a trusted source of
+connection-origin information. It <span class="bcp14">MUST NOT</span> use a forwarding header
+field, such as <code>Forwarded</code> <span>[<a href="#RFC7239" class="cite xref">RFC7239</a>]</span> or <code>X-Forwarded-For</code>, as the
+source address unless it was set by an intermediary the authorization
+server trusts. Because a trusted intermediary can append its own
+observation to a field that already carries entries supplied by an
+attacker (<span><a href="https://rfc-editor.org/rfc/rfc7239#section-8.1" class="relref">Section 8.1</a> of [<a href="#RFC7239" class="cite xref">RFC7239</a>]</span>), the authorization server <span class="bcp14">MUST</span>
+select the source address from such a field using its configuration of
+trusted proxies and <span class="bcp14">MUST NOT</span> trust an entry merely because a trusted
+intermediary forwarded or appended to the field.<a href="#section-7.5-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="privacy">
+<section id="section-8">
+      <h2 id="name-privacy-considerations">
+<a href="#section-8" class="section-number selfRef">8. </a><a href="#name-privacy-considerations" class="section-name selfRef">Privacy Considerations</a>
+      </h2>
+<p id="section-8-1">Client IP range metadata describes network infrastructure rather than
+end users. However, when a client runs on infrastructure associated with
+an individual, such as a residential network, its declared ranges can
+reveal that individual's network location. A publicly retrievable
+Client IP Range Document discloses the client's egress infrastructure to
+any party.<a href="#section-8-1" class="pilcrow">¶</a></p>
+<p id="section-8-2">Retrieval of <code>client_ip_ranges_uri</code> reveals to the party hosting the
+document the addresses and retrieval timing of authorization servers
+that evaluate the client, which can indicate the authorization servers
+and resource servers with which the client is used (see also
+<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-client-id-metadata-document-02#section-9.1" class="relref">Section 9.1</a> of [<a href="#CIMD" class="cite xref">CIMD</a>]</span>).<a href="#section-8-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="iana">
+<section id="section-9">
+      <h2 id="name-iana-considerations">
+<a href="#section-9" class="section-number selfRef">9. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
+      </h2>
+<p id="section-9-1">This specification requests registration of the following client
+metadata in the "OAuth Dynamic Client Registration Metadata" registry
+established by <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>.<a href="#section-9-1" class="pilcrow">¶</a></p>
+<ul class="compact">
+<li class="compact" id="section-9-2.1">
+          <p id="section-9-2.1.1">Client Metadata Name: <code>client_ip_ranges</code><a href="#section-9-2.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="compact" id="section-9-2.2">
+          <p id="section-9-2.2.1">Client Metadata Description: Array of IPv4 and IPv6 prefixes from which
+the client originates requests<a href="#section-9-2.2.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="compact" id="section-9-2.3">
+          <p id="section-9-2.3.1">Change Controller: IETF<a href="#section-9-2.3.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="compact" id="section-9-2.4">
+          <p id="section-9-2.4.1">Specification Document(s): <a href="#metadata" class="auto internal xref">Section 2</a> of this specification<a href="#section-9-2.4.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<ul class="compact">
+<li class="compact" id="section-9-3.1">
+          <p id="section-9-3.1.1">Client Metadata Name: <code>client_ip_ranges_uri</code><a href="#section-9-3.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="compact" id="section-9-3.2">
+          <p id="section-9-3.2.1">Client Metadata Description: HTTPS URL of a document containing the
+IPv4 and IPv6 prefixes from which the client originates requests<a href="#section-9-3.2.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="compact" id="section-9-3.3">
+          <p id="section-9-3.3.1">Change Controller: IETF<a href="#section-9-3.3.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="compact" id="section-9-3.4">
+          <p id="section-9-3.4.1">Specification Document(s): <a href="#metadata" class="auto internal xref">Section 2</a> of this
+specification<a href="#section-9-3.4.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+</section>
+</div>
+<div id="sec-combined-references">
+<section id="section-10">
+      <h2 id="name-references">
+<a href="#section-10" class="section-number selfRef">10. </a><a href="#name-references" class="section-name selfRef">References</a>
+      </h2>
+<div id="sec-normative-references">
+<section id="section-10.1">
+        <h3 id="name-normative-references">
+<a href="#section-10.1" class="section-number selfRef">10.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+        </h3>
+<dl class="references">
+<dt id="BCP14">[BCP14]</dt>
+        <dd>
+<div class="refInstance">Best Current Practice 14, <span>&lt;<a href="https://www.rfc-editor.org/info/bcp14">https://www.rfc-editor.org/info/bcp14</a>&gt;</span>.<br><span>At the time of writing, this BCP comprises the following:</span>
+</div>
+<div class="refInstance" id="RFC2119">
+            <span class="refAuthor">Bradner, S.</span>, <span class="refTitle">"Key words for use in RFCs to Indicate Requirement Levels"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 2119</span>, <span class="seriesInfo">DOI 10.17487/RFC2119</span>, <time datetime="1997-03" class="refDate">March 1997</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc2119">https://www.rfc-editor.org/info/rfc2119</a>&gt;</span>. </div>
+<div class="refInstance" id="RFC8174">
+            <span class="refAuthor">Leiba, B.</span>, <span class="refTitle">"Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 8174</span>, <span class="seriesInfo">DOI 10.17487/RFC8174</span>, <time datetime="2017-05" class="refDate">May 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc8174">https://www.rfc-editor.org/info/rfc8174</a>&gt;</span>. </div>
+</dd>
+<dd class="break"></dd>
+<dt id="RFC3986">[RFC3986]</dt>
+        <dd>
+<span class="refAuthor">Berners-Lee, T.</span>, <span class="refAuthor">Fielding, R.</span>, and <span class="refAuthor">L. Masinter</span>, <span class="refTitle">"Uniform Resource Identifier (URI): Generic Syntax"</span>, <span class="seriesInfo">STD 66</span>, <span class="seriesInfo">RFC 3986</span>, <span class="seriesInfo">DOI 10.17487/RFC3986</span>, <time datetime="2005-01" class="refDate">January 2005</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc3986">https://www.rfc-editor.org/rfc/rfc3986</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC4291">[RFC4291]</dt>
+        <dd>
+<span class="refAuthor">Hinden, R.</span> and <span class="refAuthor">S. Deering</span>, <span class="refTitle">"IP Version 6 Addressing Architecture"</span>, <span class="seriesInfo">RFC 4291</span>, <span class="seriesInfo">DOI 10.17487/RFC4291</span>, <time datetime="2006-02" class="refDate">February 2006</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc4291">https://www.rfc-editor.org/rfc/rfc4291</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC5952">[RFC5952]</dt>
+        <dd>
+<span class="refAuthor">Kawamura, S.</span> and <span class="refAuthor">M. Kawashima</span>, <span class="refTitle">"A Recommendation for IPv6 Address Text Representation"</span>, <span class="seriesInfo">RFC 5952</span>, <span class="seriesInfo">DOI 10.17487/RFC5952</span>, <time datetime="2010-08" class="refDate">August 2010</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc5952">https://www.rfc-editor.org/rfc/rfc5952</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC6749">[RFC6749]</dt>
+        <dd>
+<span class="refAuthor">Hardt, D., Ed.</span>, <span class="refTitle">"The OAuth 2.0 Authorization Framework"</span>, <span class="seriesInfo">RFC 6749</span>, <span class="seriesInfo">DOI 10.17487/RFC6749</span>, <time datetime="2012-10" class="refDate">October 2012</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc6749">https://www.rfc-editor.org/rfc/rfc6749</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC6890">[RFC6890]</dt>
+        <dd>
+<span class="refAuthor">Cotton, M.</span>, <span class="refAuthor">Vegoda, L.</span>, <span class="refAuthor">Bonica, R., Ed.</span>, and <span class="refAuthor">B. Haberman</span>, <span class="refTitle">"Special-Purpose IP Address Registries"</span>, <span class="seriesInfo">BCP 153</span>, <span class="seriesInfo">RFC 6890</span>, <span class="seriesInfo">DOI 10.17487/RFC6890</span>, <time datetime="2013-04" class="refDate">April 2013</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc6890">https://www.rfc-editor.org/rfc/rfc6890</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC7591">[RFC7591]</dt>
+        <dd>
+<span class="refAuthor">Richer, J., Ed.</span>, <span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Bradley, J.</span>, <span class="refAuthor">Machulak, M.</span>, and <span class="refAuthor">P. Hunt</span>, <span class="refTitle">"OAuth 2.0 Dynamic Client Registration Protocol"</span>, <span class="seriesInfo">RFC 7591</span>, <span class="seriesInfo">DOI 10.17487/RFC7591</span>, <time datetime="2015-07" class="refDate">July 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7591">https://www.rfc-editor.org/rfc/rfc7591</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8190">[RFC8190]</dt>
+        <dd>
+<span class="refAuthor">Bonica, R.</span>, <span class="refAuthor">Cotton, M.</span>, <span class="refAuthor">Haberman, B.</span>, and <span class="refAuthor">L. Vegoda</span>, <span class="refTitle">"Updates to the Special-Purpose IP Address Registries"</span>, <span class="seriesInfo">BCP 153</span>, <span class="seriesInfo">RFC 8190</span>, <span class="seriesInfo">DOI 10.17487/RFC8190</span>, <time datetime="2017-06" class="refDate">June 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8190">https://www.rfc-editor.org/rfc/rfc8190</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8259">[RFC8259]</dt>
+        <dd>
+<span class="refAuthor">Bray, T., Ed.</span>, <span class="refTitle">"The JavaScript Object Notation (JSON) Data Interchange Format"</span>, <span class="seriesInfo">STD 90</span>, <span class="seriesInfo">RFC 8259</span>, <span class="seriesInfo">DOI 10.17487/RFC8259</span>, <time datetime="2017-12" class="refDate">December 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8259">https://www.rfc-editor.org/rfc/rfc8259</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC9110">[RFC9110]</dt>
+        <dd>
+<span class="refAuthor">Fielding, R., Ed.</span>, <span class="refAuthor">Nottingham, M., Ed.</span>, and <span class="refAuthor">J. Reschke, Ed.</span>, <span class="refTitle">"HTTP Semantics"</span>, <span class="seriesInfo">STD 97</span>, <span class="seriesInfo">RFC 9110</span>, <span class="seriesInfo">DOI 10.17487/RFC9110</span>, <time datetime="2022-06" class="refDate">June 2022</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9110">https://www.rfc-editor.org/rfc/rfc9110</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC9111">[RFC9111]</dt>
+        <dd>
+<span class="refAuthor">Fielding, R., Ed.</span>, <span class="refAuthor">Nottingham, M., Ed.</span>, and <span class="refAuthor">J. Reschke, Ed.</span>, <span class="refTitle">"HTTP Caching"</span>, <span class="seriesInfo">STD 98</span>, <span class="seriesInfo">RFC 9111</span>, <span class="seriesInfo">DOI 10.17487/RFC9111</span>, <time datetime="2022-06" class="refDate">June 2022</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9111">https://www.rfc-editor.org/rfc/rfc9111</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC9911">[RFC9911]</dt>
+      <dd>
+<span class="refAuthor">Schönwälder, J., Ed.</span>, <span class="refTitle">"Common YANG Data Types"</span>, <span class="seriesInfo">RFC 9911</span>, <span class="seriesInfo">DOI 10.17487/RFC9911</span>, <time datetime="2025-12" class="refDate">December 2025</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9911">https://www.rfc-editor.org/rfc/rfc9911</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+</div>
+<div id="sec-informative-references">
+<section id="section-10.2">
+        <h3 id="name-informative-references">
+<a href="#section-10.2" class="section-number selfRef">10.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
+        </h3>
+<dl class="references">
+<dt id="CIMD">[CIMD]</dt>
+        <dd>
+<span class="refAuthor">Parecki, A.</span> and <span class="refAuthor">E. Smith</span>, <span class="refTitle">"OAuth Client ID Metadata Document"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-oauth-client-id-metadata-document-02</span>, <time datetime="2026-07-06" class="refDate">6 July 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-client-id-metadata-document-02">https://datatracker.ietf.org/doc/html/draft-ietf-oauth-client-id-metadata-document-02</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="JAFAR">[JAFAR]</dt>
+        <dd>
+<span class="refAuthor">Illyes, G.</span>, <span class="refTitle">"A JSON-Based Format for Publishing IP Ranges of Automated HTTP Clients"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-illyes-webbotauth-jafar-01</span>, <time datetime="2026-10-22" class="refDate">22 October 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-illyes-webbotauth-jafar-01">https://datatracker.ietf.org/doc/html/draft-illyes-webbotauth-jafar-01</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC7239">[RFC7239]</dt>
+        <dd>
+<span class="refAuthor">Petersson, A.</span> and <span class="refAuthor">M. Nilsson</span>, <span class="refTitle">"Forwarded HTTP Extension"</span>, <span class="seriesInfo">RFC 7239</span>, <span class="seriesInfo">DOI 10.17487/RFC7239</span>, <time datetime="2014-06" class="refDate">June 2014</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7239">https://www.rfc-editor.org/rfc/rfc7239</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC7592">[RFC7592]</dt>
+        <dd>
+<span class="refAuthor">Richer, J., Ed.</span>, <span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Bradley, J.</span>, and <span class="refAuthor">M. Machulak</span>, <span class="refTitle">"OAuth 2.0 Dynamic Client Registration Management Protocol"</span>, <span class="seriesInfo">RFC 7592</span>, <span class="seriesInfo">DOI 10.17487/RFC7592</span>, <time datetime="2015-07" class="refDate">July 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7592">https://www.rfc-editor.org/rfc/rfc7592</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8628">[RFC8628]</dt>
+        <dd>
+<span class="refAuthor">Denniss, W.</span>, <span class="refAuthor">Bradley, J.</span>, <span class="refAuthor">Jones, M.</span>, and <span class="refAuthor">H. Tschofenig</span>, <span class="refTitle">"OAuth 2.0 Device Authorization Grant"</span>, <span class="seriesInfo">RFC 8628</span>, <span class="seriesInfo">DOI 10.17487/RFC8628</span>, <time datetime="2019-08" class="refDate">August 2019</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8628">https://www.rfc-editor.org/rfc/rfc8628</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="SSF">[SSF]</dt>
+      <dd>
+<span class="refAuthor">Tulshibagwale, A.</span>, <span class="refAuthor">Cappalli, T.</span>, <span class="refAuthor">Scurtescu, M.</span>, <span class="refAuthor">Backman, A.</span>, <span class="refAuthor">Bradley, J.</span>, and <span class="refAuthor">S. Miel</span>, <span class="refTitle">"OpenID Shared Signals Framework Specification 1.0"</span>, <time datetime="2025-08-29" class="refDate">29 August 2025</time>, <span>&lt;<a href="https://openid.net/specs/openid-sharedsignals-framework-1_0-final.html">https://openid.net/specs/openid-sharedsignals-framework-1_0-final.html</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+</div>
+</section>
+</div>
+<div id="examples">
+<section id="appendix-A">
+      <h2 id="name-examples">
+<a href="#appendix-A" class="section-number selfRef">Appendix A. </a><a href="#name-examples" class="section-name selfRef">Examples</a>
+      </h2>
+<div id="dynamic-client-registration-by-value">
+<section id="appendix-A.1">
+        <h3 id="name-dynamic-client-registration">
+<a href="#appendix-A.1" class="section-number selfRef">A.1. </a><a href="#name-dynamic-client-registration" class="section-name selfRef">Dynamic Client Registration by Value</a>
+        </h3>
+<p id="appendix-A.1-1">The following is a non-normative example of a client registration
+request (<span><a href="https://rfc-editor.org/rfc/rfc7591#section-3.1" class="relref">Section 3.1</a> of [<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>) that declares an IP range set by
+value:<a href="#appendix-A.1-1" class="pilcrow">¶</a></p>
+<div class="lang-http-message sourcecode" id="appendix-A.1-2">
+<pre>
+POST /register HTTP/1.1
+Host: server.example.com
+Content-Type: application/json
+
+{
+  "client_name": "Example Client",
+  "grant_types": ["client_credentials"],
+  "token_endpoint_auth_method": "private_key_jwt",
+  "jwks_uri": "https://client.example.com/jwks.json",
+  "client_ip_ranges": [
+    "192.0.2.0/24",
+    "2001:db8:100::/48"
+  ]
+}
+</pre><a href="#appendix-A.1-2" class="pilcrow">¶</a>
+</div>
+</section>
+</div>
+<div id="client-id-metadata-document-by-reference">
+<section id="appendix-A.2">
+        <h3 id="name-client-id-metadata-document">
+<a href="#appendix-A.2" class="section-number selfRef">A.2. </a><a href="#name-client-id-metadata-document" class="section-name selfRef">Client ID Metadata Document by Reference</a>
+        </h3>
+<p id="appendix-A.2-1">The following is a non-normative example of a Client ID Metadata
+Document <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> that declares an IP range set by reference:<a href="#appendix-A.2-1" class="pilcrow">¶</a></p>
+<div class="lang-json sourcecode" id="appendix-A.2-2">
+<pre>
+{
+  "client_id": "https://client.example.com/oauth/client.json",
+  "client_name": "Example Client",
+  "redirect_uris": ["https://client.example.com/callback"],
+  "token_endpoint_auth_method": "private_key_jwt",
+  "jwks_uri": "https://client.example.com/jwks.json",
+  "client_ip_ranges_uri": "https://client.example.com/ip-ranges.json"
+}
+</pre><a href="#appendix-A.2-2" class="pilcrow">¶</a>
+</div>
+</section>
+</div>
+<div id="document-retrieval">
+<section id="appendix-A.3">
+        <h3 id="name-document-retrieval">
+<a href="#appendix-A.3" class="section-number selfRef">A.3. </a><a href="#name-document-retrieval" class="section-name selfRef">Document Retrieval</a>
+        </h3>
+<p id="appendix-A.3-1">The following is a non-normative example of a request for the Client IP
+Range Document referenced above:<a href="#appendix-A.3-1" class="pilcrow">¶</a></p>
+<div class="lang-http-message sourcecode" id="appendix-A.3-2">
+<pre>
+GET /ip-ranges.json HTTP/1.1
+Host: client.example.com
+Accept: application/json
+Accept-Encoding: gzip
+</pre><a href="#appendix-A.3-2" class="pilcrow">¶</a>
+</div>
+<p id="appendix-A.3-3">The following is a non-normative example of a successful response:<a href="#appendix-A.3-3" class="pilcrow">¶</a></p>
+<div class="lang-http-message sourcecode" id="appendix-A.3-4">
+<pre>
+HTTP/1.1 200 OK
+Content-Type: application/json
+Cache-Control: public, max-age=3600
+ETag: "ranges-v42"
+
+{
+  "client_ip_ranges": [
+    "192.0.2.0/24",
+    "198.51.100.0/24",
+    "2001:db8:100::/48"
+  ]
+}
+</pre><a href="#appendix-A.3-4" class="pilcrow">¶</a>
+</div>
+<p id="appendix-A.3-5">The following non-normative example shows a later conditional request
+and a response indicating that the document is unchanged:<a href="#appendix-A.3-5" class="pilcrow">¶</a></p>
+<div class="lang-http-message sourcecode" id="appendix-A.3-6">
+<pre>
+GET /ip-ranges.json HTTP/1.1
+Host: client.example.com
+Accept: application/json
+If-None-Match: "ranges-v42"
+</pre><a href="#appendix-A.3-6" class="pilcrow">¶</a>
+</div>
+<div class="lang-http-message sourcecode" id="appendix-A.3-7">
+<pre>
+HTTP/1.1 304 Not Modified
+Cache-Control: public, max-age=3600
+ETag: "ranges-v42"
+</pre><a href="#appendix-A.3-7" class="pilcrow">¶</a>
+</div>
+</section>
+</div>
+</section>
+</div>
+<div id="related-work">
+<section id="appendix-B">
+      <h2 id="name-related-work">
+<a href="#appendix-B" class="section-number selfRef">Appendix B. </a><a href="#name-related-work" class="section-name selfRef">Related Work</a>
+      </h2>
+<p id="appendix-B-1"><span>[<a href="#JAFAR" class="cite xref">JAFAR</a>]</span> defines a format for publishing the IP address ranges of
+automated HTTP clients. Its prefixes are objects with separate IPv4 and
+IPv6 members and optional service identifiers, the document carries a
+creation time, and a prefix object that has both or neither address
+member is ignored. This specification instead reuses the
+<code>client_ip_ranges</code> array, rejects the whole set when any prefix is
+invalid (<a href="#acceptance" class="auto internal xref">Section 4.3</a>), and relies on client metadata to associate the
+set with a client.<a href="#appendix-B-1" class="pilcrow">¶</a></p>
+<p id="appendix-B-2">Clients can announce planned changes to their IP range sets through
+a separately specified notification mechanism, such as event types
+delivered using the Shared Signals Framework <span>[<a href="#SSF" class="cite xref">SSF</a>]</span>. This specification
+does not define advance announcement events or scheduled activation of
+ranges.<a href="#appendix-B-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="open-issues">
+<section id="appendix-C">
+      <h2 id="name-open-issues">
+<a href="#appendix-C" class="section-number selfRef">Appendix C. </a><a href="#name-open-issues" class="section-name selfRef">Open Issues</a>
+      </h2>
+<ol start="1" type="1" class="normal type-1" id="appendix-C-1">
+<li id="appendix-C-1.1">
+          <p id="appendix-C-1.1.1">Which error response indicates that an authorization server rejected
+a request under a client's source address policy? The
+<code>invalid_client</code> error code signals failed client authentication
+(<span><a href="https://rfc-editor.org/rfc/rfc6749#section-5.2" class="relref">Section 5.2</a> of [<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>) and could prompt credential rotation.<a href="#appendix-C-1.1.1" class="pilcrow">¶</a></p>
+</li>
+      </ol>
+</section>
+</div>
+<div id="history">
+<section id="appendix-D">
+      <h2 id="name-document-history">
+<a href="#appendix-D" class="section-number selfRef">Appendix D. </a><a href="#name-document-history" class="section-name selfRef">Document History</a>
+      </h2>
+<p id="appendix-D-1">-00<a href="#appendix-D-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="appendix-D-2.1">
+          <p id="appendix-D-2.1.1">Initial version.<a href="#appendix-D-2.1.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+</section>
+</div>
+<div id="authors-addresses">
+<section id="appendix-E">
+      <h2 id="name-authors-addresses">
+<a href="#name-authors-addresses" class="section-name selfRef">Authors' Addresses</a>
+      </h2>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Karl McGuinness</span></div>
+<div dir="auto" class="left"><span class="org">Independent</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:public@karlmcguinness.com" class="email">public@karlmcguinness.com</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Xiaoyi Zhang</span></div>
+<div dir="auto" class="left"><span class="org">Databricks</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:xiaoyi.zhang@databricks.com" class="email">xiaoyi.zhang@databricks.com</a>
+</div>
+</address>
+</section>
+</div>
+<script>const toc = document.getElementById("toc");
+toc.querySelector("h2").addEventListener("click", e => {
+  toc.classList.toggle("active");
+});
+toc.querySelector("nav").addEventListener("click", e => {
+  toc.classList.remove("active");
+});
+</script>
+</body>
+</html>
