@@ -363,7 +363,7 @@ removal, which the authorization server can ignore. The client
 information response ({{Section 3 of RFC7592}}) shows whether they were
 removed.
 
-## Continued Use of the Accepted IP Range Set {#continued-use}
+## Continued Use {#continued-use}
 
 ### Failures {#failures}
 
