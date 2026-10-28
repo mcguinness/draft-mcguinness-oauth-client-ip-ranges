@@ -366,10 +366,14 @@ Table of Contents
 
    Consumers SHOULD revalidate the document with a conditional GET
    request carrying the If-None-Match header field (Section 13.1.2 of
-   [RFC9110]) and the entity tag of the most recent response retrieved
-   from that URI.  A 304 (Not Modified) response (Section 15.4.5 of
-   [RFC9110]) indicates that the document is unchanged since that
-   response.  A consumer that uses an HTTP cache follows [RFC9111].
+   [RFC9110]) and the entity tag of the most recent complete response
+   from that URI that the consumer has retained (Section 4.3 of
+   [RFC9111]).  That response can hold an IP range set that awaits
+   approval; it need not be the one from which the accepted IP range set
+   was obtained.  A consumer that has retained no complete response
+   sends an unconditional request.  A 304 (Not Modified) response
+   (Section 15.4.5 of [RFC9110]) indicates that the retained response is
+   current.  A consumer that uses an HTTP cache follows [RFC9111].
 
    HTTP caching applies only to retrieving the document.  The accepted
    IP range set is application state, distinct from any HTTP cache
@@ -448,14 +452,13 @@ Table of Contents
    before the withdrawal.  Whether to relax enforcement after a
    withdrawal is local policy.
 
-   A consumer can require an accepted IP range set for a client.  When
-   such a consumer has no accepted IP range set for the client, because
-   the client has made no declaration, its declaration is invalid or
-   cannot be retrieved, or a validated IP range set awaits approval, the
-   consumer MUST NOT admit the client's requests without regard to their
-   source address.  For a consumer that does not require one, what
-   applies when no IP range set has been accepted for the client is
-   local policy.
+   A consumer can require an accepted IP range set for a client.  Such a
+   consumer MUST reject requests from the client while it has no
+   accepted IP range set for the client, whether because the client has
+   made no declaration, its declaration is invalid or cannot be
+   retrieved, or a validated IP range set awaits approval.  For a
+   consumer that does not require one, what applies when no IP range set
+   has been accepted for the client is local policy.
 
 5.  Use of Client IP Range Metadata
 

@@ -1597,10 +1597,13 @@ the <code>Cache-Control</code> (<span><a href="https://rfc-editor.org/rfc/rfc911
 <p id="section-4.2-2">Consumers <span class="bcp14">SHOULD</span> revalidate the document with a conditional GET request
 carrying the <code>If-None-Match</code> header field
 (<span><a href="https://rfc-editor.org/rfc/rfc9110#section-13.1.2" class="relref">Section 13.1.2</a> of [<a href="#RFC9110" class="cite xref">RFC9110</a>]</span>) and the entity tag of the most recent
-response retrieved from that URI. A 304 (Not Modified) response
-(<span><a href="https://rfc-editor.org/rfc/rfc9110#section-15.4.5" class="relref">Section 15.4.5</a> of [<a href="#RFC9110" class="cite xref">RFC9110</a>]</span>) indicates that the document is
-unchanged since that response. A consumer that uses an HTTP cache
-follows <span>[<a href="#RFC9111" class="cite xref">RFC9111</a>]</span>.<a href="#section-4.2-2" class="pilcrow">¶</a></p>
+complete response from that URI that the consumer has retained
+(<span><a href="https://rfc-editor.org/rfc/rfc9111#section-4.3" class="relref">Section 4.3</a> of [<a href="#RFC9111" class="cite xref">RFC9111</a>]</span>). That response can hold an IP range set
+that awaits approval; it need not be the one from which the accepted IP
+range set was obtained. A consumer that has retained no complete
+response sends an unconditional request. A 304 (Not Modified) response
+(<span><a href="https://rfc-editor.org/rfc/rfc9110#section-15.4.5" class="relref">Section 15.4.5</a> of [<a href="#RFC9110" class="cite xref">RFC9110</a>]</span>) indicates that the retained response is
+current. A consumer that uses an HTTP cache follows <span>[<a href="#RFC9111" class="cite xref">RFC9111</a>]</span>.<a href="#section-4.2-2" class="pilcrow">¶</a></p>
 <p id="section-4.2-3">HTTP caching applies only to retrieving the document. The accepted IP
 range set is application state, distinct from any HTTP cache
 (<span><a href="https://rfc-editor.org/rfc/rfc9111#section-6" class="relref">Section 6</a> of [<a href="#RFC9111" class="cite xref">RFC9111</a>]</span>). A fresh response does not make its IP range
@@ -1682,13 +1685,13 @@ can narrow, but not widen, the source addresses admitted for the client.<a href=
 itself cause a consumer to admit a source address that it did not admit
 before the withdrawal. Whether to relax enforcement after a withdrawal
 is local policy.<a href="#section-4.5-3" class="pilcrow">¶</a></p>
-<p id="section-4.5-4">A consumer can require an accepted IP range set for a client. When such
-a consumer has no accepted IP range set for the client, because the
-client has made no declaration, its declaration is invalid or cannot be
-retrieved, or a validated IP range set awaits approval, the consumer
-<span class="bcp14">MUST NOT</span> admit the client's requests without regard to their source
-address. For a consumer that does not require one, what applies when no
-IP range set has been accepted for the client is local policy.<a href="#section-4.5-4" class="pilcrow">¶</a></p>
+<p id="section-4.5-4">A consumer can require an accepted IP range set for a client. Such a
+consumer <span class="bcp14">MUST</span> reject requests from the client while it has no accepted
+IP range set for the client, whether because the client has made no
+declaration, its declaration is invalid or cannot be retrieved, or a
+validated IP range set awaits approval. For a consumer that does not
+require one, what applies when no IP range set has been accepted for
+the client is local policy.<a href="#section-4.5-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
