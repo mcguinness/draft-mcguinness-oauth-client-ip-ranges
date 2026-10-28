@@ -41,6 +41,7 @@ normative:
   RFC5952:
   RFC6749:
   RFC6890:
+  RFC8190:
   RFC7591:
   RFC8259:
   RFC9110:
@@ -257,7 +258,8 @@ The following rules apply to the document:
 * The document MUST be served with the `application/json` media type.
 * Consumers MUST ignore members they do not understand.
 * A document whose top-level object contains duplicate member names is
-  invalid ({{Section 4 of RFC8259}}).
+  invalid. Section 4 of {{RFC8259}} notes that receivers handle such
+  objects unpredictably.
 * The document is self-contained. Consumers MUST NOT retrieve other
   resources to complete it.
 
@@ -559,11 +561,14 @@ forgery vector. When retrieving a Client IP Range Document, consumers:
 1. MUST NOT retrieve a URL that does not meet the requirements of
    {{client-ip-ranges-uri}}.
 2. MUST verify the server certificate as described in
-   {{Section 4.3.4 of RFC9110}}.
+   {{Section 4.3.4 of RFC9110}} and MUST NOT accept a document retrieved
+   over a connection that fails this verification, strengthening the
+   requirement of that section for automated clients.
 3. MUST NOT automatically follow HTTP redirects
    ({{Section 15.4 of RFC9110}}).
 4. MUST NOT connect to an address that the IANA special-purpose address
-   registries {{RFC6890}} list as not globally reachable, unless local
+   registries ({{RFC6890}}, {{RFC8190}}) list as not globally reachable,
+   unless local
    policy explicitly permits that destination. This check applies to the
    address of each connection after DNS resolution. A consumer that
    retrieves through a configured forward proxy relies on the proxy to
