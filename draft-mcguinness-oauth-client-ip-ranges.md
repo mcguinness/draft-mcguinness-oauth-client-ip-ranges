@@ -283,10 +283,14 @@ The following is an example of a Client IP Range Document:
 
 A consumer retrieves a Client IP Range Document by sending an HTTP GET
 request to the `client_ip_ranges_uri` URL, subject to {{ssrf}}. A
-successful response has status code 200 (OK) and contains the complete
-document. In response to a conditional request ({{caching}}), a 304 (Not
-Modified) response ({{Section 15.4.5 of RFC9110}}) is also successful
-and indicates that the retained response is current.
+response is successful if it either:
+
+* has status code 200 (OK), the `application/json` media type, and a
+  complete body within the consumer's bounds ({{resource-exhaustion}});
+  or
+* has status code 304 (Not Modified) ({{Section 15.4.5 of RFC9110}}) in
+  response to a conditional request ({{caching}}), which indicates that
+  the retained response is current.
 
 Publishers MUST NOT require authentication to retrieve a Client IP Range
 Document unless the publisher and consumer have agreed on an
@@ -295,8 +299,7 @@ specification. Consumers MUST NOT send credentials associated with an
 OAuth request, such as client credentials, access tokens, or
 authorization codes, when retrieving a Client IP Range Document.
 
-A failed retrieval, a malformed response, or a document that is
-incomplete or exceeds the consumer's bounds ({{resource-exhaustion}})
+A failed retrieval, an unsuccessful response, or an invalid document
 MUST NOT be treated as an empty IP range set; it is a failure
 ({{retrieval-failures}}).
 
@@ -331,7 +334,8 @@ prefix, before accepting it, whether the set is conveyed by
 `client_ip_ranges` or in a Client IP Range Document, and MUST reject the
 entire set if any part of it is invalid. For a set obtained from a
 Client IP Range Document, the consumer MUST also validate the response
-and the complete document ({{document}}) before accepting the set, and
+({{fetch}}) and the complete document ({{document}}) before accepting
+the set, and
 MUST reject the entire document if either is invalid. Acceptance is also
 subject to local policy ({{range-changes}}).
 
