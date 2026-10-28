@@ -330,10 +330,13 @@ the `Cache-Control` ({{Section 5.2 of RFC9111}}) and `ETag`
 Consumers SHOULD revalidate the document with a conditional GET request
 carrying the `If-None-Match` header field
 ({{Section 13.1.2 of RFC9110}}) and the entity tag of the most recent
-response retrieved from that URI. A 304 (Not Modified) response
-({{Section 15.4.5 of RFC9110}}) indicates that the document is
-unchanged since that response. A consumer that uses an HTTP cache
-follows {{RFC9111}}.
+complete response from that URI that the consumer has retained
+({{Section 4.3 of RFC9111}}). That response can hold an IP range set
+that awaits approval; it need not be the one from which the accepted IP
+range set was obtained. A consumer that has retained no complete
+response sends an unconditional request. A 304 (Not Modified) response
+({{Section 15.4.5 of RFC9110}}) indicates that the retained response is
+current. A consumer that uses an HTTP cache follows {{RFC9111}}.
 
 HTTP caching applies only to retrieving the document. The accepted IP
 range set is application state, distinct from any HTTP cache
