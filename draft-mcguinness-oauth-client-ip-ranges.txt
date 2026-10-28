@@ -287,10 +287,9 @@ Table of Contents
    and the authorization server MUST NOT retrieve other resources to
    complete it.
 
-   All prefixes in the document apply equally to each client whose
-   metadata references it.  Multiple clients can reference the same
-   document, and the document can be hosted by a party other than the
-   client, such as its hosting provider.
+   Multiple clients can reference the same document; all its prefixes
+   apply equally to each such client.  The document can be hosted by a
+   party other than the client, such as its hosting provider.
 
    The following is a non-normative example of a Client IP Range
    Document:
@@ -380,12 +379,9 @@ Table of Contents
 
    If an authorization server requires an accepted IP range set for a
    client, it MUST reject requests from the client while it has no
-   accepted IP range set for the client, whether because the client has
-   made no declaration, because its declaration is invalid or cannot be
-   retrieved (Section 4.5.1), or because a validated IP range set has
-   not yet been accepted under local policy.  Otherwise, what applies
-   while a client has no accepted IP range set is local policy, except
-   after the retention limit (Section 4.5.3) is exceeded.
+   accepted IP range set for the client.  Otherwise, what applies while
+   a client has no accepted IP range set is local policy, subject to
+   Section 4.5.3.
 
 4.4.  Changes to Client Metadata
 
@@ -427,12 +423,19 @@ Table of Contents
 4.5.3.  Retention Limit
 
    An authorization server SHOULD set a retention limit on how long it
-   continues to use an accepted IP range set while retrieval or
-   validation of the client's current declaration fails, after the
-   client withdraws its declaration, and while a validated replacement
-   has not been accepted under local policy (Section 7.2).  When the
-   retention limit is exceeded, the authorization server stops using the
-   set and has no accepted IP range set for the client.  An
+   continues to use an accepted IP range set in any of the following
+   cases (Section 7.2):
+
+   *  while retrieval or validation of the client's current declaration
+      fails;
+
+   *  after the client withdraws its declaration; or
+
+   *  while a validated replacement has not been accepted under local
+      policy.
+
+   When the retention limit is exceeded, the authorization server stops
+   using the set and has no accepted IP range set for the client.  An
    authorization server that was enforcing the set rejects requests from
    the client until it accepts a new IP range set or an explicit local
    policy decision removes the client from enforcement.
@@ -492,24 +495,17 @@ Table of Contents
    authorization server can enforce each client's IP range set once it
    has identified the client (Section 5.1).
 
-   For example, an enterprise administrator approves a hosted client for
-   use with the enterprise's authorization server and reviews the IP
-   range set in its metadata.  The enterprise adds the approved ranges
-   to the network allowlist in front of its token endpoint, and the
-   authorization server rejects token requests from that client that
-   originate outside them.  When the client's IP range set later
-   changes, local policy determines whether the change is applied
-   automatically, such as an addition within an approved scope, or is
-   held for administrator approval (Section 7.2).
+   For example, an enterprise adds a hosted client's approved ranges to
+   the network allowlist in front of its token endpoint, and the
+   authorization server also enforces the client's accepted IP range
+   set.  Local policy determines whether later changes are accepted
+   automatically or require administrator approval (Section 7.2).
 
-   When an authorization server enforces a client's accepted IP range
-   set, requests from source addresses outside that set are rejected
-   until the authorization server accepts a replacement that includes
-   them.  Deployments that require an accepted IP range set need an
-   administrative path to restore access, such as approving a
-   replacement set.  Enforcing a client's IP range set at the client
-   configuration endpoint (Section 2 of [RFC7592]) can prevent the
-   client from correcting a declaration made by value.
+   Deployments that require an accepted IP range set need an
+   administrative recovery path for a client whose source addresses move
+   outside that set, such as approving a replacement set.  Enforcement
+   at the client configuration endpoint (Section 2 of [RFC7592]) can
+   prevent the client from updating a declaration made by value.
 
 6.2.  Retrieval Scheduling
 
@@ -533,9 +529,8 @@ Table of Contents
    range set does not fit within such a limit can use
    client_ip_ranges_uri.  An authorization server sets its bounds on
    Client IP Range Documents (Section 7.4) independently of bounds on
-   client metadata, because such documents are expected to be larger.
-   The gzip content coding (Section 8.4.1.3 of [RFC9110]) can reduce the
-   transfer size of large documents.
+   client metadata.  The gzip content coding (Section 8.4.1.3 of
+   [RFC9110]) can reduce the transfer size of large documents.
 
 7.  Security Considerations
 
@@ -557,9 +552,11 @@ Table of Contents
    prefixes; for client_ip_ranges_uri, the URL but not the referenced
    document.  The party hosting the document asserts its contents, and
    accepting them automatically is a separate decision to trust that
-   party within an approved scope (Section 7.2).  An authorization
-   server can require that client_ip_ranges_uri share an origin with the
-   client identifier URL of a Client ID Metadata Document [CIMD].
+   party within an approved scope (Section 7.2).
+
+   An authorization server can require that client_ip_ranges_uri share
+   an origin with the client identifier URL of a Client ID Metadata
+   Document [CIMD].
 
 7.2.  Changes to Declared Ranges
 
