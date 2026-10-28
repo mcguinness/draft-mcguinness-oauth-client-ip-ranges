@@ -383,23 +383,33 @@ document cannot be retrieved, the consumer handles this as a failure
 URI again for that client or reuse its cached responses or validators
 ({{Section 2 of RFC9111}}).
 
-Removal of both parameters withdraws the client's declaration. In a
-client update request ({{Section 2.2 of RFC7592}}), omitted metadata
-fields are treated as a request to delete them, so an update that omits
-both parameters withdraws the declaration.
-Withdrawal MUST NOT by itself cause a consumer to admit a source address
-that it did not admit before the withdrawal. Whether to relax
-enforcement after a withdrawal is local policy.
+Removal of both parameters withdraws the client's declaration; the
+effect of a withdrawal on enforcement is limited as described in
+{{retrieval-failures}}. In a client update request
+({{Section 2.2 of RFC7592}}), omitted metadata fields are treated as a
+request to delete them, so an update that omits both parameters
+withdraws the declaration.
 
-## Retrieval Failures {#retrieval-failures}
+## Failures and Withdrawal {#retrieval-failures}
 
-A retrieval or validation failure MUST NOT cause a consumer to admit a
-source address that it did not admit before the failure.
+A failure to retrieve a Client IP Range Document, or to validate client
+IP range metadata or a retrieved document, MUST NOT cause a consumer to
+admit a source address that it did not admit before the failure. The
+consumer MAY continue to use the accepted IP range set, subject to local
+freshness and security policy.
 
-The consumer MAY continue to use the accepted IP range set, subject to
-local freshness and security policy. How long an accepted IP range set
-remains usable, and what applies when no IP range set has been accepted
-for the client, is local policy.
+Withdrawal of a client's declaration ({{metadata-changes}}) MUST NOT by
+itself cause a consumer to admit a source address that it did not admit
+before the withdrawal. Whether to relax enforcement after a withdrawal
+is local policy.
+
+A consumer can require an accepted IP range set for a client. When such
+a consumer has no accepted IP range set for the client, because the
+client has made no declaration, its declaration is invalid or cannot be
+retrieved, or a validated IP range set awaits approval, the consumer
+MUST NOT admit the client's requests without regard to their source
+address. For a consumer that does not require one, what applies when no
+IP range set has been accepted for the client is local policy.
 
 # Use of Client IP Range Metadata {#use}
 
