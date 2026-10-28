@@ -153,12 +153,6 @@ accepted IP range set:
   stops using an IP range set no longer has an accepted IP range set for
   the client.
 
-publisher:
-: An entity that publishes a client's IP range set, either by value in
-  client metadata or in a Client IP Range Document. The publisher of a
-  Client IP Range Document can differ from the entity that provides the
-  client metadata referencing it.
-
 # Client IP Range Metadata {#metadata}
 
 The following client metadata parameters convey a client's IP range
@@ -197,8 +191,8 @@ Each prefix MUST conform to the `ip-prefix` type defined in
 the `ipv4-prefix` or the `ipv6-prefix` type. A value that does not
 conform to the `ip-prefix` type is invalid. In addition:
 
-* Publishers MUST use the canonical format of that type: all bits
-  outside the prefix length set to zero and, for IPv6, the address
+* Prefixes MUST be represented in the canonical format of that type: all
+  bits outside the prefix length set to zero and, for IPv6, the address
   represented as defined in {{Section 4 of RFC5952}}.
 * A value that is not in canonical format is valid and denotes the
   prefix given by its network address and prefix length
@@ -267,9 +261,10 @@ The following rules apply to the document:
 * The document is self-contained. Authorization servers MUST NOT
   retrieve other resources to complete it.
 
-All prefixes in the document apply equally to each client whose
-metadata references it. Multiple clients can reference the same
-document.
+All prefixes in the document apply equally to each client whose metadata
+references it. Multiple clients can reference the same document, and the
+document can be hosted by a party other than the client, such as its
+hosting provider.
 
 The following is an example of a Client IP Range Document:
 
@@ -299,10 +294,10 @@ an HTTP GET request to the `client_ip_ranges_uri` URL, subject to
   and answers a conditional request ({{retrieval-scheduling}}). Such a
   response indicates that the retained response is current.
 
-Publishers MUST NOT require authentication to retrieve a Client IP Range
-Document unless the publisher and authorization server have agreed on an
-authentication mechanism, which is outside the scope of this
-specification. Authorization servers MUST NOT send credentials
+Retrieving a Client IP Range Document MUST NOT require authentication
+unless the party hosting the document and the authorization server have
+agreed on an authentication mechanism, which is outside the scope of
+this specification. Authorization servers MUST NOT send credentials
 associated with an OAuth request, such as client credentials, access
 tokens, or authorization codes, when retrieving a Client IP Range
 Document.
@@ -313,9 +308,10 @@ MUST NOT be treated as an empty IP range set; it is a failure
 
 ## Caching {#caching}
 
-Publishers SHOULD support HTTP caching {{RFC9111}} and SHOULD include
-the `Cache-Control` ({{Section 5.2 of RFC9111}}) and `ETag`
-({{Section 8.8.3 of RFC9110}}) response header fields.
+The server hosting a Client IP Range Document SHOULD support HTTP
+caching {{RFC9111}} and SHOULD include the `Cache-Control`
+({{Section 5.2 of RFC9111}}) and `ETag` ({{Section 8.8.3 of RFC9110}})
+response header fields.
 
 
 The accepted IP range set is application state, distinct from any HTTP
@@ -348,9 +344,9 @@ accepts a replacement, narrows it, or stops using it
 ({{range-changes}}). A validated IP range set that has not yet been
 accepted under local policy does not replace it.
 
-Publishers SHOULD publish a new prefix before the client originates
-requests from it and SHOULD continue to publish a prefix until the
-client no longer originates requests from it.
+A client SHOULD add a prefix to its IP range set before it originates
+requests from addresses in that prefix and SHOULD keep the prefix in the
+set until it no longer originates requests from them.
 
 ## Changes to Client Metadata {#metadata-changes}
 
@@ -437,11 +433,11 @@ admits requests from the client only from source addresses that match
 it; if that set is empty, it admits none.
 
 Authorization servers MAY use the IP range set as an input to local
-network access control. The IP range set is a declaration by its
-publisher, and a match does not authenticate the client or authorize a
-request. Authorization servers MUST NOT use a source address match in
-place of client authentication, access token validation, or any other
-security control required by OAuth.
+network access control. The IP range set is a declaration made by or on
+behalf of the client, and a match does not authenticate the client or
+authorize a request. Authorization servers MUST NOT use a source address
+match in place of client authentication, access token validation, or any
+other security control required by OAuth.
 
 Enforcement by resource servers, including how a resource server
 determines the client associated with a request and obtains that
@@ -486,10 +482,10 @@ use with the enterprise's authorization server and reviews the IP range
 set in its metadata. The enterprise adds the approved ranges to the
 network allowlist in front of its token endpoint, and the authorization
 server rejects token requests from that client that originate outside
-them. When the publisher later changes the set, local
-policy determines whether the change is applied automatically, such as
-an addition within an approved scope, or is held for administrator
-approval ({{range-changes}}).
+them. When the client's IP range set later changes, local policy
+determines whether the change is applied automatically, such as an
+addition within an approved scope, or is held for administrator approval
+({{range-changes}}).
 
 A client can be locked out if its egress addresses change before the
 authorization server accepts an updated declaration. Deployments that
@@ -506,8 +502,8 @@ an OAuth request; authorization servers can retrieve documents in the
 background. Authorization servers typically schedule the next retrieval
 when the retained response's freshness lifetime
 ({{Section 4.2 of RFC9111}}) ends, within local minimum and maximum
-intervals. Publishers allow for these intervals, and for approval
-delays, when publishing a new prefix ({{acceptance}}).
+intervals. Clients allow for these intervals, and for approval delays,
+when adding a prefix ({{acceptance}}).
 
 To revalidate, an authorization server sends a conditional GET request
 carrying the `If-None-Match` header field
@@ -525,10 +521,9 @@ most 5 kilobytes of a Client ID Metadata Document. A client whose IP
 range set does not fit within such a limit uses `client_ip_ranges_uri`.
 Authorization servers set their bounds on Client IP Range Documents
 ({{resource-exhaustion}}) independently of bounds on client metadata,
-because such documents are expected to be larger. Publishers and
-authorization servers can use the gzip content coding
-({{Section 8.4.1.3 of RFC9110}}) to reduce the transfer size of large
-documents.
+because such documents are expected to be larger. The gzip content
+coding ({{Section 8.4.1.3 of RFC9110}}) can reduce the transfer size of
+large documents.
 
 # Security Considerations {#security}
 
@@ -538,11 +533,11 @@ also apply.
 
 ## Trust in Declared Ranges {#trust}
 
-Client IP range metadata is a declaration by its publisher. Inclusion of
-a prefix does not establish that the client exclusively owns or controls
-the addresses it contains. Prefixes of shared infrastructure, such as
-cloud provider or carrier-grade NAT egress ranges, also carry traffic
-from other parties.
+Client IP range metadata is a declaration made by or on behalf of the
+client. Inclusion of a prefix does not establish that the client
+exclusively owns or controls the addresses it contains. Prefixes of
+shared infrastructure, such as cloud provider or carrier-grade NAT
+egress ranges, also carry traffic from other parties.
 
 Whether to use declared ranges in network access control is a local
 trust decision. A software statement ({{Section 2.3 of RFC7591}})
@@ -550,9 +545,9 @@ vouches only for the values it contains:
 
 * For `client_ip_ranges`, it vouches for the prefixes.
 * For `client_ip_ranges_uri`, it vouches for the URL, not the referenced
-  document. The document's publisher asserts its contents, and accepting
-  them automatically is a separate decision to trust that publisher
-  within an approved scope ({{range-changes}}).
+  document. The party hosting the document asserts its contents, and
+  accepting them automatically is a separate decision to trust that
+  party within an approved scope ({{range-changes}}).
 
 An authorization server can require that `client_ip_ranges_uri` share an
 origin with the client identifier URL of a Client ID Metadata Document
@@ -567,9 +562,9 @@ such changes:
 * Authorization servers MUST NOT treat publication of a new prefix as
   granting network access by itself.
 * Authorization servers MAY accept updates automatically when local
-  policy authorizes the publisher and the change falls within an
-  approved scope, such as prefixes contained in supernets that the
-  authorization server has configured for the client.
+  policy permits automatic updates for the client and the change falls
+  within an approved scope, such as prefixes contained in supernets that
+  the authorization server has configured for the client.
 * Authorization servers SHOULD apply changes atomically, so that no
   intermediate state admits a source address that neither the previous
   nor the new IP range set contains.
@@ -629,13 +624,14 @@ Metadata Document is also subject to {{Section 8.6 of CIMD}}.
 
 ## Resource Exhaustion {#resource-exhaustion}
 
-A malicious or compromised publisher can return an oversized document, a
-highly compressed response, or a large number of overlapping prefixes.
-Authorization servers MUST bound retrieval time, response size,
-decompressed size, and the number of prefixes in an IP range set,
-whether conveyed by value or in a document. If a document exceeds any
-bound, the authorization server MUST reject the entire document. This
-specification sets no minimum value for any of these bounds.
+A malicious or compromised server hosting a Client IP Range Document can
+return an oversized document, a highly compressed response, or a large
+number of overlapping prefixes. Authorization servers MUST bound
+retrieval time, response size, decompressed size, and the number of
+prefixes in an IP range set, whether conveyed by value or in a document.
+If a document exceeds any bound, the authorization server MUST reject
+the entire document. This specification sets no minimum value for any of
+these bounds.
 
 ## Source Address Interpretation {#source-address}
 
@@ -664,10 +660,10 @@ end users, but it can still disclose information:
   individual's network location.
 * A publicly retrievable Client IP Range Document discloses the client's
   egress infrastructure to any party.
-* Retrieval of `client_ip_ranges_uri` reveals to the publisher the
-  addresses and retrieval timing of authorization servers that evaluate
-  the client, which can indicate the authorization servers and resource
-  servers with which the client is used (see also
+* Retrieval of `client_ip_ranges_uri` reveals to the party hosting the
+  document the addresses and retrieval timing of authorization servers
+  that evaluate the client, which can indicate the authorization servers
+  and resource servers with which the client is used (see also
   {{Section 9.1 of CIMD}}).
 
 # IANA Considerations {#iana}
@@ -794,7 +790,7 @@ member is ignored. This specification uses a different model:
 * Client metadata associates the set with a client, so the document
   needs no service identifiers.
 
-Publishers can announce planned changes to their IP range sets through
+Clients can announce planned changes to their IP range sets through
 a separately specified notification mechanism, such as event types
 delivered using the Shared Signals Framework {{SSF}}. This specification
 does not define advance announcement events or scheduled activation of
