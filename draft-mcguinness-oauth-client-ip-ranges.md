@@ -498,13 +498,22 @@ policy determines whether the change is applied automatically, such as
 an addition within an approved scope, or is held for administrator
 approval ({{range-changes}}).
 
+A client can be locked out if its egress addresses change before the
+consumer accepts an updated declaration. Deployments that require an
+accepted IP range set need an administrative path to restore access,
+such as approving a replacement set. Enforcing a client's IP range set
+at the client configuration endpoint ({{Section 2 of RFC7592}}) can
+prevent the client from correcting an inline declaration.
+
 ## Retrieval Scheduling {#retrieval-scheduling}
 
 This specification does not require retrieval during the processing of
 an OAuth request; consumers can retrieve documents in the background.
-Consumers choose retrieval intervals within local minimum and maximum
-values. Publishers allow for these intervals, and for approval delays,
-when publishing a new prefix ({{acceptance}}).
+Consumers typically schedule the next retrieval when the retained
+response's freshness lifetime ({{Section 4.2 of RFC9111}}) ends, within
+local minimum and maximum intervals. Publishers allow for these
+intervals, and for approval delays, when publishing a new prefix
+({{acceptance}}).
 
 ## Document Size {#document-size}
 
