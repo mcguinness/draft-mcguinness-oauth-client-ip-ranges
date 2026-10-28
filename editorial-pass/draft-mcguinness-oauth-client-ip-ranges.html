@@ -1645,8 +1645,11 @@ set (<a href="#acceptance" class="auto internal xref">Section 4.3</a>).<a href="
 <p id="section-4.3-1">A consumer <span class="bcp14">MUST</span> validate an IP range set completely, including every
 prefix, before accepting it, whether the set is conveyed by
 <code>client_ip_ranges</code> or in a Client IP Range Document, and <span class="bcp14">MUST</span> reject the
-entire set if any part of it is invalid. Acceptance is also subject to
-local policy (<a href="#range-changes" class="auto internal xref">Section 7.2</a>).<a href="#section-4.3-1" class="pilcrow">¶</a></p>
+entire set if any part of it is invalid. For a set obtained from a
+Client IP Range Document, the consumer <span class="bcp14">MUST</span> also validate the response
+and the complete document (<a href="#document" class="auto internal xref">Section 3</a>) before accepting the set, and
+<span class="bcp14">MUST</span> reject the entire document if either is invalid. Acceptance is also
+subject to local policy (<a href="#range-changes" class="auto internal xref">Section 7.2</a>).<a href="#section-4.3-1" class="pilcrow">¶</a></p>
 <p id="section-4.3-2">An accepted IP range set replaces the previously accepted IP range set
 in full; this specification defines no incremental update format. The
 accepted IP range set remains in effect until the consumer accepts a
