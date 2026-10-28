@@ -386,9 +386,10 @@ URI again for that client or reuse its cached responses or validators
 Removal of both parameters withdraws the client's declaration; the
 effect of a withdrawal on enforcement is limited as described in
 {{retrieval-failures}}. In a client update request
-({{Section 2.2 of RFC7592}}), omitted metadata fields are treated as a
-request to delete them, so an update that omits both parameters
-withdraws the declaration.
+({{Section 2.2 of RFC7592}}), omitting both parameters requests their
+removal, which the authorization server can ignore. The client
+information response ({{Section 3 of RFC7592}}) shows whether they were
+removed.
 
 ## Failures and Withdrawal {#retrieval-failures}
 
