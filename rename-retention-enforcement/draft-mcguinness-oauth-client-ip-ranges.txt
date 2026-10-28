@@ -95,7 +95,7 @@ Table of Contents
        4.5.2.  After a Withdrawal
        4.5.3.  Retention Limit
    5.  Enforcement
-     5.1.  Enforcement by Authorization Servers
+     5.1.  Client Identification and Error Responses
    6.  Implementation Considerations
      6.1.  Enforcement Points
      6.2.  Retrieval Scheduling
@@ -467,7 +467,7 @@ Table of Contents
    client's metadata, is outside the scope of this specification and
    could be addressed by a companion specification.
 
-5.1.  Enforcement by Authorization Servers
+5.1.  Client Identification and Error Responses
 
    An authorization server can enforce a client's accepted IP range set
    at the token endpoint and at other endpoints that receive direct
