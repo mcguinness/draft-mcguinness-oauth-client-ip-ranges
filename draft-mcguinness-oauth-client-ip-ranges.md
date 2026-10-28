@@ -416,13 +416,13 @@ itself cause a consumer to admit a source address that it did not admit
 before the withdrawal. Whether to relax enforcement after a withdrawal
 is local policy.
 
-A consumer can require an accepted IP range set for a client. When such
-a consumer has no accepted IP range set for the client, because the
-client has made no declaration, its declaration is invalid or cannot be
-retrieved, or a validated IP range set awaits approval, the consumer
-MUST NOT admit the client's requests without regard to their source
-address. For a consumer that does not require one, what applies when no
-IP range set has been accepted for the client is local policy.
+A consumer can require an accepted IP range set for a client. Such a
+consumer MUST reject requests from the client while it has no accepted
+IP range set for the client, whether because the client has made no
+declaration, its declaration is invalid or cannot be retrieved, or a
+validated IP range set awaits approval. For a consumer that does not
+require one, what applies when no IP range set has been accepted for
+the client is local policy.
 
 # Use of Client IP Range Metadata {#use}
 
