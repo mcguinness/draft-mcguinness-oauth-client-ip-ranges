@@ -439,10 +439,9 @@ specific client requires knowing which client sent the request:
 * An authorization server can match the source address against the
   client's IP range set once it has identified the client
   ({{as-enforcement}}).
-* A resource server can match the source address against the IP range
-  set of the client to which an access token was issued, if it can
-  obtain that client's metadata. How a resource server obtains
-  a client's metadata is outside the scope of this specification and
+* Enforcement by resource servers, including how a resource server
+  determines the client associated with a request and obtains that
+  client's metadata, is outside the scope of this specification and
   could be addressed by a companion specification.
 
 An empty IP range set declares that the client originates no direct
