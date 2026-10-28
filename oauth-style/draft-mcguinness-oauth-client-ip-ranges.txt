@@ -522,9 +522,10 @@ Table of Contents
    automatically, such as an addition within an approved scope, or is
    held for administrator approval (Section 7.2).
 
-   Requests from a client are rejected if its egress addresses change
-   before the authorization server accepts an updated declaration.
-   Deployments that require an accepted IP range set need an
+   When an authorization server enforces a client's accepted IP range
+   set, requests from source addresses outside that set are rejected
+   until the authorization server accepts a replacement that includes
+   them.  Deployments that require an accepted IP range set need an
    administrative path to restore access, such as approving a
    replacement set.  Enforcing a client's IP range set at the client
    configuration endpoint (Section 2 of [RFC7592]) can prevent the
