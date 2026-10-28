@@ -322,8 +322,11 @@ Consumers SHOULD retrieve the document periodically to obtain changes.
 A consumer MUST validate an IP range set completely, including every
 prefix, before accepting it, whether the set is conveyed by
 `client_ip_ranges` or in a Client IP Range Document, and MUST reject the
-entire set if any part of it is invalid. Acceptance is also subject to
-local policy ({{range-changes}}).
+entire set if any part of it is invalid. For a set obtained from a
+Client IP Range Document, the consumer MUST also validate the response
+and the complete document ({{document}}) before accepting the set, and
+MUST reject the entire document if either is invalid. Acceptance is also
+subject to local policy ({{range-changes}}).
 
 An accepted IP range set replaces the previously accepted IP range set
 in full; this specification defines no incremental update format. The
