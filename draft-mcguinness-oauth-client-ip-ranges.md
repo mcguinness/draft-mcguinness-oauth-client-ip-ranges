@@ -30,6 +30,10 @@ author:
     fullname: Karl McGuinness
     organization: Independent
     email: public@karlmcguinness.com
+ -
+    fullname: Xiaoyi Zhang
+    organization: Databricks
+    email: xiaoyi.zhang@databricks.com
 
 normative:
   RFC3986:
