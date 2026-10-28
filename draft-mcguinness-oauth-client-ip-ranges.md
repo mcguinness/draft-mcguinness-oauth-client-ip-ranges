@@ -194,18 +194,18 @@ both be present in the same client metadata.
 
 ## Prefix Syntax {#prefix-syntax}
 
-Each prefix MUST conform to the `ip-prefix` type defined in Section 4 of
-{{RFC9911}}, that is, match in full every pattern of either the
-`ipv4-prefix` or the `ipv6-prefix` type. A value that does not conform
-to the `ip-prefix` type is invalid. In addition:
+Each prefix MUST conform to the `ip-prefix` type defined in
+{{Section 4 of RFC9911}}, that is, match in full every pattern of either
+the `ipv4-prefix` or the `ipv6-prefix` type. A value that does not
+conform to the `ip-prefix` type is invalid. In addition:
 
 * Publishers MUST use the canonical format of that type: all bits
   outside the prefix length set to zero and, for IPv6, the address
-  represented as defined in Section 4 of {{RFC5952}}.
+  represented as defined in {{Section 4 of RFC5952}}.
 * A value that is not in canonical format is valid and denotes the
-  prefix given by its network address and prefix length (Section 4 of
-  {{RFC9911}}). For example, `192.0.2.1/24` denotes `192.0.2.0/24`, and
-  `2001:DB8::1/64` denotes `2001:db8::/64`.
+  prefix given by its network address and prefix length
+  ({{Section 4 of RFC9911}}). For example, `192.0.2.1/24` denotes
+  `192.0.2.0/24`, and `2001:DB8::1/64` denotes `2001:db8::/64`.
 * A prefix within the IPv4-mapped IPv6 address range `::ffff:0:0/96`
   ({{Section 2.5.5.2 of RFC4291}}) is invalid. IPv4 ranges are
   expressed as IPv4 prefixes.
@@ -218,9 +218,9 @@ to the `ip-prefix` type is invalid. In addition:
 If a trusted software statement ({{Section 2.3 of RFC7591}}) carries
 `client_ip_ranges` or `client_ip_ranges_uri`, the authorization server
 ignores both parameters elsewhere in the client metadata, whether in a
-registration request or in a Client ID Metadata Document (Section 4.3 of
-{{CIMD}}). This extends the precedence rule of {{Section 2 of RFC7591}}
-to the pair of parameters.
+registration request or in a Client ID Metadata Document
+({{Section 4.3 of CIMD}}). This extends the precedence rule of
+{{Section 2 of RFC7591}} to the pair of parameters.
 
 After this precedence is applied, client IP range metadata is invalid if
 any of the following is true:
@@ -264,7 +264,7 @@ The following rules apply to the document:
 * The document MUST be served with the `application/json` media type.
 * Consumers MUST ignore members they do not understand.
 * A document whose top-level object contains duplicate member names is
-  invalid. Section 4 of {{RFC8259}} notes that receivers handle such
+  invalid. {{Section 4 of RFC8259}} notes that receivers handle such
   objects unpredictably.
 * The document is self-contained. Consumers MUST NOT retrieve other
   resources to complete it.
@@ -516,7 +516,7 @@ request.
 
 ## Document Size {#document-size}
 
-Section 8.7 of {{CIMD}} recommends that authorization servers read at
+{{Section 8.7 of CIMD}} recommends that authorization servers read at
 most 5 kilobytes of a Client ID Metadata Document. A client whose IP
 range set does not fit within such a limit uses `client_ip_ranges_uri`.
 Consumers set their bounds on Client IP Range Documents
@@ -529,7 +529,7 @@ documents.
 # Security Considerations {#security}
 
 The security considerations of the mechanism that conveys the client
-metadata, such as {{Section 5 of RFC7591}} or Section 8 of {{CIMD}},
+metadata, such as {{Section 5 of RFC7591}} or {{Section 8 of CIMD}},
 also apply.
 
 ## Trust in Declared Ranges {#trust}
@@ -619,7 +619,7 @@ forgery vector. When retrieving a Client IP Range Document, consumers:
    apply this check.
 
 An authorization server retrieving a URL obtained from a Client ID
-Metadata Document is also subject to Section 8.6 of {{CIMD}}.
+Metadata Document is also subject to {{Section 8.6 of CIMD}}.
 
 ## Resource Exhaustion {#resource-exhaustion}
 
@@ -661,7 +661,7 @@ end users, but it can still disclose information:
 * Retrieval of `client_ip_ranges_uri` reveals to the publisher the
   addresses and retrieval timing of consumers that evaluate the client,
   which can indicate the authorization servers and resource servers with
-  which the client is used (see also Section 9.1 of {{CIMD}}).
+  which the client is used (see also {{Section 9.1 of CIMD}}).
 
 # IANA Considerations {#iana}
 
