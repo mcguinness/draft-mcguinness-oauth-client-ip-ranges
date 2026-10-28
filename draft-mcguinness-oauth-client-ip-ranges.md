@@ -421,7 +421,7 @@ determines the client associated with a request and obtains that
 client's metadata, is outside the scope of this specification and could
 be addressed by a companion specification.
 
-## Enforcement by Authorization Servers {#as-enforcement}
+## Client Identification and Error Responses {#as-enforcement}
 
 An authorization server can enforce a client's accepted IP range set at
 the token endpoint and at other endpoints that receive direct requests
