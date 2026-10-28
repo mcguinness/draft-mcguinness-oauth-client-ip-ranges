@@ -544,7 +544,8 @@ A malicious or compromised publisher can return an oversized document, a
 highly compressed response, or a large number of overlapping prefixes.
 Consumers MUST bound retrieval time, response size, decompressed size,
 and prefix count. If a document exceeds any bound, the consumer MUST
-reject the entire document and MUST NOT accept part of it.
+reject the entire document and MUST NOT accept part of it. This
+specification sets no minimum value for any of these bounds.
 
 These bounds are set independently of any bound on client metadata,
 such as the limit recommended in Section 8.7 of {{CIMD}}, because a
@@ -693,12 +694,6 @@ ETag: "ranges-v42"
    a request under a client's source address policy? The
    `invalid_client` error code signals failed client authentication
    ({{Section 5.2 of RFC6749}}) and could prompt credential rotation.
-2. Should every consumer support a minimum number of prefixes, so that
-   independently chosen limits do not prevent interoperability?
-3. Should authorization server metadata advertise support for these
-   parameters, and what would that signal? Recognizing the metadata,
-   retrieving Client IP Range Documents, and enforcing IP range sets are
-   distinct capabilities.
 
 # Document History {#history}
 
