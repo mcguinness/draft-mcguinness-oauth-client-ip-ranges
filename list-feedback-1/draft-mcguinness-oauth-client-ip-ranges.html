@@ -1333,14 +1333,15 @@ servers, and the network infrastructure in front of them use these
 addresses to restrict which sources can reach the token endpoint and
 protected resources. In current practice, client operators publish their
 address ranges through vendor-specific mechanisms, and deployments
-transcribe them into network access controls by hand, where they go
-stale when the client's egress changes. An authorization server obtains
-the metadata of a client that uses an OAuth Client ID Metadata Document
-<span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> from that document, including when it pre-registers the client
+either integrate each mechanism separately or transcribe the ranges into
+network access controls by hand, where they go stale when the client's
+egress changes. An authorization server obtains the metadata of a client
+that uses an OAuth Client ID Metadata Document <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> from that
+document, including when it pre-registers the client
 (<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-client-id-metadata-document-02#section-7.2" class="relref">Section 7.2</a> of [<a href="#CIMD" class="cite xref">CIMD</a>]</span>). Client metadata (<span><a href="https://rfc-editor.org/rfc/rfc7591#section-2" class="relref">Section 2</a> of [<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>)
 has no parameter for the network origins of a client, so a deployment
 that restricts source addresses has to exempt such a client from the
-restriction, maintain its ranges by hand, or not accept it.<a href="#section-1-1" class="pilcrow">¶</a></p>
+restriction, obtain its ranges in one of these ways, or not accept it.<a href="#section-1-1" class="pilcrow">¶</a></p>
 <p id="section-1-2">This specification defines two client metadata parameters that declare
 the IP address ranges from which a client originates requests:
 <code>client_ip_ranges</code>, which carries the ranges by value, and
@@ -1359,12 +1360,12 @@ grants can be used. Declared ranges do not authenticate the client or
 authorize a request (<a href="#enforcement" class="auto internal xref">Section 5</a>). They complement client
 authentication and sender-constrained tokens (<span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>, <span>[<a href="#RFC8705" class="cite xref">RFC8705</a>]</span>),
 which bind credentials and tokens to keys rather than to network
-locations. A party that obtains a client's private key, or that runs
-code in the client's execution context (<span><a href="https://rfc-editor.org/rfc/rfc9449#section-11.4" class="relref">Section 11.4</a> of [<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>),
-can use the client's credentials from any network location. A source
-address restriction limits where such a party can use them. The
-protection depends on how exclusively the client uses the addresses it
-declares (<a href="#trust" class="auto internal xref">Section 7.1</a>).<a href="#section-1-3" class="pilcrow">¶</a></p>
+locations. An adversary that runs code in the client's execution context
+can create DPoP proofs and use them, together with the client's tokens,
+from a device under its control, even when the key cannot be exported
+(<span><a href="https://rfc-editor.org/rfc/rfc9449#section-11.4" class="relref">Section 11.4</a> of [<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>). A source address restriction limits
+where such requests can originate. The protection depends on how
+exclusively the client uses the addresses it declares (<a href="#trust" class="auto internal xref">Section 7.1</a>).<a href="#section-1-3" class="pilcrow">¶</a></p>
 <p id="section-1-4">This specification defines the metadata and the processing requirements
 for authorization servers that use it. Other parties that obtain a
 client's metadata can apply the same processing. Selecting the clients

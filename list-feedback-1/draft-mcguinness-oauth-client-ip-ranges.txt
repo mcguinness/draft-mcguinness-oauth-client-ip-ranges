@@ -131,15 +131,16 @@ Table of Contents
    these addresses to restrict which sources can reach the token
    endpoint and protected resources.  In current practice, client
    operators publish their address ranges through vendor-specific
-   mechanisms, and deployments transcribe them into network access
-   controls by hand, where they go stale when the client's egress
-   changes.  An authorization server obtains the metadata of a client
-   that uses an OAuth Client ID Metadata Document [CIMD] from that
-   document, including when it pre-registers the client (Section 7.2 of
-   [CIMD]).  Client metadata (Section 2 of [RFC7591]) has no parameter
-   for the network origins of a client, so a deployment that restricts
-   source addresses has to exempt such a client from the restriction,
-   maintain its ranges by hand, or not accept it.
+   mechanisms, and deployments either integrate each mechanism
+   separately or transcribe the ranges into network access controls by
+   hand, where they go stale when the client's egress changes.  An
+   authorization server obtains the metadata of a client that uses an
+   OAuth Client ID Metadata Document [CIMD] from that document,
+   including when it pre-registers the client (Section 7.2 of [CIMD]).
+   Client metadata (Section 2 of [RFC7591]) has no parameter for the
+   network origins of a client, so a deployment that restricts source
+   addresses has to exempt such a client from the restriction, obtain
+   its ranges in one of these ways, or not accept it.
 
    This specification defines two client metadata parameters that
    declare the IP address ranges from which a client originates
@@ -160,12 +161,13 @@ Table of Contents
    authenticate the client or authorize a request (Section 5).  They
    complement client authentication and sender-constrained tokens
    ([RFC9449], [RFC8705]), which bind credentials and tokens to keys
-   rather than to network locations.  A party that obtains a client's
-   private key, or that runs code in the client's execution context
-   (Section 11.4 of [RFC9449]), can use the client's credentials from
-   any network location.  A source address restriction limits where such
-   a party can use them.  The protection depends on how exclusively the
-   client uses the addresses it declares (Section 7.1).
+   rather than to network locations.  An adversary that runs code in the
+   client's execution context can create DPoP proofs and use them,
+   together with the client's tokens, from a device under its control,
+   even when the key cannot be exported (Section 11.4 of [RFC9449]).  A
+   source address restriction limits where such requests can originate.
+   The protection depends on how exclusively the client uses the
+   addresses it declares (Section 7.1).
 
    This specification defines the metadata and the processing
    requirements for authorization servers that use it.  Other parties
