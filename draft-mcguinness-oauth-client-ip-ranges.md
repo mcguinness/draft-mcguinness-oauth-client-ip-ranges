@@ -874,6 +874,11 @@ ranges.
    that every authorization server supports, so that a client can rely
    on an IP range set of a given size being accepted?
 
+5. When one case of the retention limit follows another before the
+   authorization server accepts a set, such as a failure followed by a
+   validated replacement, does the limit continue to run from the earlier
+   case or start again ({{retention-limit}})?
+
 # Document History {#history}
 
 *RFC EDITOR: Remove this section before publication.*
