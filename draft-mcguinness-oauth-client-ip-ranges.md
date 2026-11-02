@@ -126,7 +126,9 @@ which bind credentials and tokens to keys rather than to network
 locations. A party that obtains a client's private key, or that runs
 code in the client's execution context ({{Section 11.4 of RFC9449}}),
 can use the client's credentials from any network location; a source
-address restriction limits where it can use them.
+address restriction limits where it can use them. The protection depends
+on how exclusively the client uses the addresses it declares
+({{trust}}).
 
 This specification defines the metadata and the processing requirements
 for authorization servers that use it. Other parties that obtain a
@@ -556,7 +558,9 @@ Client IP range metadata is a declaration made by or on behalf of the
 client. Inclusion of a prefix does not establish that the client
 exclusively owns or controls the addresses it contains. Prefixes of
 shared infrastructure, such as cloud provider or carrier-grade NAT
-egress ranges, also carry traffic from other parties.
+egress ranges, also carry traffic from other parties. Restricting a
+client to such prefixes does not prevent a party that has obtained the
+client's credentials from using them from the same infrastructure.
 
 Whether to use declared ranges in network access control is a local
 trust decision. A software statement ({{Section 2.3 of RFC7591}})
