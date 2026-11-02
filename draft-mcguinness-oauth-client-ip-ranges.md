@@ -836,8 +836,9 @@ in the Client IP Range Document as in `client_ip_ranges`, rejects the
 whole set when any prefix is invalid ({{acceptance}}), and relies on
 client metadata to associate the set with a client. The authorization
 server identifies the client through OAuth ({{client-identification}}),
-and the declared ranges only constrain where that client's requests can
-originate.
+not by its address, and the declared ranges can be an input to local
+policy for that client, such as source address restrictions, risk
+evaluation, and rate limiting.
 
 Clients can announce planned changes to their IP range sets through
 a separately specified notification mechanism, such as event types
