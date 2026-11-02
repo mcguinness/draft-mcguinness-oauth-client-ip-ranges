@@ -528,11 +528,13 @@ server also enforces the client's accepted IP range set. Local policy
 determines whether later changes are accepted automatically or require
 administrator approval ({{range-changes}}).
 
-Deployments that require an accepted IP range set need an administrative
-recovery path for a client whose source addresses move outside that set,
-such as approving a replacement set. Enforcement at the client
-configuration endpoint ({{Section 2 of RFC7592}}) can prevent the client
-from updating a declaration made by value.
+Requiring an accepted IP range set for a client requires the client to
+originate requests from addresses that it can declare in advance, which
+can require dedicated egress infrastructure. Such deployments also need
+an administrative recovery path for a client whose source addresses move
+outside that set, such as approving a replacement set. Enforcement at
+the client configuration endpoint ({{Section 2 of RFC7592}}) can prevent
+the client from updating a declaration made by value.
 
 ## Retrieval Scheduling {#retrieval-scheduling}
 
