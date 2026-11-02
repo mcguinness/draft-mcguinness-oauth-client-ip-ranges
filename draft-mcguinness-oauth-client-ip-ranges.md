@@ -116,7 +116,7 @@ parameters can be used with OAuth 2.0 Dynamic Client Registration
 {{RFC7591}}, OAuth Client ID Metadata Documents {{CIMD}}, and other
 mechanisms that convey client metadata.
 
-Declared ranges are an input to network access control and to other
+Declared ranges can be an input to network access control and to other
 local policy, such as risk evaluation and rate limiting. Deployments use
 source address restrictions to limit where a client's credentials and
 grants can be used. Declared ranges do not authenticate the client or
