@@ -439,9 +439,11 @@ using the set and has no accepted IP range set for the client
 
 The IP range set identifies source addresses from which the client
 originates requests directly to authorization servers and resource
-servers, such as token requests and requests to protected resources. It
-does not describe the network origins of user agents or of requests
-initiated by the resource owner.
+servers, such as token requests and requests to protected resources. For
+a client behind network address translation, these are the translated
+addresses, such as those of its NAT gateway. The IP range set does not
+describe the network origins of user agents or of requests initiated by
+the resource owner.
 
 A source address matches an IP range set if it is within any of its
 prefixes. Before matching, the authorization server MUST convert an
