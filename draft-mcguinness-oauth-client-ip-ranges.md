@@ -130,11 +130,11 @@ mechanisms and do not replace them. An adversary that runs code in the
 client's execution context
 can create DPoP proofs and use them, together with the client's tokens,
 from a device under its control, even when the key cannot be exported
-({{Section 11.4 of RFC9449}}). A source address restriction prevents
-the use of exfiltrated credentials, tokens, and proofs from networks
-outside the declared ranges. It does not prevent requests sent through
-the client's own egress or from other hosts that share the declared
-addresses ({{trust}}).
+({{Section 11.4 of RFC9449}}). An endpoint that enforces the client's
+accepted IP range set rejects requests from outside that set, including
+requests that carry exfiltrated credentials, tokens, or proofs. It does
+not reject such requests from an address inside the set, including one
+that the client shares with other parties ({{trust}}).
 
 This specification defines the metadata and the processing requirements
 for authorization servers that use it. Other parties that obtain a
