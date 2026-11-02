@@ -465,8 +465,10 @@ An authorization server MAY use the accepted IP range set as an input to
 local network access control, risk evaluation, or rate limiting, for
 example by treating a request from a source address outside the set as
 higher risk instead of rejecting it. A match does not authenticate the
-client or authorize a request. The authorization server MUST NOT use a
-source address match in place of client authentication, access token
+client or authorize a request, and it does not override a local policy
+decision to reject the request, such as one based on information that
+the source address is malicious. The authorization server MUST NOT use
+a source address match in place of client authentication, access token
 validation, or any other security control required by OAuth.
 
 Enforcement by resource servers, including how a resource server
