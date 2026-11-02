@@ -870,6 +870,10 @@ ranges.
    replacement or narrowing the accepted IP range set to its intersection
    with the replacement ({{acceptance}}).
 
+4. Should this specification set minimum bounds ({{resource-exhaustion}})
+   that every authorization server supports, so that a client can rely
+   on an IP range set of a given size being accepted?
+
 # Document History {#history}
 
 *RFC EDITOR: Remove this section before publication.*
