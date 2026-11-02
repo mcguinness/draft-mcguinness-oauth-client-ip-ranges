@@ -887,24 +887,22 @@ ranges.
 
 -01
 
-* Expand the motivation: Client ID Metadata Document clients whether or
-  not they are pre-registered, how source address restrictions
-  supplement key-bound credentials and what they do not prevent, the
-  limits of shared egress, and the cost of requiring declared ranges.
+* Expand the motivation and security rationale ({{intro}}) and Related
+  Work ({{related-work}}).
 
-* Allow risk evaluation and rate limiting as uses of the accepted IP
-  range set.
+* Add risk evaluation and rate limiting as uses, and state that a match
+  does not override a local decision to reject ({{enforcement}}).
 
-* Clarify that a match does not override a local decision to reject a
-  request, that stopping use of an accepted IP range set early counts as
-  exceeding the retention limit, which addresses a client behind network
-  address translation declares, and when a client removes a prefix. Fold
-  the exception after a withdrawal into its requirement. Describe what
-  declarations disclose for registration by value and for Client ID
-  Metadata Document clients.
+* Treat stopping use of a set early as exceeding the retention limit
+  ({{retention-limit}}).
 
-* Add open issues on combining documents, accepting part of a
-  replacement, minimum bounds, and retention timing.
+* Ask clients to remove prefixes they no longer use ({{acceptance}}).
+
+* Fold the withdrawal exception into its requirement ({{withdrawal}}).
+
+* Cover Client ID Metadata Document clients in {{privacy}}.
+
+* Add open issues 2 through 5 ({{open-issues}}).
 
 -00
 
