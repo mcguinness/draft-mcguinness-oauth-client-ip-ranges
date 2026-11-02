@@ -1365,11 +1365,11 @@ mechanisms and do not replace them. An adversary that runs code in the
 client's execution context
 can create DPoP proofs and use them, together with the client's tokens,
 from a device under its control, even when the key cannot be exported
-(<span><a href="https://rfc-editor.org/rfc/rfc9449#section-11.4" class="relref">Section 11.4</a> of [<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>). A source address restriction prevents
-the use of exfiltrated credentials, tokens, and proofs from networks
-outside the declared ranges. It does not prevent requests sent through
-the client's own egress or from other hosts that share the declared
-addresses (<a href="#trust" class="auto internal xref">Section 7.1</a>).<a href="#section-1-3" class="pilcrow">¶</a></p>
+(<span><a href="https://rfc-editor.org/rfc/rfc9449#section-11.4" class="relref">Section 11.4</a> of [<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>). An endpoint that enforces the client's
+accepted IP range set rejects requests from outside that set, including
+requests that carry exfiltrated credentials, tokens, or proofs. It does
+not reject such requests from an address inside the set, including one
+that the client shares with other parties (<a href="#trust" class="auto internal xref">Section 7.1</a>).<a href="#section-1-3" class="pilcrow">¶</a></p>
 <p id="section-1-4">This specification defines the metadata and the processing requirements
 for authorization servers that use it. Other parties that obtain a
 client's metadata can apply the same processing. Whether to use declared
@@ -2376,8 +2376,9 @@ in the Client IP Range Document as in <code>client_ip_ranges</code>, rejects the
 whole set when any prefix is invalid (<a href="#acceptance" class="auto internal xref">Section 4.3</a>), and relies on
 client metadata to associate the set with a client. The authorization
 server identifies the client through OAuth (<a href="#client-identification" class="auto internal xref">Section 5.1</a>),
-and the declared ranges only constrain where that client's requests can
-originate.<a href="#appendix-B-1" class="pilcrow">¶</a></p>
+not by its address, and the declared ranges can be an input to local
+policy for that client, such as source address restrictions, risk
+evaluation, and rate limiting.<a href="#appendix-B-1" class="pilcrow">¶</a></p>
 <p id="appendix-B-2">Clients can announce planned changes to their IP range sets through
 a separately specified notification mechanism, such as event types
 delivered using the Shared Signals Framework <span>[<a href="#SSF" class="cite xref">SSF</a>]</span>. This specification
@@ -2419,7 +2420,8 @@ with the replacement (<a href="#acceptance" class="auto internal xref">Section 4
         <li id="appendix-C-2.4">
           <p id="appendix-C-2.4.1">Should this specification set minimum bounds (<a href="#resource-exhaustion" class="auto internal xref">Section 7.5</a>)
 that every authorization server supports, so that a client can rely
-on an IP range set of a given size being accepted?<a href="#appendix-C-2.4.1" class="pilcrow">¶</a></p>
+on an IP range set of a given size being within every authorization
+server's processing limits?<a href="#appendix-C-2.4.1" class="pilcrow">¶</a></p>
 </li>
         <li id="appendix-C-2.5">
           <p id="appendix-C-2.5.1">When one case of the retention limit follows another before the

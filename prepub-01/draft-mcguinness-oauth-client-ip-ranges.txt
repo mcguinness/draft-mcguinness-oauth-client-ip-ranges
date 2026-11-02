@@ -166,11 +166,12 @@ Table of Contents
    An adversary that runs code in the client's execution context can
    create DPoP proofs and use them, together with the client's tokens,
    from a device under its control, even when the key cannot be exported
-   (Section 11.4 of [RFC9449]).  A source address restriction prevents
-   the use of exfiltrated credentials, tokens, and proofs from networks
-   outside the declared ranges.  It does not prevent requests sent
-   through the client's own egress or from other hosts that share the
-   declared addresses (Section 7.1).
+   (Section 11.4 of [RFC9449]).  An endpoint that enforces the client's
+   accepted IP range set rejects requests from outside that set,
+   including requests that carry exfiltrated credentials, tokens, or
+   proofs.  It does not reject such requests from an address inside the
+   set, including one that the client shares with other parties
+   (Section 7.1).
 
    This specification defines the metadata and the processing
    requirements for authorization servers that use it.  Other parties
@@ -991,8 +992,9 @@ Appendix B.  Related Work
    rejects the whole set when any prefix is invalid (Section 4.3), and
    relies on client metadata to associate the set with a client.  The
    authorization server identifies the client through OAuth
-   (Section 5.1), and the declared ranges only constrain where that
-   client's requests can originate.
+   (Section 5.1), not by its address, and the declared ranges can be an
+   input to local policy for that client, such as source address
+   restrictions, risk evaluation, and rate limiting.
 
    Clients can announce planned changes to their IP range sets through a
    separately specified notification mechanism, such as event types
@@ -1027,7 +1029,8 @@ Appendix C.  Open Issues
 
    4.  Should this specification set minimum bounds (Section 7.5) that
        every authorization server supports, so that a client can rely on
-       an IP range set of a given size being accepted?
+       an IP range set of a given size being within every authorization
+       server's processing limits?
 
    5.  When one case of the retention limit follows another before the
        authorization server accepts a set, such as a failure followed by
