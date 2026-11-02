@@ -524,9 +524,10 @@ sets of the clients permitted to reach an endpoint. An authorization
 server can enforce each client's accepted IP range set once it has
 identified the client ({{client-identification}}).
 
-For example, an enterprise adds a hosted client's approved ranges to the
-network allowlist in front of its token endpoint, and the authorization
-server also enforces the client's accepted IP range set. Local policy
+For example, an enterprise derives the network allowlist in front of its
+token endpoint from the accepted IP range sets of the hosted clients it
+permits, and the authorization server also enforces each client's
+accepted IP range set. Local policy
 determines whether later changes are accepted automatically or require
 administrator approval ({{range-changes}}).
 
