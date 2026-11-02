@@ -83,7 +83,7 @@ The parameters can be used with OAuth 2.0 Dynamic Client Registration,
 OAuth Client ID Metadata Documents, and other mechanisms that convey
 client metadata. Authorization servers and other parties that obtain a
 client's metadata can use the declared ranges as an input to network
-access control.
+access control, risk evaluation, and rate limiting.
 
 --- middle
 
@@ -116,7 +116,8 @@ parameters can be used with OAuth 2.0 Dynamic Client Registration
 {{RFC7591}}, OAuth Client ID Metadata Documents {{CIMD}}, and other
 mechanisms that convey client metadata.
 
-Declared ranges are an input to network access control. Deployments use
+Declared ranges are an input to network access control and to other
+local policy, such as risk evaluation and rate limiting. Deployments use
 source address restrictions to limit where a client's credentials and
 grants can be used. Declared ranges do not authenticate the client or
 authorize a request ({{enforcement}}). They complement client
@@ -456,9 +457,11 @@ accepted IP range set:
 * in other cases, what applies is local policy.
 
 An authorization server MAY use the accepted IP range set as an input to
-local network access control. A match does not authenticate the client
-or authorize a request. The authorization server MUST NOT use a source
-address match in place of client authentication, access token
+local network access control, risk evaluation, or rate limiting, for
+example by treating a request from a source address outside the set as
+higher risk instead of rejecting it. A match does not authenticate the
+client or authorize a request. The authorization server MUST NOT use a
+source address match in place of client authentication, access token
 validation, or any other security control required by OAuth.
 
 Enforcement by resource servers, including how a resource server
