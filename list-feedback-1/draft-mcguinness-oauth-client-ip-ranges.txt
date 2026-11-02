@@ -153,19 +153,19 @@ Table of Contents
    [RFC7591], OAuth Client ID Metadata Documents [CIMD], and other
    mechanisms that convey client metadata.
 
-   Declared ranges are an input to network access control and to other
-   local policy, such as risk evaluation and rate limiting.  Deployments
-   use source address restrictions to limit where a client's credentials
-   and grants can be used.  Declared ranges do not authenticate the
-   client or authorize a request (Section 5).  They complement client
-   authentication and sender-constrained tokens ([RFC9449], [RFC8705]),
-   which bind credentials and tokens to keys rather than to network
-   locations.  A party that obtains a client's private key, or that runs
-   code in the client's execution context (Section 11.4 of [RFC9449]),
-   can use the client's credentials from any network location; a source
-   address restriction limits where it can use them.  The protection
-   depends on how exclusively the client uses the addresses it declares
-   (Section 7.1).
+   Declared ranges can be an input to network access control and to
+   other local policy, such as risk evaluation and rate limiting.
+   Deployments use source address restrictions to limit where a client's
+   credentials and grants can be used.  Declared ranges do not
+   authenticate the client or authorize a request (Section 5).  They
+   complement client authentication and sender-constrained tokens
+   ([RFC9449], [RFC8705]), which bind credentials and tokens to keys
+   rather than to network locations.  A party that obtains a client's
+   private key, or that runs code in the client's execution context
+   (Section 11.4 of [RFC9449]), can use the client's credentials from
+   any network location; a source address restriction limits where it
+   can use them.  The protection depends on how exclusively the client
+   uses the addresses it declares (Section 7.1).
 
    This specification defines the metadata and the processing
    requirements for authorization servers that use it.  Other parties
