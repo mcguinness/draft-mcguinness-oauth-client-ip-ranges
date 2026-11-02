@@ -1361,10 +1361,10 @@ authentication and sender-constrained tokens (<span>[<a href="#RFC9449" class="c
 which bind credentials and tokens to keys rather than to network
 locations. A party that obtains a client's private key, or that runs
 code in the client's execution context (<span><a href="https://rfc-editor.org/rfc/rfc9449#section-11.4" class="relref">Section 11.4</a> of [<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>),
-can use the client's credentials from any network location; a source
-address restriction limits where it can use them. The protection depends
-on how exclusively the client uses the addresses it declares
-(<a href="#trust" class="auto internal xref">Section 7.1</a>).<a href="#section-1-3" class="pilcrow">¶</a></p>
+can use the client's credentials from any network location. A source
+address restriction limits where such a party can use them. The
+protection depends on how exclusively the client uses the addresses it
+declares (<a href="#trust" class="auto internal xref">Section 7.1</a>).<a href="#section-1-3" class="pilcrow">¶</a></p>
 <p id="section-1-4">This specification defines the metadata and the processing requirements
 for authorization servers that use it. Other parties that obtain a
 client's metadata can apply the same processing. Selecting the clients
