@@ -835,6 +835,27 @@ ranges.
 
 *RFC EDITOR: Remove this section before publication.*
 
+-01
+
+* Motivate support for Client ID Metadata Document clients whether or
+  not they are pre-registered.
+
+* Allow risk evaluation and rate limiting as uses of the accepted IP
+  range set.
+
+* Explain why key-bound credentials do not replace source address
+  restrictions, and state the limit of restricting a client to shared
+  egress.
+
+* State that a match does not override a local decision to reject a
+  request.
+
+* Fold the exception after a withdrawal into its requirement.
+
+* Say which addresses a client behind network address translation
+  declares, and note that declaring by value through registration
+  avoids publishing the set.
+
 -00
 
 * Initial version.
