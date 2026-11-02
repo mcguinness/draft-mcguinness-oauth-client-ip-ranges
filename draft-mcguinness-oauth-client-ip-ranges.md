@@ -281,7 +281,9 @@ authorization server MUST NOT retrieve other resources to complete it.
 
 Multiple clients can reference the same document; all its prefixes apply
 equally to each such client. The document can be hosted by a party other
-than the client, such as its hosting provider.
+than the client, such as its hosting provider. A document that lists
+egress shared by a provider's customers has the limits described in
+{{trust}}.
 
 The following is a non-normative example of a Client IP Range Document:
 
