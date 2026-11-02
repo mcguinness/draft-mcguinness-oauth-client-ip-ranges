@@ -440,7 +440,9 @@ admits is also in the replacement.
 
 When the retention limit is exceeded, the authorization server stops
 using the set and has no accepted IP range set for the client
-({{enforcement}}).
+({{enforcement}}). An authorization server that stops using the set
+earlier in one of these cases, whether or not it sets a retention limit,
+treats the limit as exceeded.
 
 # Enforcement {#enforcement}
 
