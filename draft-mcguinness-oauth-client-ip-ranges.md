@@ -822,13 +822,17 @@ ETag: "ranges-v42"
 # Related Work {#related-work}
 
 {{JAFAR}} defines a format for publishing the IP address ranges of
-automated HTTP clients. Each prefix is an object with exactly one of an
-IPv4 or an IPv6 member and optional service identifiers, the document
-carries a creation time, and a prefix object that has both or neither
-address member is ignored. This specification instead uses the same
-prefix array in the Client IP Range Document as in `client_ip_ranges`,
-rejects the whole set when any prefix is invalid ({{acceptance}}), and
-relies on client metadata to associate the set with a client.
+automated HTTP clients, so that consumers can identify and verify
+automated traffic. Each prefix is an object with exactly one of an IPv4
+or an IPv6 member and optional service identifiers, the document carries
+a creation time, and a prefix object that has both or neither address
+member is ignored. This specification instead uses the same prefix array
+in the Client IP Range Document as in `client_ip_ranges`, rejects the
+whole set when any prefix is invalid ({{acceptance}}), and relies on
+client metadata to associate the set with a client. The authorization
+server identifies the client through OAuth ({{client-identification}}),
+and the declared ranges only constrain where that client's requests can
+originate.
 
 Clients can announce planned changes to their IP range sets through
 a separately specified notification mechanism, such as event types
