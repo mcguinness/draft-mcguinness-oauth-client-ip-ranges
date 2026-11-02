@@ -693,13 +693,19 @@ Client IP Range Document, or a publicly retrievable Client ID Metadata
 Document that carries `client_ip_ranges`, discloses the client's egress
 infrastructure to any party. A client that declares its IP range set by
 value through Dynamic Client Registration {{RFC7591}} avoids both this
-disclosure and the retrieval described below.
+disclosure and the retrieval described below. A client whose Client ID
+Metadata Document is publicly retrievable discloses its IP range set by
+either method, unless the Client IP Range Document requires an
+authentication mechanism agreed with the authorization server
+({{fetch}}).
 
 Retrieval of `client_ip_ranges_uri` reveals to the party hosting the
 document the addresses and retrieval timing of authorization servers
 that evaluate the client, which can indicate the authorization servers
 and resource servers with which the client is used (see also
-{{Section 9.1 of CIMD}}).
+{{Section 9.1 of CIMD}}). Retrieving documents on a schedule in the
+background ({{retrieval-scheduling}}), rather than while processing
+OAuth requests, reduces what retrieval timing reveals.
 
 # IANA Considerations {#iana}
 
