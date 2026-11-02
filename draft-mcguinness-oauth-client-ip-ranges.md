@@ -371,8 +371,10 @@ match. The narrowed set remains the accepted IP range set; the
 replacement is still not accepted.
 
 A client SHOULD add a prefix to its IP range set before it originates
-requests from addresses in that prefix and SHOULD keep the prefix in the
-set until it no longer originates requests from them.
+requests from addresses in that prefix, SHOULD keep the prefix in the
+set while it originates requests from them, and SHOULD remove the prefix
+once it no longer does, because its addresses can be reassigned to
+another party.
 
 ## Changes to Client Metadata {#metadata-changes}
 
