@@ -94,17 +94,18 @@ OAuth clients that run as hosted services commonly originate requests
 from a known set of network addresses. Authorization servers, resource
 servers, and the network infrastructure in front of them use these
 addresses to restrict which sources can reach the token endpoint and
-protected resources. In current practice, client operators publish their
-address ranges through vendor-specific mechanisms, and deployments
-either integrate each mechanism separately or transcribe the ranges into
-network access controls by hand, where they go stale when the client's
-egress changes. An authorization server obtains the metadata of a client
-that uses an OAuth Client ID Metadata Document {{CIMD}} from that
-document, including when it pre-registers the client
-({{Section 7.2 of CIMD}}). Client metadata ({{Section 2 of RFC7591}})
-has no parameter for the network origins of a client, so a deployment
-that restricts source addresses has to exempt such a client from the
-restriction, obtain its ranges in one of these ways, or not accept it.
+protected resources. Client operators publish their ranges through
+vendor-specific mechanisms. Deployments either integrate each mechanism
+separately or transcribe the ranges by hand, and hand-maintained lists
+go stale when the client's egress changes.
+
+Client metadata ({{Section 2 of RFC7591}}) has no parameter for the
+network origins of a client. For a client that uses an OAuth Client ID
+Metadata Document {{CIMD}}, the authorization server obtains the
+client's metadata from that document, including when it pre-registers
+the client ({{Section 7.2 of CIMD}}). A deployment that restricts source
+addresses therefore has to exempt such a client from the restriction,
+obtain its ranges in one of the ways above, or not accept it.
 
 This specification defines two client metadata parameters that declare
 the IP address ranges from which a client originates requests:
@@ -119,31 +120,31 @@ parameters can be used with OAuth 2.0 Dynamic Client Registration
 mechanisms that convey client metadata.
 
 Declared ranges can be an input to network access control and to other
-local policy, such as risk evaluation and rate limiting. Deployments use
-source address restrictions to limit where a client's credentials and
-grants can be used. Declared ranges do not authenticate the client or
-authorize a request ({{enforcement}}). {{Section 2 of RFC9700}}
-recommends asymmetric client authentication and sender-constrained
-tokens ({{RFC9449}}, {{RFC8705}}), which bind credentials and tokens to
-keys rather than to network locations. Declared ranges supplement these
-mechanisms and do not replace them. An adversary that runs code in the
-client's execution context
-can create DPoP proofs and use them, together with the client's tokens,
-from a device under its control, even when the key cannot be exported
-({{Section 11.4 of RFC9449}}). An endpoint that enforces the client's
-accepted IP range set rejects requests from outside that set, including
-requests that carry exfiltrated credentials, tokens, or proofs. It does
-not reject such requests from an address inside the set, including one
-that the client shares with other parties ({{trust}}).
+local policy, such as risk evaluation and rate limiting. They do not
+authenticate the client or authorize a request ({{enforcement}}).
+
+{{Section 2 of RFC9700}} recommends asymmetric client authentication and
+sender-constrained tokens ({{RFC9449}}, {{RFC8705}}), which bind
+credentials and tokens to keys rather than to network locations.
+Declared ranges supplement these mechanisms and do not replace them. An
+adversary that runs code in the client's execution context can create
+DPoP proofs and use them, together with the client's tokens, from a
+device under its control, even when the key cannot be exported
+({{Section 11.4 of RFC9449}}).
+
+An endpoint that enforces the client's accepted IP range set rejects
+requests from outside that set, including requests that carry
+exfiltrated credentials, tokens, or proofs. It does not reject such
+requests from an address inside the set, including one that the client
+shares with other parties ({{trust}}).
 
 This specification defines the metadata and the processing requirements
 for authorization servers that use it. Other parties that obtain a
 client's metadata can apply the same processing. Whether to use declared
-ranges at all, selecting the clients subject to enforcement, approving
-declared ranges, and configuring network enforcement points are local
-policy; {{enforcement-points}}
-describes typical deployments. Enforcement by resource servers is
-outside the scope of this specification.
+ranges at all is local policy, as are selecting the clients subject to
+enforcement, approving declared ranges, and configuring network
+enforcement points ({{enforcement-points}}). Enforcement by resource
+servers is outside the scope of this specification.
 
 ## Requirements Notation and Conventions {#conventions}
 
