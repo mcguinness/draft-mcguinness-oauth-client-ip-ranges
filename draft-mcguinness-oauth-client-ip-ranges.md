@@ -611,7 +611,7 @@ the new IP range set contains.
 An accepted IP range set that no longer matches the client's current
 declaration can include addresses that have since been reassigned to
 another party. The retention limit ({{retention-limit}}) and
-narrowing ({{acceptance}}) limit how long such addresses remain
+narrowing ({{acceptance}}) can limit how long such addresses remain
 admitted.
 
 ## Rejection Responses {#rejection-responses}
