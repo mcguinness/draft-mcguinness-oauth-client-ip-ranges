@@ -855,7 +855,8 @@ ranges.
    ({{Section 5.2 of RFC6749}}) and could prompt credential rotation,
    while an error that identifies the source address confirms to a
    party holding stolen credentials that they are valid
-   ({{rejection-responses}}).
+   ({{rejection-responses}}). Without a distinct error, a legitimate
+   client cannot diagnose a rejection.
 
 # Document History {#history}
 
