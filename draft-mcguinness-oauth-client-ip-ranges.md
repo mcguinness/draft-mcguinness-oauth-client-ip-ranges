@@ -55,6 +55,7 @@ informative:
   RFC8628:
   RFC8705:
   RFC9449:
+  RFC9700:
   SSF:
     title: "OpenID Shared Signals Framework Specification 1.0"
     target: https://openid.net/specs/openid-sharedsignals-framework-1_0-final.html
@@ -121,10 +122,12 @@ Declared ranges can be an input to network access control and to other
 local policy, such as risk evaluation and rate limiting. Deployments use
 source address restrictions to limit where a client's credentials and
 grants can be used. Declared ranges do not authenticate the client or
-authorize a request ({{enforcement}}). They complement client
-authentication and sender-constrained tokens ({{RFC9449}}, {{RFC8705}}),
-which bind credentials and tokens to keys rather than to network
-locations. An adversary that runs code in the client's execution context
+authorize a request ({{enforcement}}). {{Section 2 of RFC9700}}
+recommends asymmetric client authentication and sender-constrained
+tokens ({{RFC9449}}, {{RFC8705}}), which bind credentials and tokens to
+keys rather than to network locations. Declared ranges supplement these
+mechanisms and do not replace them. An adversary that runs code in the
+client's execution context
 can create DPoP proofs and use them, together with the client's tokens,
 from a device under its control, even when the key cannot be exported
 ({{Section 11.4 of RFC9449}}). A source address restriction prevents
@@ -135,9 +138,10 @@ addresses ({{trust}}).
 
 This specification defines the metadata and the processing requirements
 for authorization servers that use it. Other parties that obtain a
-client's metadata can apply the same processing. Selecting the clients
-subject to enforcement, approving declared ranges, and configuring
-network enforcement points are local policy; {{enforcement-points}}
+client's metadata can apply the same processing. Whether to use declared
+ranges at all, selecting the clients subject to enforcement, approving
+declared ranges, and configuring network enforcement points are local
+policy; {{enforcement-points}}
 describes typical deployments. Enforcement by resource servers is
 outside the scope of this specification.
 
