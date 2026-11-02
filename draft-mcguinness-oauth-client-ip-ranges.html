@@ -20,7 +20,7 @@ The parameters can be used with OAuth 2.0 Dynamic Client Registration,
 OAuth Client ID Metadata Documents, and other mechanisms that convey
 client metadata. Authorization servers and other parties that obtain a
 client's metadata can use the declared ranges as an input to network
-access control. 
+access control, risk evaluation, and rate limiting. 
     " name="description">
 <meta content="xml2rfc 3.34.1" name="generator">
 <meta content="OAuth" name="keyword">
@@ -1057,11 +1057,11 @@ svg {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">OAuth Client IP Ranges</td>
-<td class="right">October 2026</td>
+<td class="right">November 2026</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">McGuinness &amp; Zhang</td>
-<td class="center">Expires 1 May 2027</td>
+<td class="center">Expires 6 May 2027</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1074,12 +1074,12 @@ svg {
 <dd class="internet-draft">draft-mcguinness-oauth-client-ip-ranges-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2026-10-28" class="published">28 October 2026</time>
+<time datetime="2026-11-02" class="published">2 November 2026</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2027-05-01">1 May 2027</time></dd>
+<dd class="expires"><time datetime="2027-05-06">6 May 2027</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1108,7 +1108,7 @@ The parameters can be used with OAuth 2.0 Dynamic Client Registration,
 OAuth Client ID Metadata Documents, and other mechanisms that convey
 client metadata. Authorization servers and other parties that obtain a
 client's metadata can use the declared ranges as an input to network
-access control.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+access control, risk evaluation, and rate limiting.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
 </section>
 <section class="note rfcEditorRemove" id="section-note.1">
       <h2 id="name-about-this-document">
@@ -1145,7 +1145,7 @@ access control.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 1 May 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 6 May 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1333,11 +1333,15 @@ servers, and the network infrastructure in front of them use these
 addresses to restrict which sources can reach the token endpoint and
 protected resources. In current practice, client operators publish their
 address ranges through vendor-specific mechanisms, and deployments
-transcribe them into network access controls by hand. Clients that use
-OAuth Client ID Metadata Documents <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> can reach authorization
-servers without prior registration, leaving no opportunity to exchange
-ranges by hand in advance. Client metadata (<span><a href="https://rfc-editor.org/rfc/rfc7591#section-2" class="relref">Section 2</a> of [<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>)
-has no parameter for the network origins of a client.<a href="#section-1-1" class="pilcrow">¶</a></p>
+either integrate each mechanism separately or transcribe the ranges into
+network access controls by hand, where they go stale when the client's
+egress changes. An authorization server obtains the metadata of a client
+that uses an OAuth Client ID Metadata Document <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> from that
+document, including when it pre-registers the client
+(<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-client-id-metadata-document-02#section-7.2" class="relref">Section 7.2</a> of [<a href="#CIMD" class="cite xref">CIMD</a>]</span>). Client metadata (<span><a href="https://rfc-editor.org/rfc/rfc7591#section-2" class="relref">Section 2</a> of [<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>)
+has no parameter for the network origins of a client, so a deployment
+that restricts source addresses has to exempt such a client from the
+restriction, obtain its ranges in one of these ways, or not accept it.<a href="#section-1-1" class="pilcrow">¶</a></p>
 <p id="section-1-2">This specification defines two client metadata parameters that declare
 the IP address ranges from which a client originates requests:
 <code>client_ip_ranges</code>, which carries the ranges by value, and
@@ -1349,13 +1353,19 @@ frequently changing set without updating its registration. The
 parameters can be used with OAuth 2.0 Dynamic Client Registration
 <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>, OAuth Client ID Metadata Documents <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>, and other
 mechanisms that convey client metadata.<a href="#section-1-2" class="pilcrow">¶</a></p>
-<p id="section-1-3">Declared ranges are an input to network access control. Deployments use
+<p id="section-1-3">Declared ranges can be an input to network access control and to other
+local policy, such as risk evaluation and rate limiting. Deployments use
 source address restrictions to limit where a client's credentials and
 grants can be used. Declared ranges do not authenticate the client or
 authorize a request (<a href="#enforcement" class="auto internal xref">Section 5</a>). They complement client
 authentication and sender-constrained tokens (<span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>, <span>[<a href="#RFC8705" class="cite xref">RFC8705</a>]</span>),
 which bind credentials and tokens to keys rather than to network
-locations.<a href="#section-1-3" class="pilcrow">¶</a></p>
+locations. An adversary that runs code in the client's execution context
+can create DPoP proofs and use them, together with the client's tokens,
+from a device under its control, even when the key cannot be exported
+(<span><a href="https://rfc-editor.org/rfc/rfc9449#section-11.4" class="relref">Section 11.4</a> of [<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>). A source address restriction limits
+where such requests can originate. The protection depends on how
+exclusively the client uses the addresses it declares (<a href="#trust" class="auto internal xref">Section 7.1</a>).<a href="#section-1-3" class="pilcrow">¶</a></p>
 <p id="section-1-4">This specification defines the metadata and the processing requirements
 for authorization servers that use it. Other parties that obtain a
 client's metadata can apply the same processing. Selecting the clients
@@ -1703,9 +1713,9 @@ if it sets one (<a href="#retention-limit" class="auto internal xref">Section 4.
 <a href="#section-4.5.2" class="section-number selfRef">4.5.2. </a><a href="#name-after-a-withdrawal" class="section-name selfRef">After a Withdrawal</a>
           </h4>
 <p id="section-4.5.2-1">Withdrawal of the client's declaration (<a href="#metadata-changes" class="auto internal xref">Section 4.4</a>) <span class="bcp14">MUST NOT</span>
-by itself cause an authorization server to admit a source address that
-it did not admit before the withdrawal. Enforcement is relaxed after a
-withdrawal only by an explicit local policy decision.<a href="#section-4.5.2-1" class="pilcrow">¶</a></p>
+cause an authorization server to admit a source address that it did not
+admit before the withdrawal, unless an explicit local policy decision
+removes the client from enforcement.<a href="#section-4.5.2-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="retention-limit">
@@ -1756,9 +1766,11 @@ using the set and has no accepted IP range set for the client
       </h2>
 <p id="section-5-1">The IP range set identifies source addresses from which the client
 originates requests directly to authorization servers and resource
-servers, such as token requests and requests to protected resources. It
-does not describe the network origins of user agents or of requests
-initiated by the resource owner.<a href="#section-5-1" class="pilcrow">¶</a></p>
+servers, such as token requests and requests to protected resources. For
+a client behind network address translation, these are the translated
+addresses, such as those of its NAT gateway. The IP range set does not
+describe the network origins of user agents or of requests initiated by
+the resource owner.<a href="#section-5-1" class="pilcrow">¶</a></p>
 <p id="section-5-2">A source address matches an IP range set if it is within any of its
 prefixes. Before matching, the authorization server <span class="bcp14">MUST</span> convert an
 IPv4-mapped IPv6 source address to the IPv4 address it contains.<a href="#section-5-2" class="pilcrow">¶</a></p>
@@ -1783,9 +1795,13 @@ removes the client from enforcement; and<a href="#section-5-4.2.1" class="pilcro
 </li>
       </ul>
 <p id="section-5-5">An authorization server <span class="bcp14">MAY</span> use the accepted IP range set as an input to
-local network access control. A match does not authenticate the client
-or authorize a request. The authorization server <span class="bcp14">MUST NOT</span> use a source
-address match in place of client authentication, access token
+local network access control, risk evaluation, or rate limiting, for
+example by treating a request from a source address outside the set as
+higher risk instead of rejecting it. A match does not authenticate the
+client or authorize a request, and it does not override a local policy
+decision to reject the request, such as one based on information that
+the source address is malicious. The authorization server <span class="bcp14">MUST NOT</span> use
+a source address match in place of client authentication, access token
 validation, or any other security control required by OAuth.<a href="#section-5-5" class="pilcrow">¶</a></p>
 <p id="section-5-6">Enforcement by resource servers, including how a resource server
 determines the client associated with a request and obtains that
@@ -1899,7 +1915,9 @@ also apply.<a href="#section-7-1" class="pilcrow">¶</a></p>
 client. Inclusion of a prefix does not establish that the client
 exclusively owns or controls the addresses it contains. Prefixes of
 shared infrastructure, such as cloud provider or carrier-grade NAT
-egress ranges, also carry traffic from other parties.<a href="#section-7.1-1" class="pilcrow">¶</a></p>
+egress ranges, also carry traffic from other parties. Restricting a
+client to such prefixes does not prevent a party that has obtained the
+client's credentials from using them from the same infrastructure.<a href="#section-7.1-1" class="pilcrow">¶</a></p>
 <p id="section-7.1-2">Whether to use declared ranges in network access control is a local
 trust decision. A software statement (<span><a href="https://rfc-editor.org/rfc/rfc7591#section-2.3" class="relref">Section 2.3</a> of [<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>)
 vouches only for the values it contains: for <code>client_ip_ranges</code>, the
@@ -2047,7 +2065,9 @@ an individual, such as a residential network, its declared ranges can
 reveal that individual's network location. A publicly retrievable
 Client IP Range Document, or a publicly retrievable Client ID Metadata
 Document that carries <code>client_ip_ranges</code>, discloses the client's egress
-infrastructure to any party.<a href="#section-8-1" class="pilcrow">¶</a></p>
+infrastructure to any party. A client that declares its IP range set by
+value through Dynamic Client Registration <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span> avoids both this
+disclosure and the retrieval described below.<a href="#section-8-1" class="pilcrow">¶</a></p>
 <p id="section-8-2">Retrieval of <code>client_ip_ranges_uri</code> reveals to the party hosting the
 document the addresses and retrieval timing of authorization servers
 that evaluate the client, which can indicate the authorization servers
@@ -2362,10 +2382,28 @@ party holding stolen credentials that they are valid
 <a href="#appendix-D" class="section-number selfRef">Appendix D. </a><a href="#name-document-history" class="section-name selfRef">Document History</a>
       </h2>
 <p id="appendix-D-1"><em>RFC EDITOR: Remove this section before publication.</em><a href="#appendix-D-1" class="pilcrow">¶</a></p>
-<p id="appendix-D-2">-00<a href="#appendix-D-2" class="pilcrow">¶</a></p>
+<p id="appendix-D-2">-01<a href="#appendix-D-2" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="appendix-D-3.1">
-          <p id="appendix-D-3.1.1">Initial version.<a href="#appendix-D-3.1.1" class="pilcrow">¶</a></p>
+          <p id="appendix-D-3.1.1">Expand the motivation: Client ID Metadata Document clients whether or
+not they are pre-registered, how source address restrictions
+complement key-bound credentials, and the limits of shared egress.<a href="#appendix-D-3.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="appendix-D-3.2">
+          <p id="appendix-D-3.2.1">Allow risk evaluation and rate limiting as uses of the accepted IP
+range set.<a href="#appendix-D-3.2.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="appendix-D-3.3">
+          <p id="appendix-D-3.3.1">Clarify that a match does not override a local decision to reject a
+request, which addresses a client behind network address translation
+declares, and that declaring by value through registration avoids
+publishing the set.<a href="#appendix-D-3.3.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<p id="appendix-D-4">-00<a href="#appendix-D-4" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="appendix-D-5.1">
+          <p id="appendix-D-5.1.1">Initial version.<a href="#appendix-D-5.1.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
 </section>
