@@ -1006,6 +1006,10 @@ Appendix C.  Open Issues
 
    _RFC EDITOR: Remove this section before publication._
 
+   Each open issue is tracked at https://github.com/mcguinness/draft-
+   mcguinness-oauth-client-ip-ranges/issues; discussion takes place on
+   the oauth@ietf.org mailing list.
+
    1.  Which error response indicates that an authorization server
        rejected a request under a client's source address policy?  The
        invalid_client error code signals failed client authentication
