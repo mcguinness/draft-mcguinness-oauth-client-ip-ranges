@@ -864,6 +864,12 @@ ranges.
    is self-contained ({{document}}). One option is an array of URLs whose
    documents together form the IP range set.
 
+3. Can an authorization server accept the part of a replacement that
+   falls within an approved scope ({{range-changes}}) while holding the
+   rest for approval? This specification allows only accepting the whole
+   replacement or narrowing the accepted IP range set to its intersection
+   with the replacement ({{acceptance}}).
+
 # Document History {#history}
 
 *RFC EDITOR: Remove this section before publication.*
