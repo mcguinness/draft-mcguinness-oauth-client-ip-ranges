@@ -124,12 +124,12 @@ grants can be used. Declared ranges do not authenticate the client or
 authorize a request ({{enforcement}}). They complement client
 authentication and sender-constrained tokens ({{RFC9449}}, {{RFC8705}}),
 which bind credentials and tokens to keys rather than to network
-locations. A party that obtains a client's private key, or that runs
-code in the client's execution context ({{Section 11.4 of RFC9449}}),
-can use the client's credentials from any network location. A source
-address restriction limits where such a party can use them. The
-protection depends on how exclusively the client uses the addresses it
-declares ({{trust}}).
+locations. An adversary that runs code in the client's execution context
+can create DPoP proofs and use them, together with the client's tokens,
+from a device under its control, even when the key cannot be exported
+({{Section 11.4 of RFC9449}}). A source address restriction limits
+where such requests can originate. The protection depends on how
+exclusively the client uses the addresses it declares ({{trust}}).
 
 This specification defines the metadata and the processing requirements
 for authorization servers that use it. Other parties that obtain a
