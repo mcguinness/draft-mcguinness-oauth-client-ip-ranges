@@ -858,6 +858,12 @@ ranges.
    ({{rejection-responses}}). Without a distinct error, a legitimate
    client cannot diagnose a rejection.
 
+2. Can a client combine a Client IP Range Document hosted by another
+   party, such as its hosting provider, with prefixes of its own? The
+   two parameters are mutually exclusive ({{metadata}}), and a document
+   is self-contained ({{document}}). One option is an array of URLs whose
+   documents together form the IP range set.
+
 # Document History {#history}
 
 *RFC EDITOR: Remove this section before publication.*
