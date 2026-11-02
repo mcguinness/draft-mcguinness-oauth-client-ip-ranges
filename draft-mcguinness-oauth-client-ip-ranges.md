@@ -55,6 +55,7 @@ informative:
   RFC8628:
   RFC8705:
   RFC9449:
+  RFC9700:
   SSF:
     title: "OpenID Shared Signals Framework Specification 1.0"
     target: https://openid.net/specs/openid-sharedsignals-framework-1_0-final.html
@@ -121,21 +122,26 @@ Declared ranges can be an input to network access control and to other
 local policy, such as risk evaluation and rate limiting. Deployments use
 source address restrictions to limit where a client's credentials and
 grants can be used. Declared ranges do not authenticate the client or
-authorize a request ({{enforcement}}). They complement client
-authentication and sender-constrained tokens ({{RFC9449}}, {{RFC8705}}),
-which bind credentials and tokens to keys rather than to network
-locations. An adversary that runs code in the client's execution context
+authorize a request ({{enforcement}}). {{Section 2 of RFC9700}}
+recommends asymmetric client authentication and sender-constrained
+tokens ({{RFC9449}}, {{RFC8705}}), which bind credentials and tokens to
+keys rather than to network locations. Declared ranges supplement these
+mechanisms and do not replace them. An adversary that runs code in the
+client's execution context
 can create DPoP proofs and use them, together with the client's tokens,
 from a device under its control, even when the key cannot be exported
-({{Section 11.4 of RFC9449}}). A source address restriction limits
-where such requests can originate. The protection depends on how
-exclusively the client uses the addresses it declares ({{trust}}).
+({{Section 11.4 of RFC9449}}). An endpoint that enforces the client's
+accepted IP range set rejects requests from outside that set, including
+requests that carry exfiltrated credentials, tokens, or proofs. It does
+not reject such requests from an address inside the set, including one
+that the client shares with other parties ({{trust}}).
 
 This specification defines the metadata and the processing requirements
 for authorization servers that use it. Other parties that obtain a
-client's metadata can apply the same processing. Selecting the clients
-subject to enforcement, approving declared ranges, and configuring
-network enforcement points are local policy; {{enforcement-points}}
+client's metadata can apply the same processing. Whether to use declared
+ranges at all, selecting the clients subject to enforcement, approving
+declared ranges, and configuring network enforcement points are local
+policy; {{enforcement-points}}
 describes typical deployments. Enforcement by resource servers is
 outside the scope of this specification.
 
@@ -275,7 +281,9 @@ authorization server MUST NOT retrieve other resources to complete it.
 
 Multiple clients can reference the same document; all its prefixes apply
 equally to each such client. The document can be hosted by a party other
-than the client, such as its hosting provider.
+than the client, such as its hosting provider. A document that lists
+egress shared by a provider's customers has the limits described in
+{{trust}}.
 
 The following is a non-normative example of a Client IP Range Document:
 
@@ -363,8 +371,10 @@ match. The narrowed set remains the accepted IP range set; the
 replacement is still not accepted.
 
 A client SHOULD add a prefix to its IP range set before it originates
-requests from addresses in that prefix and SHOULD keep the prefix in the
-set until it no longer originates requests from them.
+requests from addresses in that prefix, SHOULD keep the prefix in the
+set while it originates requests from them, and SHOULD remove the prefix
+once it no longer does, because its addresses can be reassigned to
+another party.
 
 ## Changes to Client Metadata {#metadata-changes}
 
@@ -434,7 +444,9 @@ admits is also in the replacement.
 
 When the retention limit is exceeded, the authorization server stops
 using the set and has no accepted IP range set for the client
-({{enforcement}}).
+({{enforcement}}). An authorization server that stops using the set
+earlier in one of these cases, whether or not it sets a retention limit,
+treats the limit as exceeded.
 
 # Enforcement {#enforcement}
 
@@ -514,17 +526,20 @@ sets of the clients permitted to reach an endpoint. An authorization
 server can enforce each client's accepted IP range set once it has
 identified the client ({{client-identification}}).
 
-For example, an enterprise adds a hosted client's approved ranges to the
-network allowlist in front of its token endpoint, and the authorization
-server also enforces the client's accepted IP range set. Local policy
+For example, an enterprise derives the network allowlist in front of its
+token endpoint from the accepted IP range sets of the hosted clients it
+permits, and the authorization server also enforces each client's
+accepted IP range set. Local policy
 determines whether later changes are accepted automatically or require
 administrator approval ({{range-changes}}).
 
-Deployments that require an accepted IP range set need an administrative
-recovery path for a client whose source addresses move outside that set,
-such as approving a replacement set. Enforcement at the client
-configuration endpoint ({{Section 2 of RFC7592}}) can prevent the client
-from updating a declaration made by value.
+Requiring an accepted IP range set for a client requires the client to
+originate requests from addresses that it can declare in advance, which
+can require dedicated egress infrastructure. Such deployments also need
+an administrative recovery path for a client whose source addresses move
+outside that set, such as approving a replacement set. Enforcement at
+the client configuration endpoint ({{Section 2 of RFC7592}}) can prevent
+the client from updating a declaration made by value.
 
 ## Retrieval Scheduling {#retrieval-scheduling}
 
@@ -605,7 +620,7 @@ the new IP range set contains.
 An accepted IP range set that no longer matches the client's current
 declaration can include addresses that have since been reassigned to
 another party. The retention limit ({{retention-limit}}) and
-narrowing ({{acceptance}}) limit how long such addresses remain
+narrowing ({{acceptance}}) can limit how long such addresses remain
 admitted.
 
 ## Rejection Responses {#rejection-responses}
@@ -685,13 +700,19 @@ Client IP Range Document, or a publicly retrievable Client ID Metadata
 Document that carries `client_ip_ranges`, discloses the client's egress
 infrastructure to any party. A client that declares its IP range set by
 value through Dynamic Client Registration {{RFC7591}} avoids both this
-disclosure and the retrieval described below.
+disclosure and the retrieval described below. A client whose Client ID
+Metadata Document is publicly retrievable discloses its IP range set by
+either method, unless the Client IP Range Document requires an
+authentication mechanism agreed with the authorization server
+({{fetch}}).
 
 Retrieval of `client_ip_ranges_uri` reveals to the party hosting the
 document the addresses and retrieval timing of authorization servers
 that evaluate the client, which can indicate the authorization servers
 and resource servers with which the client is used (see also
-{{Section 9.1 of CIMD}}).
+{{Section 9.1 of CIMD}}). Retrieving documents on a schedule in the
+background ({{retrieval-scheduling}}), rather than while processing
+OAuth requests, reduces what retrieval timing reveals.
 
 # IANA Considerations {#iana}
 
@@ -806,13 +827,18 @@ ETag: "ranges-v42"
 # Related Work {#related-work}
 
 {{JAFAR}} defines a format for publishing the IP address ranges of
-automated HTTP clients. Each prefix is an object with exactly one of an
-IPv4 or an IPv6 member and optional service identifiers, the document
-carries a creation time, and a prefix object that has both or neither
-address member is ignored. This specification instead uses the same
-prefix array in the Client IP Range Document as in `client_ip_ranges`,
-rejects the whole set when any prefix is invalid ({{acceptance}}), and
-relies on client metadata to associate the set with a client.
+automated HTTP clients, so that consumers can identify and verify
+automated traffic. Each prefix is an object with exactly one of an IPv4
+or an IPv6 member and optional service identifiers, the document carries
+a creation time, and a prefix object that has both or neither address
+member is ignored. This specification instead uses the same prefix array
+in the Client IP Range Document as in `client_ip_ranges`, rejects the
+whole set when any prefix is invalid ({{acceptance}}), and relies on
+client metadata to associate the set with a client. The authorization
+server identifies the client through OAuth ({{client-identification}}),
+not by its address, and the declared ranges can be an input to local
+policy for that client, such as source address restrictions, risk
+evaluation, and rate limiting.
 
 Clients can announce planned changes to their IP range sets through
 a separately specified notification mechanism, such as event types
@@ -830,7 +856,35 @@ ranges.
    ({{Section 5.2 of RFC6749}}) and could prompt credential rotation,
    while an error that identifies the source address confirms to a
    party holding stolen credentials that they are valid
-   ({{rejection-responses}}).
+   ({{rejection-responses}}). Without a distinct error, a legitimate
+   client cannot diagnose a rejection. Tracked as
+   [issue #14](https://github.com/mcguinness/draft-mcguinness-oauth-client-ip-ranges/issues/14).
+
+2. Can a client combine a Client IP Range Document hosted by another
+   party, such as its hosting provider, with prefixes of its own? The
+   two parameters are mutually exclusive ({{metadata}}), and a document
+   is self-contained ({{document}}). One option is an array of URLs whose
+   documents together form the IP range set. Tracked as
+   [issue #15](https://github.com/mcguinness/draft-mcguinness-oauth-client-ip-ranges/issues/15).
+
+3. Can an authorization server accept the part of a replacement that
+   falls within an approved scope ({{range-changes}}) while holding the
+   rest for approval? This specification allows only accepting the whole
+   replacement or narrowing the accepted IP range set to its intersection
+   with the replacement ({{acceptance}}). Tracked as
+   [issue #16](https://github.com/mcguinness/draft-mcguinness-oauth-client-ip-ranges/issues/16).
+
+4. Should this specification set minimum bounds ({{resource-exhaustion}})
+   that every authorization server supports, so that a client can rely
+   on an IP range set of a given size being within every authorization
+   server's processing limits? Tracked as
+   [issue #17](https://github.com/mcguinness/draft-mcguinness-oauth-client-ip-ranges/issues/17).
+
+5. When one case of the retention limit follows another before the
+   authorization server accepts a set, such as a failure followed by a
+   validated replacement, does the limit continue to run from the earlier
+   case or start again ({{retention-limit}})? Tracked as
+   [issue #18](https://github.com/mcguinness/draft-mcguinness-oauth-client-ip-ranges/issues/18).
 
 # Document History {#history}
 
@@ -838,17 +892,22 @@ ranges.
 
 -01
 
-* Expand the motivation: Client ID Metadata Document clients whether or
-  not they are pre-registered, how source address restrictions
-  complement key-bound credentials, and the limits of shared egress.
+* Expand the motivation and security rationale ({{intro}}) and Related
+  Work ({{related-work}}).
 
-* Allow risk evaluation and rate limiting as uses of the accepted IP
-  range set.
+* Add risk evaluation and rate limiting as uses, and state that a match
+  does not override a local decision to reject ({{enforcement}}).
 
-* Clarify that a match does not override a local decision to reject a
-  request, which addresses a client behind network address translation
-  declares, and that declaring by value through registration avoids
-  publishing the set.
+* Treat stopping use of a set early as exceeding the retention limit
+  ({{retention-limit}}).
+
+* Ask clients to remove prefixes they no longer use ({{acceptance}}).
+
+* Fold the withdrawal exception into its requirement ({{withdrawal}}).
+
+* Cover Client ID Metadata Document clients in {{privacy}}.
+
+* Add open issues 2 through 5 ({{open-issues}}).
 
 -00
 
