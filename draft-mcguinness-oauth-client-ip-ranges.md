@@ -682,7 +682,9 @@ an individual, such as a residential network, its declared ranges can
 reveal that individual's network location. A publicly retrievable
 Client IP Range Document, or a publicly retrievable Client ID Metadata
 Document that carries `client_ip_ranges`, discloses the client's egress
-infrastructure to any party.
+infrastructure to any party. A client that declares its IP range set by
+value through Dynamic Client Registration {{RFC7591}} avoids both this
+disclosure and the retrieval described below.
 
 Retrieval of `client_ip_ranges_uri` reveals to the party hosting the
 document the addresses and retrieval timing of authorization servers
