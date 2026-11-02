@@ -1043,25 +1043,23 @@ Appendix D.  Document History
 
    -01
 
-   *  Expand the motivation: Client ID Metadata Document clients whether
-      or not they are pre-registered, how source address restrictions
-      supplement key-bound credentials and what they do not prevent, the
-      limits of shared egress, and the cost of requiring declared
-      ranges.
+   *  Expand the motivation and security rationale (Section 1) and
+      Related Work (Appendix B).
 
-   *  Allow risk evaluation and rate limiting as uses of the accepted IP
-      range set.
+   *  Add risk evaluation and rate limiting as uses, and state that a
+      match does not override a local decision to reject (Section 5).
 
-   *  Clarify that a match does not override a local decision to reject
-      a request, that stopping use of an accepted IP range set early
-      counts as exceeding the retention limit, which addresses a client
-      behind network address translation declares, and when a client
-      removes a prefix.  Fold the exception after a withdrawal into its
-      requirement.  Describe what declarations disclose for registration
-      by value and for Client ID Metadata Document clients.
+   *  Treat stopping use of a set early as exceeding the retention limit
+      (Section 4.5.3).
 
-   *  Add open issues on combining documents, accepting part of a
-      replacement, minimum bounds, and retention timing.
+   *  Ask clients to remove prefixes they no longer use (Section 4.3).
+
+   *  Fold the withdrawal exception into its requirement
+      (Section 4.5.2).
+
+   *  Cover Client ID Metadata Document clients in Section 8.
+
+   *  Add open issues 2 through 5 (Appendix C).
 
    -00
 
