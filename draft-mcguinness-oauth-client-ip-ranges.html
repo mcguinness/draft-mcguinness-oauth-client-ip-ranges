@@ -1331,18 +1331,18 @@ access control, risk evaluation, and rate limiting.<a href="#section-abstract-1"
 from a known set of network addresses. Authorization servers, resource
 servers, and the network infrastructure in front of them use these
 addresses to restrict which sources can reach the token endpoint and
-protected resources. In current practice, client operators publish their
-address ranges through vendor-specific mechanisms, and deployments
-either integrate each mechanism separately or transcribe the ranges into
-network access controls by hand, where they go stale when the client's
-egress changes. An authorization server obtains the metadata of a client
-that uses an OAuth Client ID Metadata Document <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span> from that
-document, including when it pre-registers the client
-(<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-client-id-metadata-document-02#section-7.2" class="relref">Section 7.2</a> of [<a href="#CIMD" class="cite xref">CIMD</a>]</span>). Client metadata (<span><a href="https://rfc-editor.org/rfc/rfc7591#section-2" class="relref">Section 2</a> of [<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>)
-has no parameter for the network origins of a client, so a deployment
-that restricts source addresses has to exempt such a client from the
-restriction, obtain its ranges in one of these ways, or not accept it.<a href="#section-1-1" class="pilcrow">¶</a></p>
-<p id="section-1-2">This specification defines two client metadata parameters that declare
+protected resources. Client operators publish their ranges through
+vendor-specific mechanisms. Deployments either integrate each mechanism
+separately or transcribe the ranges by hand, and hand-maintained lists
+go stale when the client's egress changes.<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-2">Client metadata (<span><a href="https://rfc-editor.org/rfc/rfc7591#section-2" class="relref">Section 2</a> of [<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>) has no parameter for the
+network origins of a client. For a client that uses an OAuth Client ID
+Metadata Document <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>, the authorization server obtains the
+client's metadata from that document, including when it pre-registers
+the client (<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-client-id-metadata-document-02#section-7.2" class="relref">Section 7.2</a> of [<a href="#CIMD" class="cite xref">CIMD</a>]</span>). A deployment that restricts source
+addresses therefore has to exempt such a client from the restriction,
+obtain its ranges in one of the ways above, or not accept it.<a href="#section-1-2" class="pilcrow">¶</a></p>
+<p id="section-1-3">This specification defines two client metadata parameters that declare
 the IP address ranges from which a client originates requests:
 <code>client_ip_ranges</code>, which carries the ranges by value, and
 <code>client_ip_ranges_uri</code>, which references a Client IP Range Document that
@@ -1352,32 +1352,30 @@ exclusive. The reference form lets a client publish a large or
 frequently changing set without updating its registration. The
 parameters can be used with OAuth 2.0 Dynamic Client Registration
 <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>, OAuth Client ID Metadata Documents <span>[<a href="#CIMD" class="cite xref">CIMD</a>]</span>, and other
-mechanisms that convey client metadata.<a href="#section-1-2" class="pilcrow">¶</a></p>
-<p id="section-1-3">Declared ranges can be an input to network access control and to other
-local policy, such as risk evaluation and rate limiting. Deployments use
-source address restrictions to limit where a client's credentials and
-grants can be used. Declared ranges do not authenticate the client or
-authorize a request (<a href="#enforcement" class="auto internal xref">Section 5</a>). <span><a href="https://rfc-editor.org/rfc/rfc9700#section-2" class="relref">Section 2</a> of [<a href="#RFC9700" class="cite xref">RFC9700</a>]</span>
-recommends asymmetric client authentication and sender-constrained
-tokens (<span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>, <span>[<a href="#RFC8705" class="cite xref">RFC8705</a>]</span>), which bind credentials and tokens to
-keys rather than to network locations. Declared ranges supplement these
-mechanisms and do not replace them. An adversary that runs code in the
-client's execution context
-can create DPoP proofs and use them, together with the client's tokens,
-from a device under its control, even when the key cannot be exported
-(<span><a href="https://rfc-editor.org/rfc/rfc9449#section-11.4" class="relref">Section 11.4</a> of [<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>). An endpoint that enforces the client's
-accepted IP range set rejects requests from outside that set, including
-requests that carry exfiltrated credentials, tokens, or proofs. It does
-not reject such requests from an address inside the set, including one
-that the client shares with other parties (<a href="#trust" class="auto internal xref">Section 7.1</a>).<a href="#section-1-3" class="pilcrow">¶</a></p>
-<p id="section-1-4">This specification defines the metadata and the processing requirements
+mechanisms that convey client metadata.<a href="#section-1-3" class="pilcrow">¶</a></p>
+<p id="section-1-4">Declared ranges can be an input to network access control and to other
+local policy, such as risk evaluation and rate limiting. They do not
+authenticate the client or authorize a request (<a href="#enforcement" class="auto internal xref">Section 5</a>).<a href="#section-1-4" class="pilcrow">¶</a></p>
+<p id="section-1-5"><span><a href="https://rfc-editor.org/rfc/rfc9700#section-2" class="relref">Section 2</a> of [<a href="#RFC9700" class="cite xref">RFC9700</a>]</span> recommends asymmetric client authentication and
+sender-constrained tokens (<span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>, <span>[<a href="#RFC8705" class="cite xref">RFC8705</a>]</span>), which bind
+credentials and tokens to keys rather than to network locations.
+Declared ranges supplement these mechanisms and do not replace them. An
+adversary that runs code in the client's execution context can create
+DPoP proofs and use them, together with the client's tokens, from a
+device under its control, even when the key cannot be exported
+(<span><a href="https://rfc-editor.org/rfc/rfc9449#section-11.4" class="relref">Section 11.4</a> of [<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>).<a href="#section-1-5" class="pilcrow">¶</a></p>
+<p id="section-1-6">An endpoint that enforces the client's accepted IP range set rejects
+requests from outside that set, including requests that carry
+exfiltrated credentials, tokens, or proofs. It does not reject such
+requests from an address inside the set, including one that the client
+shares with other parties (<a href="#trust" class="auto internal xref">Section 7.1</a>).<a href="#section-1-6" class="pilcrow">¶</a></p>
+<p id="section-1-7">This specification defines the metadata and the processing requirements
 for authorization servers that use it. Other parties that obtain a
 client's metadata can apply the same processing. Whether to use declared
-ranges at all, selecting the clients subject to enforcement, approving
-declared ranges, and configuring network enforcement points are local
-policy; <a href="#enforcement-points" class="auto internal xref">Section 6.1</a>
-describes typical deployments. Enforcement by resource servers is
-outside the scope of this specification.<a href="#section-1-4" class="pilcrow">¶</a></p>
+ranges at all is local policy, as are selecting the clients subject to
+enforcement, approving declared ranges, and configuring network
+enforcement points (<a href="#enforcement-points" class="auto internal xref">Section 6.1</a>). Enforcement by resource
+servers is outside the scope of this specification.<a href="#section-1-7" class="pilcrow">¶</a></p>
 <div id="conventions">
 <section id="section-1.1">
         <h3 id="name-requirements-notation-and-c">
