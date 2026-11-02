@@ -868,25 +868,6 @@ ranges.
    documents together form the IP range set. Tracked as
    [issue #15](https://github.com/mcguinness/draft-mcguinness-oauth-client-ip-ranges/issues/15).
 
-3. Can an authorization server accept the part of a replacement that
-   falls within an approved scope ({{range-changes}}) while holding the
-   rest for approval? This specification allows only accepting the whole
-   replacement or narrowing the accepted IP range set to its intersection
-   with the replacement ({{acceptance}}). Tracked as
-   [issue #16](https://github.com/mcguinness/draft-mcguinness-oauth-client-ip-ranges/issues/16).
-
-4. Should this specification set minimum bounds ({{resource-exhaustion}})
-   that every authorization server supports, so that a client can rely
-   on an IP range set of a given size being within every authorization
-   server's processing limits? Tracked as
-   [issue #17](https://github.com/mcguinness/draft-mcguinness-oauth-client-ip-ranges/issues/17).
-
-5. When one case of the retention limit follows another before the
-   authorization server accepts a set, such as a failure followed by a
-   validated replacement, does the limit continue to run from the earlier
-   case or start again ({{retention-limit}})? Tracked as
-   [issue #18](https://github.com/mcguinness/draft-mcguinness-oauth-client-ip-ranges/issues/18).
-
 # Document History {#history}
 
 *RFC EDITOR: Remove this section before publication.*
@@ -908,7 +889,7 @@ ranges.
 
 * Cover Client ID Metadata Document clients in {{privacy}}.
 
-* Add open issues 2 through 5 ({{open-issues}}).
+* Add an open issue on combining documents ({{open-issues}}).
 
 -00
 
