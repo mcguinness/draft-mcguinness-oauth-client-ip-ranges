@@ -403,9 +403,9 @@ if it sets one ({{retention-limit}}).
 ### After a Withdrawal {#withdrawal}
 
 Withdrawal of the client's declaration ({{metadata-changes}}) MUST NOT
-by itself cause an authorization server to admit a source address that
-it did not admit before the withdrawal. Enforcement is relaxed after a
-withdrawal only by an explicit local policy decision.
+cause an authorization server to admit a source address that it did not
+admit before the withdrawal, unless an explicit local policy decision
+removes the client from enforcement.
 
 ### Retention Limit {#retention-limit}
 
