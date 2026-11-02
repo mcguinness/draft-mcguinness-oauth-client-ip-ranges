@@ -1026,28 +1026,6 @@ Appendix C.  Open Issues
        as issue #15 (https://github.com/mcguinness/draft-mcguinness-
        oauth-client-ip-ranges/issues/15).
 
-   3.  Can an authorization server accept the part of a replacement that
-       falls within an approved scope (Section 7.2) while holding the
-       rest for approval?  This specification allows only accepting the
-       whole replacement or narrowing the accepted IP range set to its
-       intersection with the replacement (Section 4.3).  Tracked as
-       issue #16 (https://github.com/mcguinness/draft-mcguinness-oauth-
-       client-ip-ranges/issues/16).
-
-   4.  Should this specification set minimum bounds (Section 7.5) that
-       every authorization server supports, so that a client can rely on
-       an IP range set of a given size being within every authorization
-       server's processing limits?  Tracked as issue #17
-       (https://github.com/mcguinness/draft-mcguinness-oauth-client-ip-
-       ranges/issues/17).
-
-   5.  When one case of the retention limit follows another before the
-       authorization server accepts a set, such as a failure followed by
-       a validated replacement, does the limit continue to run from the
-       earlier case or start again (Section 4.5.3)?  Tracked as issue
-       #18 (https://github.com/mcguinness/draft-mcguinness-oauth-client-
-       ip-ranges/issues/18).
-
 Appendix D.  Document History
 
    _RFC EDITOR: Remove this section before publication._
@@ -1070,7 +1048,7 @@ Appendix D.  Document History
 
    *  Cover Client ID Metadata Document clients in Section 8.
 
-   *  Add open issues 2 through 5 (Appendix C).
+   *  Add an open issue on combining documents (Appendix C).
 
    -00
 
