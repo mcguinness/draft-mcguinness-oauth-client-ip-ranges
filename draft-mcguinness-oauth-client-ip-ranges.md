@@ -83,7 +83,7 @@ The parameters can be used with OAuth 2.0 Dynamic Client Registration,
 OAuth Client ID Metadata Documents, and other mechanisms that convey
 client metadata. Authorization servers and other parties that obtain a
 client's metadata can use the declared ranges as an input to network
-access control.
+access control, risk evaluation, and rate limiting.
 
 --- middle
 
@@ -95,11 +95,15 @@ servers, and the network infrastructure in front of them use these
 addresses to restrict which sources can reach the token endpoint and
 protected resources. In current practice, client operators publish their
 address ranges through vendor-specific mechanisms, and deployments
-transcribe them into network access controls by hand. Clients that use
-OAuth Client ID Metadata Documents {{CIMD}} can reach authorization
-servers without prior registration, leaving no opportunity to exchange
-ranges by hand in advance. Client metadata ({{Section 2 of RFC7591}})
-has no parameter for the network origins of a client.
+either integrate each mechanism separately or transcribe the ranges into
+network access controls by hand, where they go stale when the client's
+egress changes. An authorization server obtains the metadata of a client
+that uses an OAuth Client ID Metadata Document {{CIMD}} from that
+document, including when it pre-registers the client
+({{Section 7.2 of CIMD}}). Client metadata ({{Section 2 of RFC7591}})
+has no parameter for the network origins of a client, so a deployment
+that restricts source addresses has to exempt such a client from the
+restriction, obtain its ranges in one of these ways, or not accept it.
 
 This specification defines two client metadata parameters that declare
 the IP address ranges from which a client originates requests:
@@ -113,13 +117,19 @@ parameters can be used with OAuth 2.0 Dynamic Client Registration
 {{RFC7591}}, OAuth Client ID Metadata Documents {{CIMD}}, and other
 mechanisms that convey client metadata.
 
-Declared ranges are an input to network access control. Deployments use
+Declared ranges can be an input to network access control and to other
+local policy, such as risk evaluation and rate limiting. Deployments use
 source address restrictions to limit where a client's credentials and
 grants can be used. Declared ranges do not authenticate the client or
 authorize a request ({{enforcement}}). They complement client
 authentication and sender-constrained tokens ({{RFC9449}}, {{RFC8705}}),
 which bind credentials and tokens to keys rather than to network
-locations.
+locations. An adversary that runs code in the client's execution context
+can create DPoP proofs and use them, together with the client's tokens,
+from a device under its control, even when the key cannot be exported
+({{Section 11.4 of RFC9449}}). A source address restriction limits
+where such requests can originate. The protection depends on how
+exclusively the client uses the addresses it declares ({{trust}}).
 
 This specification defines the metadata and the processing requirements
 for authorization servers that use it. Other parties that obtain a
@@ -394,9 +404,9 @@ if it sets one ({{retention-limit}}).
 ### After a Withdrawal {#withdrawal}
 
 Withdrawal of the client's declaration ({{metadata-changes}}) MUST NOT
-by itself cause an authorization server to admit a source address that
-it did not admit before the withdrawal. Enforcement is relaxed after a
-withdrawal only by an explicit local policy decision.
+cause an authorization server to admit a source address that it did not
+admit before the withdrawal, unless an explicit local policy decision
+removes the client from enforcement.
 
 ### Retention Limit {#retention-limit}
 
@@ -430,9 +440,11 @@ using the set and has no accepted IP range set for the client
 
 The IP range set identifies source addresses from which the client
 originates requests directly to authorization servers and resource
-servers, such as token requests and requests to protected resources. It
-does not describe the network origins of user agents or of requests
-initiated by the resource owner.
+servers, such as token requests and requests to protected resources. For
+a client behind network address translation, these are the translated
+addresses, such as those of its NAT gateway. The IP range set does not
+describe the network origins of user agents or of requests initiated by
+the resource owner.
 
 A source address matches an IP range set if it is within any of its
 prefixes. Before matching, the authorization server MUST convert an
@@ -453,9 +465,13 @@ accepted IP range set:
 * in other cases, what applies is local policy.
 
 An authorization server MAY use the accepted IP range set as an input to
-local network access control. A match does not authenticate the client
-or authorize a request. The authorization server MUST NOT use a source
-address match in place of client authentication, access token
+local network access control, risk evaluation, or rate limiting, for
+example by treating a request from a source address outside the set as
+higher risk instead of rejecting it. A match does not authenticate the
+client or authorize a request, and it does not override a local policy
+decision to reject the request, such as one based on information that
+the source address is malicious. The authorization server MUST NOT use
+a source address match in place of client authentication, access token
 validation, or any other security control required by OAuth.
 
 Enforcement by resource servers, including how a resource server
@@ -547,7 +563,9 @@ Client IP range metadata is a declaration made by or on behalf of the
 client. Inclusion of a prefix does not establish that the client
 exclusively owns or controls the addresses it contains. Prefixes of
 shared infrastructure, such as cloud provider or carrier-grade NAT
-egress ranges, also carry traffic from other parties.
+egress ranges, also carry traffic from other parties. Restricting a
+client to such prefixes does not prevent a party that has obtained the
+client's credentials from using them from the same infrastructure.
 
 Whether to use declared ranges in network access control is a local
 trust decision. A software statement ({{Section 2.3 of RFC7591}})
@@ -665,7 +683,9 @@ an individual, such as a residential network, its declared ranges can
 reveal that individual's network location. A publicly retrievable
 Client IP Range Document, or a publicly retrievable Client ID Metadata
 Document that carries `client_ip_ranges`, discloses the client's egress
-infrastructure to any party.
+infrastructure to any party. A client that declares its IP range set by
+value through Dynamic Client Registration {{RFC7591}} avoids both this
+disclosure and the retrieval described below.
 
 Retrieval of `client_ip_ranges_uri` reveals to the party hosting the
 document the addresses and retrieval timing of authorization servers
@@ -815,6 +835,20 @@ ranges.
 # Document History {#history}
 
 *RFC EDITOR: Remove this section before publication.*
+
+-01
+
+* Expand the motivation: Client ID Metadata Document clients whether or
+  not they are pre-registered, how source address restrictions
+  complement key-bound credentials, and the limits of shared egress.
+
+* Allow risk evaluation and rate limiting as uses of the accepted IP
+  range set.
+
+* Clarify that a match does not override a local decision to reject a
+  request, which addresses a client behind network address translation
+  declares, and that declaring by value through registration avoids
+  publishing the set.
 
 -00
 
