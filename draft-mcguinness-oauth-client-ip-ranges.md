@@ -95,14 +95,15 @@ servers, and the network infrastructure in front of them use these
 addresses to restrict which sources can reach the token endpoint and
 protected resources. In current practice, client operators publish their
 address ranges through vendor-specific mechanisms, and deployments
-transcribe them into network access controls by hand, where they go
-stale when the client's egress changes. An authorization server obtains
-the metadata of a client that uses an OAuth Client ID Metadata Document
-{{CIMD}} from that document, including when it pre-registers the client
+either integrate each mechanism separately or transcribe the ranges into
+network access controls by hand, where they go stale when the client's
+egress changes. An authorization server obtains the metadata of a client
+that uses an OAuth Client ID Metadata Document {{CIMD}} from that
+document, including when it pre-registers the client
 ({{Section 7.2 of CIMD}}). Client metadata ({{Section 2 of RFC7591}})
 has no parameter for the network origins of a client, so a deployment
 that restricts source addresses has to exempt such a client from the
-restriction, maintain its ranges by hand, or not accept it.
+restriction, obtain its ranges in one of these ways, or not accept it.
 
 This specification defines two client metadata parameters that declare
 the IP address ranges from which a client originates requests:
