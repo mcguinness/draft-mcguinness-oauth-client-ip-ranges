@@ -873,7 +873,8 @@ ranges.
 
 4. Should this specification set minimum bounds ({{resource-exhaustion}})
    that every authorization server supports, so that a client can rely
-   on an IP range set of a given size being accepted?
+   on an IP range set of a given size being within every authorization
+   server's processing limits?
 
 5. When one case of the retention limit follows another before the
    authorization server accepts a set, such as a failure followed by a
