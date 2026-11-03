@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-11-01T04:32:50.891163+00:00",
+  "timestamp": "2026-11-03T05:27:55.802822+00:00",
   "repo": "mcguinness/draft-mcguinness-oauth-client-ip-ranges",
   "labels": [
     {
@@ -54,7 +54,112 @@
       "color": "ffffff"
     }
   ],
-  "issues": [],
+  "issues": [
+    {
+      "number": 14,
+      "id": "I_kwDOVVGeo88AAAABb8kUIg",
+      "title": "Open Issue 1: error response for a rejection based on source address",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-client-ip-ranges/issues/14",
+      "state": "OPEN",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Open Issue 1 in Appendix C.\n\nWhich error response should an authorization server return when it rejects a request because of the client's source address policy?\n\n- `invalid_client` signals failed client authentication (Section 5.2 of RFC 6749) and could prompt the client to rotate its credentials.\n- An error that names the source address confirms to a party holding stolen credentials that the credentials are valid (Section 7.3).\n- With no distinct error, a legitimate client cannot tell why its request was rejected.\n\nSection 5.1 already says that, in a response to a party that has not authenticated as the client, the authorization server SHOULD NOT indicate that the rejection was because of the source address. What to return to an authenticated client is still open.\n\nThe troubleshooting sentence was added in #13.\n",
+      "createdAt": "2026-11-02T20:29:47Z",
+      "updatedAt": "2026-11-02T20:29:47Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 15,
+      "id": "I_kwDOVVGeo88AAAABb8kVsg",
+      "title": "Open Issue 2: combining a hosted Client IP Range Document with the client's own prefixes",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-client-ip-ranges/issues/15",
+      "state": "OPEN",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Open Issue 2 in Appendix C (added in #13).\n\nCan a client combine a Client IP Range Document hosted by another party, such as its hosting provider, with prefixes of its own?\n\nThe case raised in list feedback on -00 is a client on a cloud platform that publishes its egress ranges, where the client also brings its own address space (BYOIP). Today:\n\n- `client_ip_ranges` and `client_ip_ranges_uri` are mutually exclusive (Section 2).\n- A Client IP Range Document is self-contained, and the authorization server MUST NOT retrieve other resources to complete it (Section 3).\n\nSo the client either publishes one document containing both sets, which means copying the host's ranges and keeping them current, or declares everything by value.\n\nOne option is to let `client_ip_ranges_uri` carry an array of URLs whose documents together form the IP range set, where a failure of any one document is a failure of the whole set.\n",
+      "createdAt": "2026-11-02T20:29:48Z",
+      "updatedAt": "2026-11-02T20:29:48Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 16,
+      "id": "I_kwDOVVGeo88AAAABb8kW7g",
+      "title": "Accepting the in-scope part of a replacement",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-client-ip-ranges/issues/16",
+      "state": "OPEN",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Open Issue 3 in Appendix C (added in #13).\n\nCan an authorization server accept the part of a replacement that falls within an approved scope while holding the rest for approval?\n\n- Section 7.2 lets the authorization server accept a change automatically when it falls within an approved scope, such as supernets configured for the client.\n- A change that falls only partly within that scope can't be accepted automatically.\n- Section 4.3 allows only two outcomes: accepting the whole replacement, or narrowing the accepted IP range set to its intersection with the replacement.\n\nAccepting the in-scope part would make the accepted IP range set something other than a declared set or its narrowing. That affects the definition in Section 1.2 and the retention cases in Section 4.5.3.\n",
+      "createdAt": "2026-11-02T20:29:49Z",
+      "updatedAt": "2026-11-02T20:49:41Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "mcguinness",
+          "authorAssociation": "OWNER",
+          "body": "#20 removes this item from Appendix C, so the draft will no longer list it as an open issue. It is tracked here instead and stays open.",
+          "createdAt": "2026-11-02T20:49:41Z",
+          "updatedAt": "2026-11-02T20:49:41Z"
+        }
+      ]
+    },
+    {
+      "number": 17,
+      "id": "I_kwDOVVGeo88AAAABb8kYdA",
+      "title": "Minimum bounds every authorization server supports",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-client-ip-ranges/issues/17",
+      "state": "OPEN",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Open Issue 4 in Appendix C (added in #13).\n\nShould the specification set minimum bounds that every authorization server supports?\n\nSection 7.5 requires the authorization server to bound retrieval time, response size, decompressed size, and the number of prefixes, and to reject the entire document if any bound is exceeded. It sets no minimum for any of these bounds. A client therefore cannot rely on a large IP range set staying within every authorization server's processing limits, and a set over a bound is rejected entirely.\n\nA minimum would guarantee only that a set of a given size is within processing limits. It would not guarantee that local policy accepts the set.\n",
+      "createdAt": "2026-11-02T20:29:51Z",
+      "updatedAt": "2026-11-02T20:49:43Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "mcguinness",
+          "authorAssociation": "OWNER",
+          "body": "#20 removes this item from Appendix C, so the draft will no longer list it as an open issue. It is tracked here instead and stays open.",
+          "createdAt": "2026-11-02T20:49:42Z",
+          "updatedAt": "2026-11-02T20:49:42Z"
+        }
+      ]
+    },
+    {
+      "number": 18,
+      "id": "I_kwDOVVGeo88AAAABb8kaCw",
+      "title": "Retention limit timing when one case follows another",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-client-ip-ranges/issues/18",
+      "state": "OPEN",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Open Issue 5 in Appendix C (added in #13).\n\nWhen one case of the retention limit follows another before the authorization server accepts a set, does the limit keep running from the earlier case or start again?\n\nSection 4.5.3 defines three cases, each with its own starting point:\n\n1. retrieval or validation fails;\n2. the client withdraws its declaration;\n3. a validated replacement has not been accepted.\n\nExample: a retrieval fails, which starts the first case. The next retrieval succeeds and returns a different, valid set that has not been accepted. The first case no longer applies and the third begins. It's undefined whether the limit runs from the failure or from the first validation of the replacement, so two implementations could run different timers.\n\nRelated: #13 also says that a server that stops using a set early in any of these cases treats the limit as exceeded.\n",
+      "createdAt": "2026-11-02T20:29:52Z",
+      "updatedAt": "2026-11-02T20:49:44Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "mcguinness",
+          "authorAssociation": "OWNER",
+          "body": "#20 removes this item from Appendix C, so the draft will no longer list it as an open issue. It is tracked here instead and stays open.",
+          "createdAt": "2026-11-02T20:49:44Z",
+          "updatedAt": "2026-11-02T20:49:44Z"
+        }
+      ]
+    }
+  ],
   "pulls": [
     {
       "number": 1,
@@ -360,6 +465,118 @@
       "mergedBy": "mcguinness",
       "mergeCommit": {
         "oid": "df688e923279781446b71019de173234533b755c"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 12,
+      "id": "PR_kwDOVVGeo88AAAABMZBXUA",
+      "title": "Address list feedback on -00 from Yaroslav and Jeff",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-client-ip-ranges/pull/12",
+      "state": "MERGED",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Addresses the oauth@ietf.org feedback on -00 from Yaroslav and Jeff. Each finding is its own commit, so any one can be dropped.\n\nBCP 14 keyword count is unchanged (51). `normative_diff.py` against main shows exactly two keyword sentences reworded: the MAY in Section 5 (commit 2) and the MUST NOT in Section 4.5.2 (commit 6). The draft builds, and citations and references all resolve. idnits reports the same 4 SECTION_TITLE_HAS_UNEXPECTED_INDENTATION notes as on main.\n\n## Yaroslav\n\n1. **Motivate CIMD support whether or not clients are pre-registered.** -00 said CIMD clients leave \"no opportunity to exchange ranges by hand in advance\". Section 7.2 of CIMD expects pre-registration in enterprises, and there the authorization server fetches the metadata document when it pre-registers the client. The Introduction now says what holds either way. Without a parameter for network origins, a deployment that restricts source addresses has to exempt the client, obtain its ranges by integrating each vendor's mechanism or by hand, or not accept it. It also says that hand-maintained lists go stale.\n2. **Risk evaluation and rate limiting as uses.** These are named in the Abstract, the Introduction, and the Section 5 MAY, with the example of scoring a request from outside the set instead of rejecting it. A server that uses the set this way is not enforcing it, so the Section 5 rejection rules do not apply.\n3. **Why key-bound credentials do not replace source restrictions.** *(Goes beyond what the email promised.)* An adversary that runs code in the client's execution context can create DPoP proofs and use them, with the client's tokens, from a device under its control, even when the key cannot be exported (Section 11.4 of RFC 9449).\n4. **Limit of shared egress.** Section 7.1 now states the consequence. Restricting a client to shared prefixes does not stop a party holding its credentials from using them from the same infrastructure. The Introduction points to Section 7.1.\n\n## Jeff\n\n5. **A match does not override a local decision to reject.** This answers the case where a declared address is flagged by a risk engine or a Shared Signals event. Section 5 already made a match necessary and never sufficient. The new sentence covers local policy, which the existing MUST NOT, limited to \"security control required by OAuth\", did not.\n6. **Fold the Section 4.5.2 exception into its MUST NOT.** The exception now uses the same wording as the recovery bullet in Section 5 (\"an explicit local policy decision removes the client from enforcement\"). The meaning is unchanged.\n7. **Which addresses a client behind NAT declares.** *(Goes beyond what the email promised.)* A client behind NAT declares the translated addresses, such as those of its NAT gateway. Section 7.6 already covers translation in front of the authorization server.\n8. **Declaring by value through registration avoids both privacy disclosures.** *(Goes beyond what the email promised.)* A set registered by value through Dynamic Client Registration is not published and is never retrieved.\n\nCommit 9 adds a -01 Document History entry.\n\n## Not changed\n\n- **Declaration as input, not replacement (Jeff, Section 4.3).** Section 4.3 already says \"Acceptance is also subject to local policy\" and \"Registering client IP range metadata does not by itself accept its IP range set\". Section 7.2 says the authorization server \"MUST NOT treat the addition of a prefix ... as granting network access by itself\". \"Replaces in full\" applies only after the server accepts a set, and means accepted sets have no merge format.\n- **BYOIP alongside a published list (Jeff).** A client declares its own egress, its NAT gateway addresses and its BYOIP prefixes, as one set. To keep the BYOIP prefixes unpublished, it registers the set by value. A provider-wide list such as ip-ranges.json is the wrong granularity for a per-client restriction.\n- **Offloading to layer 3 (Jeff).** Section 6.1 already says an enforcement point below HTTP sees the source address but not the client, so it can enforce only the aggregate of the clients' sets.\n- **Retention after a failure (Jeff, Section 4.5.1).** The draft forbids only failing open. Continuing to use the old set is a MAY, bounded by a retention limit the server chooses.\n- **Cost and lock-in of static egress (Yaroslav).** The reply on the list concedes this. It is a deployment cost, not something the draft can change.\n",
+      "createdAt": "2026-11-02T19:55:26Z",
+      "updatedAt": "2026-11-02T20:05:23Z",
+      "baseRepository": "mcguinness/draft-mcguinness-oauth-client-ip-ranges",
+      "baseRefName": "main",
+      "baseRefOid": "df688e923279781446b71019de173234533b755c",
+      "headRepository": "mcguinness/draft-mcguinness-oauth-client-ip-ranges",
+      "headRefName": "list-feedback-1",
+      "headRefOid": "25e8c5a2c718e97417f1a0f97cc880cc745b6d11",
+      "closedAt": "2026-11-02T20:05:23Z",
+      "mergedAt": "2026-11-02T20:05:23Z",
+      "mergedBy": "mcguinness",
+      "mergeCommit": {
+        "oid": "9d36066dc4562aa0afe7b7bc3d1a8c3b5c15465d"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 13,
+      "id": "PR_kwDOVVGeo88AAAABMZXFwg",
+      "title": "Pre-publication round for -01",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-client-ip-ranges/pull/13",
+      "state": "MERGED",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Pre-publication round for -01. I checked the merged draft myself and ran two cold reviews against it, one written as Yaroslav and one as Jeff from oauth@ietf.org. Each finding below is its own commit, so any one can be dropped. Commits 17 to 21 are follow-ups from a review of the branch.\n\nNormative changes: the BCP 14 keyword count goes from 51 to 52.\n- Commit 10 adds a SHOULD: a client removes a prefix once it no longer uses it.\n- Commit 4 adds a keyword-free rule: stopping use of a set early counts as exceeding the retention limit.\n\n`normative_diff.py` against main shows no other keyword sentence changed.\n\n## Text a reviewer could quote back\n\n1. **What a source address restriction does and does not prevent (\u00a71).** An endpoint that enforces the client's accepted IP range set rejects requests from outside that set, including requests that carry exfiltrated credentials, tokens, or proofs. It does not reject such requests from an address inside the set, including one shared with other parties. (Commit 17 tied this to an enforcing endpoint and the accepted set.)\n3. **\"Can limit\" (\u00a77.2).** The retention limit (a SHOULD) and narrowing (a MAY) are both optional, so \u00a77.2 now says they \"can limit\" how long stale addresses stay admitted.\n4. **Stopping early counts as exceeding the limit (\u00a74.5.3).** Take a server that was enforcing a set, hits a failure, sets no retention limit, and stops using the set. \u00a75 treated that case as local policy, while \u00a74.5.1 forbade admitting any new address. It now falls under the existing \u00a75 rule: reject until the server accepts a current set or a local policy decision removes the client from enforcement.\n5. **CIMD disclosure (\u00a78).** A client whose CIMD document is publicly retrievable discloses its ranges either way. \u00a78 now says so. It also names the one mitigation the draft already has, agreed authentication for retrieving the range document (\u00a74.1), and notes that background retrieval (\u00a76.2) reveals less timing.\n\n## Answers to known objections\n\n2. **RFC 9700 (\u00a71).** Section 2 of RFC 9700 recommends asymmetric client authentication (\u00a72.5, RECOMMENDED) and sender-constrained tokens (\u00a72.2.1, SHOULD). Declared ranges supplement these and do not replace them. The Introduction also says that whether to use declared ranges at all is local policy. RFC 9700 is added to the informative references.\n6. **Cost of requiring ranges (\u00a76.1).** Requiring an accepted IP range set requires the client to originate requests from addresses it can declare in advance, which can mean dedicated egress. This answers Yaroslav's point about routing and lock-in.\n7. **JAFAR in Related Work.** JAFAR publishes ranges so that consumers can identify and verify automated traffic. Its abstract says the format simplifies \"identifying and verifying legitimate automated traffic\". In this draft, OAuth identifies the client, not its address, and the declared ranges can be an input to local policy, including restrictions, risk evaluation, and rate limiting. (Commit 18 kept those uses in the sentence.)\n8. **Shared provider documents (\u00a73).** A pointer from shared provider documents to their limits in \u00a77.1.\n9. **Allowlist example (\u00a76.1).** The example now derives the network allowlist from accepted sets instead of adding ranges by hand.\n10. **Removing prefixes (\u00a74.3, SHOULD).** A client removes a prefix it no longer uses, because the addresses can be reassigned.\n\n## Open issues (Appendix C)\n\nEach open issue now has a GitHub issue. Discussion still belongs on oauth@ietf.org, which the About This Document note generated from the `venue` front matter already says.\n\n11. [#14](https://github.com/mcguinness/draft-mcguinness-oauth-client-ip-ranges/issues/14) Open Issue 1 now also states the troubleshooting cost: without a distinct error, a legitimate client can't diagnose a rejection.\n12. [#15](https://github.com/mcguinness/draft-mcguinness-oauth-client-ip-ranges/issues/15) Combining a host's document with the client's own prefixes (Jeff's BYOIP case).\n13. [#16](https://github.com/mcguinness/draft-mcguinness-oauth-client-ip-ranges/issues/16) Accepting the in-scope part of a replacement while holding the rest for approval.\n14. [#17](https://github.com/mcguinness/draft-mcguinness-oauth-client-ip-ranges/issues/17) Minimum bounds that every authorization server supports. These would guarantee only that a set is within processing limits, not that local policy accepts it (commit 19).\n15. [#18](https://github.com/mcguinness/draft-mcguinness-oauth-client-ip-ranges/issues/18) Whether the retention limit keeps running when one case follows another.\n\nCommit 16 updates the -01 Document History. It restores the \u00a74.5.2 change that the earlier consolidation dropped.\n\n## Follow-ups from review of the branch\n\n17. `e7ed36d` ties the \u00a71 protection to an endpoint that enforces it and to the accepted IP range set. The accepted set can still hold a prefix the client has removed, and a resource server that doesn't enforce is unaffected.\n18. `a23a668` keeps the risk and rate-limit uses in the Related Work sentence, replacing \"only constrain\".\n19. `ec9853f` says that minimum bounds would guarantee only that a set is within processing limits.\n20. `1d6a932` tightens the -01 Document History to one line per change, each pointing to the section it changed.\n21. Each Appendix C item ends with a link to the GitHub issue that tracks it.\n\n## Declined\n\n- **An applicability statement that the draft \"does not recommend source address restriction\"** (suggested in the Yaroslav review). It contradicts the draft's position. Commit 2 states the defensible version.\n- **Exempting the client configuration endpoint from enforcement.** \u00a76.1 relies on enforcement there to stop a stolen registration access token from rewriting a by-value declaration.\n- **Making the retention limit a MUST.** With no minimum value, a MUST adds nothing another party can observe.\n- **A document expiry member.** HTTP caching already provides freshness, and no format can detect that a publisher's content is out of date.\n\n## Checks\n\n- **Build:** `make next` builds -01, and `make lint` is clean. Every citation and reference resolves, and no line is over 72 characters.\n- **idnits:** SUBMISSION_TYPE_UNEXPECTED appears because no working group has adopted the draft yet; -00 went through with the same setting. The non-ASCII characters are in an author's name in a reference. LINE_PI comes from kramdown line markers.\n- **CI:** passes on the final commit. The BCP 14 count is 52.\n- **References:** CIMD -02 and JAFAR -01 are the latest revisions. The JAFAR description in Related Work matches its text.\n\n",
+      "createdAt": "2026-11-02T20:22:39Z",
+      "updatedAt": "2026-11-02T20:41:13Z",
+      "baseRepository": "mcguinness/draft-mcguinness-oauth-client-ip-ranges",
+      "baseRefName": "main",
+      "baseRefOid": "9d36066dc4562aa0afe7b7bc3d1a8c3b5c15465d",
+      "headRepository": "mcguinness/draft-mcguinness-oauth-client-ip-ranges",
+      "headRefName": "prepub-01",
+      "headRefOid": "45382010183bc330b90d79b8dd58052a752fe8cb",
+      "closedAt": "2026-11-02T20:41:13Z",
+      "mergedAt": "2026-11-02T20:41:13Z",
+      "mergedBy": "mcguinness",
+      "mergeCommit": {
+        "oid": "a74df44395451fbdd97e4095a005128f38929c4a"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 19,
+      "id": "PR_kwDOVVGeo88AAAABMZobBw",
+      "title": "Split the Introduction into one topic per paragraph",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-client-ip-ranges/pull/19",
+      "state": "MERGED",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Splits the Introduction so each paragraph makes one point. The old first and third paragraphs ran 157 and 171 words and mixed several topics.\n\n| \u00b6 | Topic | Words |\n|---|---|---|\n| 1 | Current practice: hosted clients have known addresses, and hand-maintained lists go stale | 74 |\n| 2 | The gap: client metadata has no parameter, and CIMD clients get their metadata from the document | 77 |\n| 3 | The two parameters (unchanged) | 100 |\n| 4 | What declared ranges are for; they do not authenticate or authorize | 33 |\n| 5 | Relation to key-bound credentials (RFC 9700, RFC 9449 \u00a711.4) | 74 |\n| 6 | What an enforcing endpoint rejects and does not reject (unchanged) | 47 |\n| 7 | Scope and local policy | 65 |\n\n- **Cut:** \"Deployments use source address restrictions to limit where a client's credentials and grants can be used\". Paragraph 6 states the same thing concretely.\n- **Shortened:** the local-policy list in paragraph 7 is now a shorter sentence.\n- **Length:** the Introduction goes from 494 to 470 words.\n- **No normative change:** the Introduction has no BCP 14 keywords, and `normative_diff.py` against main shows no change.\n- **Build:** `make next` builds -01 cleanly, and every citation and reference resolves.\n",
+      "createdAt": "2026-11-02T20:45:26Z",
+      "updatedAt": "2026-11-02T20:47:07Z",
+      "baseRepository": "mcguinness/draft-mcguinness-oauth-client-ip-ranges",
+      "baseRefName": "main",
+      "baseRefOid": "a74df44395451fbdd97e4095a005128f38929c4a",
+      "headRepository": "mcguinness/draft-mcguinness-oauth-client-ip-ranges",
+      "headRefName": "intro-paragraphs",
+      "headRefOid": "3889fed1f5c1e5fe98e31662c033ddcc363a012a",
+      "closedAt": "2026-11-02T20:47:06Z",
+      "mergedAt": "2026-11-02T20:47:06Z",
+      "mergedBy": "mcguinness",
+      "mergeCommit": {
+        "oid": "e3a03dd796d9fc2ece292ca18addf574f1ef8a08"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 20,
+      "id": "PR_kwDOVVGeo88AAAABMZrsuA",
+      "title": "Keep only the key open issues in Appendix C",
+      "url": "https://github.com/mcguinness/draft-mcguinness-oauth-client-ip-ranges/pull/20",
+      "state": "MERGED",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Trims Appendix C to the two open issues worth working group attention in -01.\n\n**Kept in the draft**\n- **1. Error response for a rejection based on source address** (#14). This is a real gap in the protocol. Sections 5.1 and 7.3 cite this item.\n- **2. Combining a hosted Client IP Range Document with the client's own prefixes** (#15). This was raised on the list as the BYOIP case, and resolving it would change the parameter format.\n\n**Moved to the GitHub tracker only** (the issues stay open)\n- **Accepting the in-scope part of a replacement** (#16). This came from internal review, and Section 4.3 already treats the declaration as an input to the server's decision.\n- **Minimum bounds** (#17). This is an interoperability detail better settled once implementers report the set sizes they see.\n- **Retention limit timing when one case follows another** (#18). This is an ambiguity in our own text, better fixed in the text than listed as a question.\n\nThe -01 Document History line changes from \"Add open issues 2 through 5\" to \"Add an open issue on combining documents\".\n\nNothing normative changes. The BCP 14 count stays at 52, `make next` builds -01, and every citation resolves.\n",
+      "createdAt": "2026-11-02T20:49:28Z",
+      "updatedAt": "2026-11-02T20:50:29Z",
+      "baseRepository": "mcguinness/draft-mcguinness-oauth-client-ip-ranges",
+      "baseRefName": "main",
+      "baseRefOid": "e3a03dd796d9fc2ece292ca18addf574f1ef8a08",
+      "headRepository": "mcguinness/draft-mcguinness-oauth-client-ip-ranges",
+      "headRefName": "trim-open-issues",
+      "headRefOid": "363983b390f387781825d4e64d275c74f622896f",
+      "closedAt": "2026-11-02T20:50:29Z",
+      "mergedAt": "2026-11-02T20:50:29Z",
+      "mergedBy": "mcguinness",
+      "mergeCommit": {
+        "oid": "afa7a2e2d7cb3fa4d0365bd4c36f90c6f1e18afb"
       },
       "comments": [],
       "reviews": []
